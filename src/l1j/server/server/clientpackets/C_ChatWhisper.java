@@ -41,6 +41,9 @@ public class C_ChatWhisper extends ClientBasePacket {
 		String text = readS();
 		L1PcInstance whisperFrom = client.getActiveChar();
 
+		if (whisperFrom.getMapId() == 509 && !whisperFrom.isGm()) {
+			return;
+		}
 		if (whisperFrom.hasSkillEffect(1005)) {
 			whisperFrom.sendPackets(new S_ServerMessage(242));
 			return;

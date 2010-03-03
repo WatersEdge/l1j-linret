@@ -176,8 +176,8 @@ public class Dungeon {
 							&& dungeonType == DungeonType.SHIP_FOR_HEINE) // AdenMainlandShiptoForgottenIsland
 							|| (pc.getInventory().checkItem(40302, 1)
 							&& dungeonType == DungeonType.SHIP_FOR_PI)) { // ShipPirateislandtoHiddendock
-					teleportable = true;
-				}
+						teleportable = true;
+					}
 				} else if ( nowtime >= 0  && nowtime < 360
 						|| nowtime >= 30 * 360 && nowtime < 40 * 360
 						|| nowtime >= 60 * 360 && nowtime < 70 * 360
@@ -192,9 +192,9 @@ public class Dungeon {
 							&& dungeonType == DungeonType.SHIP_FOR_FI) // ForgottenIslandShiptoAdenMainland
 							|| (pc.getInventory().checkItem(40303, 1)
 							&& dungeonType == DungeonType.SHIP_FOR_HIDDENDOCK)) { // ShipHiddendocktoPirateisland
-					teleportable = true;
-				}
+						teleportable = true;
 					}
+				}
 			}
 			if (teleportable) {
 				// 2 seconds of invincibility

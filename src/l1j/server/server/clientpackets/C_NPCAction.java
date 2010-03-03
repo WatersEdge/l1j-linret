@@ -41,6 +41,7 @@ import l1j.server.server.model.L1CastleLocation;
 import l1j.server.server.model.L1Character;
 import l1j.server.server.model.L1Clan;
 import l1j.server.server.model.L1HauntedHouse;
+import l1j.server.server.model.L1PvpDm;
 import l1j.server.server.model.L1HouseLocation;
 import l1j.server.server.model.L1Location;
 import l1j.server.server.model.L1Object;
@@ -642,8 +643,10 @@ public class C_NPCAction extends ClientBasePacket {
 			htmlid = "";
 		} else if (s.equalsIgnoreCase("ent")) {
 			int npcId = ((L1NpcInstance) obj).getNpcId();
-			if (npcId == 80085 || npcId == 80086 || npcId == 80087) {
+			if (npcId == 80085) {
 				htmlid = enterHauntedHouse(pc);
+			} else if (npcId == 80086 || npcId == 80087) {
+				htmlid = enterPvpDm(pc);
 			} else if (npcId == 80088) {
 				htmlid = enterPetMatch(pc, Integer.valueOf(s2));
 			} else if (npcId == 50038 || npcId == 50042 || npcId == 50029
@@ -3103,6 +3106,25 @@ public class C_NPCAction extends ClientBasePacket {
 
 		L1HauntedHouse.getInstance().addMember(pc); 
 		L1Teleport.teleport(pc, 32722, 32830, (short) 5140, 2, true);
+		return "";
+	}
+	private String enterPvpDm(L1PcInstance pc) {
+		if (L1PvpDm.getInstance().ACTIVE == 0) {
+		pc.sendPackets(new S_SystemMessage("The arena is currently disabled"));
+		return "";		
+		}
+		if (L1PvpDm.getInstance().getPvpDmStatus() == L1PvpDm.STATUS_PLAYING) { // 
+		pc.sendPackets(new S_SystemMessage("The arena is currently busy, please try again later."));
+			return "";
+		}
+		if (L1PvpDm.getInstance().getMembersCount() >= 100) { 
+		pc.sendPackets(new S_SystemMessage("The arena is currently full, please try again later."));
+			return "";
+		}
+
+		L1PvpDm.getInstance().addMember(pc); 
+		pc.sendPackets(new S_SystemMessage("You have been added to the queue.  The game will begin soon.  Once all members are tele'd in the last player standing will be crowned winner."));
+		//L1Teleport.teleport(pc, 32857, 32679, (short) 513, 2, true);
 		return "";
 	}
 

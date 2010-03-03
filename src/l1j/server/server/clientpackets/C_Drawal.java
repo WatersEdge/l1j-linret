@@ -21,6 +21,13 @@ package l1j.server.server.clientpackets;
 
 import java.util.logging.Logger;
 
+import l1j.server.Config;
+import l1j.server.server.Account;
+
+import l1j.server.server.datatables.IpTable;
+import l1j.server.server.serverpackets.S_SystemMessage;
+import l1j.server.server.serverpackets.S_Disconnect;
+
 import l1j.server.server.ClientThread;
 import l1j.server.server.datatables.CastleTable;
 import l1j.server.server.datatables.ItemTable;
@@ -41,6 +48,12 @@ public class C_Drawal extends ClientBasePacket {
 	private static final String C_DRAWAL = "[C] C_Drawal";
 	private static Logger _log = Logger.getLogger(C_Drawal.class.getName());
 
+	private void broadcastToAll(String s) {
+
+		L1World.getInstance().broadcastPacketToAll(new S_SystemMessage(s));
+
+	}
+
 	public C_Drawal(byte abyte0[], ClientThread clientthread)
 			throws Exception {
 		super(abyte0);
@@ -49,6 +62,15 @@ public class C_Drawal extends ClientBasePacket {
 
 		L1PcInstance pc = clientthread.getActiveChar();
 		if (j < 0) {
+			Account.ban(pc.getAccountName());
+
+			IpTable.getInstance().banIp(pc.getNetConnection().getIp());
+
+			pc.sendPackets(new S_Disconnect());
+			System.out.println("* * * Banned " + pc.getName() + "for dupe exploit (C_Drawal) * * *");
+			broadcastToAll("Roses are red.  Violents are blue");
+			broadcastToAll("Fok with my server and I KEEL U");
+			broadcastToAll(pc.getName() + " is banned. Bye bye!");
 			_log.info(pc.getName() + " attempted dupe exploit (C_Drawal).");
 			return;
 		}

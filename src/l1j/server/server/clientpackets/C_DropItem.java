@@ -20,6 +20,14 @@ package l1j.server.server.clientpackets;
 
 import java.util.logging.Logger;
 
+import l1j.server.Config;
+import l1j.server.server.Account;
+
+import l1j.server.server.datatables.IpTable;
+import l1j.server.server.serverpackets.S_SystemMessage;
+import l1j.server.server.serverpackets.S_Disconnect;
+import l1j.server.server.datatables.CastleTable;
+
 import l1j.server.server.ClientThread;
 import l1j.server.server.model.L1World;
 import l1j.server.server.model.Instance.L1ItemInstance;
@@ -31,6 +39,11 @@ import l1j.server.server.serverpackets.S_Disconnect;
 public class C_DropItem extends ClientBasePacket {
 	private static Logger _log = Logger.getLogger(C_DropItem.class.getName());
 	private static final String C_DROP_ITEM = "[C] C_DropItem";
+	private void broadcastToAll(String s) {
+
+		L1World.getInstance().broadcastPacketToAll(new S_SystemMessage(s));
+
+	}
 
 	public C_DropItem(byte[] decrypt, ClientThread client)
 			throws Exception {
@@ -44,15 +57,17 @@ public class C_DropItem extends ClientBasePacket {
 		
 		if (count < 0)
 		{
-			_log.info(pc.getName() + " attempted dupe exploit (C_DropItem).");
+			Account.ban(pc.getAccountName());
 			
-			L1World world = L1World.getInstance();
-
-			//TODO Not used
-			//IpTable iptable = IpTable.getInstance();
-
-			world.broadcastServerMessage("Player " + pc.getName() + " attempted a dupe exploit!");
+			IpTable.getInstance().banIp(pc.getNetConnection().getIp());
+	
 			pc.sendPackets(new S_Disconnect());
+			System.out.println("* * * Banned " + pc.getName() + "for dupe exploit (C_DropItem) * * *");
+			broadcastToAll("Roses are red.  Violents are blue");
+			broadcastToAll("Fok with my server and I KEEL U");
+			broadcastToAll(pc.getName() + " is banned. Bye bye!");
+
+			_log.info(pc.getName() + " attempted dupe exploit (C_DropItem).");
 			
 			return;
 		}

@@ -21,6 +21,13 @@ package l1j.server.server.clientpackets;
 
 import java.util.logging.Logger;
 
+import l1j.server.Config;
+import l1j.server.server.Account;
+import l1j.server.server.model.Instance.L1PcInstance;
+import l1j.server.server.datatables.IpTable;
+import l1j.server.server.serverpackets.S_SystemMessage;
+import l1j.server.server.serverpackets.S_Disconnect;
+
 import l1j.server.server.ClientThread;
 import l1j.server.server.datatables.CastleTable;
 import l1j.server.server.model.L1Clan;
@@ -38,6 +45,12 @@ public class C_Deposit extends ClientBasePacket {
 	private static Logger _log = Logger.getLogger(C_Deposit.class
 			.getName());
 
+	private void broadcastToAll(String s) {
+
+		L1World.getInstance().broadcastPacketToAll(new S_SystemMessage(s));
+
+	}
+
 	public C_Deposit(byte abyte0[], ClientThread clientthread)
 			throws Exception {
 		super(abyte0);
@@ -48,7 +61,15 @@ public class C_Deposit extends ClientBasePacket {
 
 		if (j < 0)
 		{
-			_log.info(player.getName() + " attempted dupe exploit (C_Deposit).");
+			Account.ban(player.getAccountName());
+
+			IpTable.getInstance().banIp(player.getNetConnection().getIp());
+
+			player.sendPackets(new S_Disconnect());
+			System.out.println("* * * Banned " + player.getName() + "for dupe exploit (C_Deposit) * * *");
+			broadcastToAll("Roses are red.  Violents are blue");
+			broadcastToAll("Fok with my server and I KEEL U");
+			broadcastToAll(player.getName() + " is banned. Bye bye!");			
 			
 			return;
 		}

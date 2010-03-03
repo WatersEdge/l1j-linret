@@ -93,7 +93,7 @@ public class L1MobGroupSpawn {
 		try {
 			mob = NpcTable.getInstance().newNpcInstance(npcId);
 
-				mob.setId(IdFactory.getInstance().nextId());
+			mob.setId(IdFactory.getInstance().nextId());
 
 			mob.setHeading(leader.getHeading());
 			mob.setMap(leader.getMapId());

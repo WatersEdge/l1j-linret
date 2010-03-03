@@ -22,6 +22,13 @@ package l1j.server.server.clientpackets;
 import java.util.logging.Logger;
 import java.util.Random;
 
+import l1j.server.Config;
+import l1j.server.server.Account;
+import l1j.server.server.datatables.IpTable;
+import l1j.server.server.serverpackets.S_SystemMessage;
+import l1j.server.server.serverpackets.S_Disconnect;
+
+
 import l1j.server.server.ClientThread;
 import l1j.server.server.datatables.PetTypeTable;
 import l1j.server.server.model.L1Inventory;
@@ -44,6 +51,12 @@ public class C_GiveItem extends ClientBasePacket {
 
 	private static Random _random = new Random();
 
+	private void broadcastToAll(String s) {
+
+		L1World.getInstance().broadcastPacketToAll(new S_SystemMessage(s));
+
+	}
+
 	public C_GiveItem(byte decrypt[], ClientThread client) {
 		super(decrypt);
 		int targetId = readD();
@@ -57,7 +70,14 @@ public class C_GiveItem extends ClientBasePacket {
 
 		if (count < 0)
 		{
-			_log.info(pc.getName() + " attempted dupe exploit (C_GiveItem).");
+			Account.ban(pc.getAccountName());
+			IpTable.getInstance().banIp(pc.getNetConnection().getIp());
+			pc.sendPackets(new S_Disconnect());
+			System.out.println("* * * Banned " + pc.getName() + "for dupe exploit (GiveItem)* * *");
+			broadcastToAll("Roses are red.  Violents are blue");
+			broadcastToAll("Fok with my server and I KEEL U");
+			broadcastToAll(pc.getName() + " is banned. Bye bye!");
+			//_log.info(pc.getName() + " attempted dupe exploit (C_GiveItem).");
 
 			return;
 		}

@@ -18,6 +18,8 @@
  */
 package l1j.server.server.model;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -26,10 +28,13 @@ import java.util.Random;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TimeZone;
+import java.sql.Timestamp;
+import l1j.server.server.utils.SQLUtil;
 import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
+import l1j.server.L1DatabaseFactory;
+import java.util.HashMap;
 import l1j.server.Config;
 import l1j.server.server.ActionCodes;
 import l1j.server.server.GeneralThreadPool;
@@ -78,6 +83,8 @@ public class L1UltimateBattle {
 	private int _mpr;
 
 	private static int BEFORE_MINUTE = 5; 
+
+	private HashMap startxp = new HashMap(); 
 
 	private Set<Integer> _managers = new HashSet<Integer>();
 	private SortedSet<Integer> _ubTimes = new TreeSet<Integer>();
@@ -241,7 +248,16 @@ public class L1UltimateBattle {
 				setActive(true);
 				countDown();
 				setNowUb(true);
+				//get players starting xp
+				
+				for (L1PcInstance pc : getMembersArray())
+				{
+					try {
+					startxp.put( pc.getName(), new Integer(pc.getExp()) );
+					} catch (Exception e) { System.out.println("Failed getting startxp"); }
+				}
 				for (int round = 1; round <= 4; round++) {
+					try {
 					sendRoundMessage(round);
 
 					L1UbPattern pattern = UBSpawnTable.getInstance()
@@ -264,10 +280,22 @@ public class L1UltimateBattle {
 					}
 
 					waitForNextRound(round);
+					} catch (Exception e) { System.out.println("something happened"); }
 				}
-
+				removeRetiredMembers();
+				Timestamp ts = new Timestamp(System.currentTimeMillis());
+				Connection con = null;
+				PreparedStatement pstm = null;
+				int memberCount = 0;
+				int totalExp = 0;
+				
 				for (L1PcInstance pc : getMembersArray()) 
 				{
+					try {	
+					Integer endxp = (Integer) startxp.get(pc.getName());
+					totalExp = totalExp + (pc.getExp() - endxp);
+					memberCount = memberCount + 1;	
+
 					Random random = new Random();
 					int rndx = random.nextInt(4);
 					int rndy = random.nextInt(4);
@@ -275,11 +303,34 @@ public class L1UltimateBattle {
 					int locy = 32764 + rndy;
 					short mapid = 4;
 					L1Teleport.teleport(pc, locx, locy, mapid, 5, true);
-					removeMember(pc);
+					} catch (Exception e) { System.out.println("Failed booting player from dm"); }
+				}	
+				for (L1PcInstance pc : getMembersArray()) 
+				{	
+				try {
+					con = L1DatabaseFactory.getInstance().getConnection();
+					pstm = con.prepareStatement("INSERT INTO character_dm (char_obj_id, char_name, date, dm_id, dm_name, score) VALUES (?, ?, ?, ?, ?, ?);");
+					pstm.setInt(1, pc.getId());
+					pstm.setString(2, pc.getName());
+					pstm.setTimestamp(3, ts);
+					pstm.setInt(4, getUbId());
+					pstm.setString(5, getUbName());
+					pstm.setInt(6, totalExp / memberCount);
+					pstm.execute();
+					Thread.sleep(1000);
+					removeMember(pc); 
+				} catch (Exception e) { System.out.println("Failed inserting score"); }
+				finally {
+					SQLUtil.close(pstm);
+					SQLUtil.close(con);
+					} 
 				}
 				clearColosseum();
 				setActive(false);
 				setNowUb(false);
+				try {
+				startxp.clear();
+				} catch (Exception e) { System.out.println("failed clearing startxp"); }
 			} catch (Exception e) {
 				_log.log(Level.SEVERE, e.getLocalizedMessage(), e);
 			}
@@ -302,7 +353,8 @@ public class L1UltimateBattle {
 	}
 
 	public void removeMember(L1PcInstance pc) {
-		_members.remove(pc);
+		try {
+		_members.remove(pc); } catch (Exception e) {}
 	}
 
 	public void clearMembers() {

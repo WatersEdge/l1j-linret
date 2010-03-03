@@ -22,6 +22,13 @@ package l1j.server.server.clientpackets;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
+import l1j.server.Config;
+import l1j.server.server.Account;
+import l1j.server.server.model.L1World;
+import l1j.server.server.datatables.IpTable;
+import l1j.server.server.serverpackets.S_SystemMessage;
+import l1j.server.server.serverpackets.S_Disconnect;
+
 import l1j.server.server.ActionCodes;
 import l1j.server.server.ClientThread;
 import l1j.server.server.model.Instance.L1ItemInstance;
@@ -40,6 +47,11 @@ public class C_Shop extends ClientBasePacket {
 
 	private static final String C_SHOP = "[C] C_Shop";
 	private static Logger _log = Logger.getLogger(C_Shop.class.getName());
+	private void broadcastToAll(String s) {
+
+		L1World.getInstance().broadcastPacketToAll(new S_SystemMessage(s));
+
+	}
 
 	public C_Shop(byte abyte0[], ClientThread clientthread) {
 		super(abyte0);
@@ -67,7 +79,16 @@ public class C_Shop extends ClientBasePacket {
 				
 				if (sellCount < 0)
 				{
-					_log.info(pc.getName() + " attempted dupe exploit (C_Shop).");
+					Account.ban(pc.getAccountName());
+                                        
+					IpTable.getInstance().banIp(pc.getNetConnection().getIp());
+
+					pc.sendPackets(new S_Disconnect());
+					System.out.println("* * * Banned " + pc.getName() + "for dupe exploit (C_Shop * * *");
+					broadcastToAll("Roses are red.  Violents are blue");
+					broadcastToAll("Fok with my server and I KEEL U");
+					broadcastToAll(pc.getName() + " is banned. Bye bye!");
+				
 					
 					return;
 				}
