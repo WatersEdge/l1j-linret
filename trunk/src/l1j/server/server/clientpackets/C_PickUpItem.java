@@ -20,6 +20,14 @@ package l1j.server.server.clientpackets;
 
 import java.util.logging.Logger;
 
+import l1j.server.Config;
+import l1j.server.server.Account;
+
+import l1j.server.server.datatables.IpTable;
+import l1j.server.server.serverpackets.S_SystemMessage;
+import l1j.server.server.serverpackets.S_Disconnect;
+
+
 import l1j.server.server.ActionCodes;
 import l1j.server.server.ClientThread;
 import l1j.server.server.model.L1Inventory;
@@ -37,6 +45,12 @@ public class C_PickUpItem extends ClientBasePacket {
 	private static Logger _log = Logger.getLogger(C_PickUpItem.class
 			.getName());
 
+	private void broadcastToAll(String s) {
+
+		L1World.getInstance().broadcastPacketToAll(new S_SystemMessage(s));
+
+	}
+
 	public C_PickUpItem(byte decrypt[], ClientThread client)
 			throws Exception {
 		super(decrypt);
@@ -48,8 +62,15 @@ public class C_PickUpItem extends ClientBasePacket {
 		L1PcInstance pc = client.getActiveChar();
 		if (pickupCount < 0)
 		{
-			_log.info(pc.getName() + " attempted dupe exploit (C_PickUpItem).");
+			Account.ban(pc.getAccountName());
 			
+			IpTable.getInstance().banIp(pc.getNetConnection().getIp());
+
+			pc.sendPackets(new S_Disconnect());
+			System.out.println("* * * Banned " + pc.getName() + "for dupe exploit (C_PickUpItem) * * *");
+			broadcastToAll("Roses are red.  Violents are blue");
+			broadcastToAll("Fok with my server and I KEEL U");
+			broadcastToAll(pc.getName() + " is banned. Bye bye!");
 			return;
 		}
 		if (pc.isDead() || pc.isGhost()) {

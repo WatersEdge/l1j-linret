@@ -38,7 +38,9 @@ public class C_Who extends ClientBasePacket {
 		String s = readS();
 		L1PcInstance find = L1World.getInstance().getPlayer(s);
 		L1PcInstance pc = client.getActiveChar();
-
+		if (pc.getMapId() == 509) {
+			return;
+		}
 		if (find != null) {
 			S_WhoCharinfo s_whocharinfo = new S_WhoCharinfo(find);
 			pc.sendPackets(s_whocharinfo);

@@ -196,8 +196,8 @@ public class L1PolyMorph {
 					pc.sendPackets(new S_ServerMessage(181));
 					//				
 				} else {
-					doPoly(pc, poly.getPolyId(), 7200, MORPH_BY_ITEMMAGIC);
-					pc.sendPackets(new S_CloseList(pc.getId()));
+				doPoly(pc, poly.getPolyId(), 7200, MORPH_BY_ITEMMAGIC);
+				pc.sendPackets(new S_CloseList(pc.getId()));
 				}
 			} else {
 				pc.sendPackets(new S_ServerMessage(181));
@@ -307,7 +307,7 @@ public class L1PolyMorph {
 		L1PolyMorph poly = PolyTable.getInstance().getTemplate(polyId);
 		if (poly == null) {
 			return true;
-}
+		}
 		if (cause == MORPH_BY_LOGIN) {
 			return true;
 		}

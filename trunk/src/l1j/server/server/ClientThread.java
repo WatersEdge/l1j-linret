@@ -79,6 +79,7 @@ public class ClientThread implements Runnable, PacketOutput {
 
 	private int _loginStatus = 0;
 
+	private boolean stop = false;
 	// private static final byte[] FIRST_PACKET = { 10, 0, 38, 58, -37, 112, 46,
 	// 90, 120, 0 }; // for Episode5
 	// private static final byte[] FIRST_PACKET =
@@ -223,7 +224,7 @@ public class ClientThread implements Runnable, PacketOutput {
 				_clkey = LineageEncryption.initKeys(socket, seed);
 			} catch (ClientIdExistsException e) {}
 
-			while (true) {
+			while (!stop) {
 				doAutoSave();
 
 				byte data[] = null;
@@ -411,11 +412,39 @@ public class ClientThread implements Runnable, PacketOutput {
 				_out.write(j & 0xff);
 				_out.write(j >> 8 & 0xff);
 				_out.write(abyte0);
-				_out.flush();
+				//_out.flush();
 			} catch (Exception e) {}
 		}
+		try {
+			_out.flush();
+		} catch (Exception e) {}
 	}
+	public void rescue() {
 
+		try {		
+		System.out.println("* * * Closing socket	* * * ");
+		_csocket.close();
+		} catch (Exception e) { 
+		System.out.println("* * * Failed closing socket	* * *");
+		System.out.println(e); 
+		}
+		try {
+		System.out.println("* * * Closing streams	* * *");
+		StreamUtil.close(_out, _in);
+		} catch (Exception e) { 
+		System.out.println("* * * Failed to close streams	* * *");		
+		System.out.println(e); }
+		
+		try {
+		System.out.println("* * * Stopping client thread	* * *");
+		stop = true;
+		} catch (Exception e) {
+		System.out.println("* * * Failed stopping thread	* * *");
+		}	
+	
+
+
+	}
 	public void close() throws IOException {
 		_csocket.close();
 	}
@@ -514,6 +543,8 @@ public class ClientThread implements Runnable, PacketOutput {
 		pc.clearSkillEffectTimer();
 		pc.stopEtcMonitor();
 		pc.setOnlineStatus(0);
+		pc.stopHpRegeneration();
+		pc.stopMpRegeneration();
 		try {
 			pc.save();
 			pc.saveInventory();

@@ -165,7 +165,7 @@ public class Account {
 			account._host = rs.getString("host");
 			account._banned = rs.getInt("banned") == 0 ? false : true;
 
-			_log.fine("account exists");
+			_log.fine("account exists: " + account._name + " from " + account._ip);
 		} catch (SQLException e) {
 			_log.log(Level.SEVERE, e.getLocalizedMessage(), e);
 		} finally {

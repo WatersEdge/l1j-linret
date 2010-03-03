@@ -78,7 +78,6 @@ public class L1TowerInstance extends L1NpcInstance {
 
 		if (_castle_id > 0
 				&& WarTimeController.getInstance().isNowWar(_castle_id)) { 
-			// 
 			if (_castle_id == L1CastleLocation.ADEN_CASTLE_ID
 					&& !isSubTower()) {
 				int subTowerDeadCount = 0;

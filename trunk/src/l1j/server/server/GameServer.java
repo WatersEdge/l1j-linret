@@ -61,6 +61,7 @@ import l1j.server.server.model.Getback;
 import l1j.server.server.model.L1BossCycle;
 import l1j.server.server.model.L1CastleLocation;
 import l1j.server.server.model.L1DeleteItemOnGround;
+import l1j.server.server.model.MpBugTest;
 import l1j.server.server.model.L1NpcRegenerationTimer;
 import l1j.server.server.model.L1World;
 import l1j.server.server.model.Instance.L1PcInstance;
@@ -213,6 +214,8 @@ public class GameServer extends Thread {
 		NpcTable.getInstance();
 		L1DeleteItemOnGround deleteitem = new L1DeleteItemOnGround();
 		deleteitem.initialize();
+		MpBugTest mpbug = new MpBugTest();
+		mpbug.initialize();
 
 		if (!NpcTable.getInstance().isInitialized()) {
 			throw new Exception("Could not initialize the npc table");

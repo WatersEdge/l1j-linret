@@ -23,13 +23,16 @@ import java.util.logging.Logger;
 
 import l1j.server.server.ClientThread;
 import l1j.server.server.datatables.NpcActionTable;
+import l1j.server.server.datatables.ItemTable;
 import l1j.server.server.model.L1Object;
 import l1j.server.server.model.L1World;
 import l1j.server.server.model.Instance.L1PcInstance;
+import l1j.server.server.model.Instance.L1ItemInstance;
+import l1j.server.server.model.Instance.L1NpcInstance;
 import l1j.server.server.model.npc.L1NpcHtml;
 import l1j.server.server.model.npc.action.L1NpcAction;
 import l1j.server.server.serverpackets.S_NPCTalkReturn;
-
+import l1j.server.server.serverpackets.S_SystemMessage;
 // Referenced classes of package l1j.server.server.clientpackets:
 // ClientBasePacket, C_NPCTalk
 
@@ -45,6 +48,28 @@ public class C_NPCTalk extends ClientBasePacket {
 		L1Object obj = L1World.getInstance().findObject(objid);
 		L1PcInstance pc = client.getActiveChar();
 		if (obj != null && pc != null) {
+			if (((L1NpcInstance) obj).getNpcTemplate().get_npcId() == 81123) {
+				if (pc.getInventory().consumeItem(240102, 100)) {
+					L1ItemInstance item = ItemTable.getInstance().createItem(240105);  
+					if (item != null) {
+						pc.getInventory().storeItem(item);
+					}
+					pc.sendPackets(new S_SystemMessage("Damn dude!  How many rugrats did you waste to get that?!  Here's a token of our appreciation!")); 			
+				} else if (pc.getInventory().consumeItem(240102, 50)) {
+					pc.sendPackets(new S_SystemMessage("Duuuude, planned parenthood aint got shit on you!  Here's your reward.")); 			
+				} else if (pc.getInventory().consumeItem(240102, 25)) {
+					pc.sendPackets(new S_SystemMessage("Sweet, you pwned them kids like red headed step children. Here's some loots.")); 			
+				} else if (pc.getInventory().consumeItem(240102, 10)) {
+					pc.sendPackets(new S_SystemMessage("You really don't like kids do you?  Here, take this for your trouble.")); 			
+				} else if (pc.getInventory().consumeItem(240102, 5)) {
+					pc.sendPackets(new S_SystemMessage("Awesome, get rid of them rugrats.  Here's some love.")); 			
+				} else if (pc.getInventory().consumeItem(240102, 1)) {
+					pc.sendPackets(new S_SystemMessage("Here's a small token of appreciation.")); 								
+				} else {
+					pc.sendPackets(new S_SystemMessage("You do not have anything I'm interested in.  Help rid aden of these bastard children and money hungry bitches!")); 		
+				}
+			return;
+			}
 			L1NpcAction action = NpcActionTable.getInstance().get(pc, obj);
 			if (action != null) {
 				L1NpcHtml html = action.execute("", pc, obj, new byte[0]);

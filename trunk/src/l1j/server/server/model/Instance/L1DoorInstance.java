@@ -275,7 +275,7 @@ public class L1DoorInstance extends L1NpcInstance {
 		int entranceX = 0;
 		if (getDirection() == 0) { //
 			entranceX = getX();
-		} else { // _ü«
+		} else { // _
 			entranceX = getX() - 1;
 		}
 		return entranceX;
@@ -285,7 +285,7 @@ public class L1DoorInstance extends L1NpcInstance {
 		int entranceY = 0;
 		if (getDirection() == 0) { //
 			entranceY = getY() + 1;
-		} else { // _ü«
+		} else { // _
 			entranceY = getY();
 		}
 		return entranceY;

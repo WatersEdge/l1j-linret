@@ -25,6 +25,7 @@ import l1j.server.server.ClientThread;
 import l1j.server.server.model.L1Object;
 import l1j.server.server.model.L1World;
 import l1j.server.server.model.Instance.L1BoardInstance;
+import l1j.server.server.model.Instance.L1PcInstance;  
 
 // Referenced classes of package l1j.server.server.clientpackets:
 // ClientBasePacket
@@ -34,15 +35,30 @@ public class C_BoardRead extends ClientBasePacket {
 	private static final String C_BOARD_READ = "[C] C_BoardRead";
 	private static Logger _log = Logger.getLogger(C_BoardRead.class.getName());
 
-	public C_BoardRead(byte decrypt[], ClientThread client) {
+/*	public C_BoardRead(byte decrypt[], ClientThread client) {
 		super(decrypt);
 		int objId = readD();
 		int topicNumber = readD();
 		L1Object obj = L1World.getInstance().findObject(objId);
 		L1BoardInstance board = (L1BoardInstance) obj;
 		board.onActionRead(client.getActiveChar(), topicNumber);
+	} */
+	public C_BoardRead(byte decrypt[], ClientThread client)
+	throws Exception {
+		super(decrypt);
+		int i = readD();
+		L1Object l1object = L1World.getInstance().findObject(i);
+		L1BoardInstance board = (L1BoardInstance) l1object;
+		L1PcInstance l1pcinstance = client.getActiveChar();
+		if(board.getNpcTemplate().get_npcId() == 81129){ 
+			//board.onRankingRead(l1pcinstance, readD());
+		} else if(board.getNpcTemplate().get_npcId() == 81130){
+			   board.onRankingRead(l1pcinstance, readD());
+		} else {
+			board.onActionRead(l1pcinstance, readD());
 	}
 
+	}
 	@Override
 	public String getType() {
 		return C_BOARD_READ;

@@ -16,6 +16,7 @@ import l1j.server.server.templates.L1Skills;
 import l1j.server.server.utils.SQLUtil;
 import l1j.server.server.templates.L1Skills;
 import static l1j.server.server.model.skill.L1SkillId.*;
+import java.util.StringTokenizer;
 
 public class PCommands {
 	private static Logger _log = Logger.getLogger(PCommands.class.getName());
@@ -47,18 +48,70 @@ public class PCommands {
 				reportBug(_player, cmd2);
 			} else if(cmd2.startsWith("karma")){
 				checkKarma(_player);
+			} else if (cmd2.startsWith("chgpass")){
+				chgpass(_player, cmd2);
 			}
 			_log.info(_player.getName() + " used " + cmd2);
 		} catch (Exception e) {
 			_log.log(Level.SEVERE, e.getLocalizedMessage(), e);
 		}
 	}
+/*
+	public static String makeMD5(String text) throws NoSuchAlgorithmException, UnsupportedEncodingException  {
+		MessageDigest md;
+		md = MessageDigest.getInstance("MD5");
+		byte[] md5hash = new byte[32];
+		md.update(text.getBytes("UTF-8"), 0, text.length());
+		md5hash = md.digest();
+		return convertToString(md5hash);
+	}
+	public static String makeSHA256(String text) throws NoSuchAlgorithmException, UnsupportedEncodingException  {
+		MessageDigest md;
+		md = MessageDigest.getInstance("SHA-256");
+		byte[] sha256hash = new byte[32];
+		md.update(text.getBytes("UTF-8"), 0, text.length());
+		sha256hash = md.digest();
+		return convertToString(sha256hash);
+	}
+*/
+	private void chgpass(L1PcInstance _player, String cmd2)
+	{
+			/*String oldpass = new String();
+			String newpass = new String();
+			StringTokenizer st = new StringTokenizer(cmd2);
+			String command = st.nextToken();
+			int count = 1;
+			if (st.hasMoreTokens()) {
+				oldpass = st.nextToken();
+			}
+			int enchant = 0;
+			if (st.hasMoreTokens()) {
+				newpass = st.nextToken();
+			}		
+			System.out.println("Oldpass: " + oldpass);
+			System.out.println("newpass: " + newpass);
+			
+			con = L1DatabaseFactory.getInstance().getConnection();
+			String sqlstr = "SELECT * FROM accounts WHERE login=? LIMIT 1";
+			pstm = con.prepareStatement(sqlstr);
+			pstm.setString(1, name);
+			rs = pstm.executeQuery();
+			if (!rs.next()) {
+				return null;
+			}
+			account = new Account();
+			account._name = rs.getString("login");
+			account._password = rs.getString("password");	
+					
 
+String cur_pw = makeSHA256(Config.PASSWORD_SALT+oldpass+makeMD5(name));
+			*/
+	}
 	public void showPHelp(L1PcInstance _player){
 		if (Config.PLAYER_BUFF == true && Config.PLAYER_COMMANDS == true)
-			_player.sendPackets(new S_SystemMessage("-warp 1-7, -karma, -buff, -bug, -help"));
+			_player.sendPackets(new S_SystemMessage("-warp 1-8, -karma, -buff, -bug, -help"));
 		else
-			_player.sendPackets(new S_SystemMessage("-warp 1-7, -karma, -bug, -help"));
+			_player.sendPackets(new S_SystemMessage("-warp 1-8, -karma, -bug, -help"));
 	}
 
 	public void buff(L1PcInstance _player){
@@ -144,7 +197,7 @@ public class PCommands {
 				String s1 = cmd2.substring(5);
 				int i = Integer.parseInt(s1);
 				int delaytimer = 30; 
-				if (i >= 1 && i <= 7 ) {
+				if (i >= 1 && i <= 8 ) {
 					delaytimer *= 100;
 					switch (i){
 					//Pandora	
@@ -181,13 +234,17 @@ public class PCommands {
 						case 7:
 								Thread.sleep(delaytimer);
 								L1Teleport.teleport(_player, 32857, 32898, (short) 304, 5, false);
-								//Silent Cave
+								break;//Silent Cave
+						case 8:
+								Thread.sleep(delaytimer);
+								L1Teleport.teleport(_player, 32734, 32793, (short) 370, 5, false);
+								//SKT Market
 						}
 				} else {
 						_player.sendPackets(new S_SystemMessage("Warp 1-7 only."));
 				}
 			} catch (Exception exception) {
-					_player.sendPackets(new S_SystemMessage("-warp 1-Pandora, 2-SKT, 3-Giran, 4-Werldern, 5-Oren, 6-Orc Town, 7-Silent Cavern"));
+					_player.sendPackets(new S_SystemMessage("-warp 1-Pandora, 2-SKT, 3-Giran, 4-Werldern, 5-Oren, 6-Orc Town, 7-Silent Cavern, 8-SKT Market"));
 			}
 		} else{
 			_player.sendPackets(new S_SystemMessage("You cannot warp in your current state."));
