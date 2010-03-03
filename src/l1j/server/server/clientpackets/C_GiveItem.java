@@ -19,10 +19,8 @@
 
 package l1j.server.server.clientpackets;
 
-import java.util.logging.Logger;
 import java.util.Random;
 
-import l1j.server.Config;
 import l1j.server.server.Account;
 import l1j.server.server.datatables.IpTable;
 import l1j.server.server.serverpackets.S_SystemMessage;
@@ -46,7 +44,6 @@ import l1j.server.server.templates.L1Npc;
 import l1j.server.server.templates.L1PetType;
 
 public class C_GiveItem extends ClientBasePacket {
-	private static Logger _log = Logger.getLogger(C_GiveItem.class.getName());
 	private static final String C_GIVE_ITEM = "[C] C_GiveItem";
 
 	private static Random _random = new Random();
@@ -62,7 +59,7 @@ public class C_GiveItem extends ClientBasePacket {
 		int targetId = readD();
 		@SuppressWarnings("unused")
 		int x = readH();
-		int y = readH();
+		readH();
 		int itemId = readD();
 		int count = readD();
 

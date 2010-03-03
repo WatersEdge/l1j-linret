@@ -19,8 +19,6 @@
 
 package l1j.server.server.serverpackets;
 
-import java.util.logging.Logger;
-
 import l1j.server.server.Opcodes;
 
 // Referenced classes of package l1j.server.server.serverpackets:
@@ -28,7 +26,6 @@ import l1j.server.server.Opcodes;
 
 public class S_ChangeName extends ServerBasePacket {
 
-	private static Logger _log = Logger.getLogger(S_ChangeName.class.getName());
 	private static final String S_CHANGE_NAME = "[S] S_ChangeName";
 	private byte[] _byte = null;
 

@@ -19,9 +19,6 @@
 
 package l1j.server.server.clientpackets;
 
-import java.util.logging.Logger;
-
-import l1j.server.Config;
 import l1j.server.server.Account;
 import l1j.server.server.model.Instance.L1PcInstance;
 import l1j.server.server.datatables.IpTable;
@@ -32,7 +29,6 @@ import l1j.server.server.ClientThread;
 import l1j.server.server.datatables.CastleTable;
 import l1j.server.server.model.L1Clan;
 import l1j.server.server.model.L1World;
-import l1j.server.server.model.Instance.L1PcInstance;
 import l1j.server.server.model.item.L1ItemId;
 import l1j.server.server.templates.L1Castle;
 
@@ -42,9 +38,6 @@ import l1j.server.server.templates.L1Castle;
 public class C_Deposit extends ClientBasePacket {
 
 	private static final String C_DEPOSIT = "[C] C_Deposit";
-	private static Logger _log = Logger.getLogger(C_Deposit.class
-			.getName());
-
 	private void broadcastToAll(String s) {
 
 		L1World.getInstance().broadcastPacketToAll(new S_SystemMessage(s));

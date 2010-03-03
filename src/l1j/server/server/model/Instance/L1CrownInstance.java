@@ -20,7 +20,6 @@ package l1j.server.server.model.Instance;
 
 import java.util.List;
 
-import l1j.server.server.ActionCodes;
 import l1j.server.server.datatables.ClanTable;
 import l1j.server.server.datatables.DoorSpawnTable;
 import l1j.server.server.model.L1CastleLocation;
@@ -31,7 +30,6 @@ import l1j.server.server.model.L1War;
 import l1j.server.server.model.L1WarSpawn;
 import l1j.server.server.model.L1World;
 import l1j.server.server.serverpackets.S_CastleMaster;
-import l1j.server.server.serverpackets.S_DoorPack;
 import l1j.server.server.serverpackets.S_RemoveObject;
 import l1j.server.server.serverpackets.S_ServerMessage;
 import l1j.server.server.templates.L1Npc;

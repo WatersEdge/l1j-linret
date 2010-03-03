@@ -18,8 +18,6 @@
  */
 package l1j.server.server.serverpackets;
 
-import java.util.StringTokenizer;
-
 import l1j.server.server.Opcodes;
 
 public class S_GMHtml extends ServerBasePacket {

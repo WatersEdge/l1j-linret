@@ -14,9 +14,7 @@ import l1j.server.server.model.skill.L1SkillUse;
 import l1j.server.server.serverpackets.S_SystemMessage;
 import l1j.server.server.templates.L1Skills;
 import l1j.server.server.utils.SQLUtil;
-import l1j.server.server.templates.L1Skills;
 import static l1j.server.server.model.skill.L1SkillId.*;
-import java.util.StringTokenizer;
 
 public class PCommands {
 	private static Logger _log = Logger.getLogger(PCommands.class.getName());

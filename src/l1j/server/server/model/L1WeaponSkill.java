@@ -19,8 +19,6 @@
 package l1j.server.server.model;
 
 import java.util.Random;
-import java.util.logging.Logger;
-
 import l1j.server.server.ActionCodes;
 import l1j.server.server.datatables.SkillsTable;
 import l1j.server.server.datatables.WeaponSkillTable;
@@ -31,7 +29,6 @@ import l1j.server.server.model.Instance.L1NpcInstance;
 import l1j.server.server.model.Instance.L1PcInstance;
 import l1j.server.server.model.Instance.L1PetInstance;
 import l1j.server.server.model.Instance.L1SummonInstance;
-import l1j.server.server.model.skill.L1SkillId;
 import l1j.server.server.serverpackets.S_DoActionGFX;
 import l1j.server.server.serverpackets.S_EffectLocation;
 import l1j.server.server.serverpackets.S_Paralysis;
@@ -45,9 +42,6 @@ import static l1j.server.server.model.skill.L1SkillId.*;
 // L1PcInstance
 
 public class L1WeaponSkill {
-
-	private static Logger _log = Logger
-			.getLogger(L1WeaponSkill.class.getName());
 
 	private static Random _random = new Random();
 

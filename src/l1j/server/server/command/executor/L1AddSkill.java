@@ -18,8 +18,6 @@
  */
 package l1j.server.server.command.executor;
 
-import java.util.logging.Logger;
-
 import l1j.server.server.datatables.SkillsTable;
 import l1j.server.server.model.Instance.L1PcInstance;
 import l1j.server.server.serverpackets.S_AddSkill;
@@ -28,8 +26,6 @@ import l1j.server.server.serverpackets.S_SystemMessage;
 import l1j.server.server.templates.L1Skills;
 
 public class L1AddSkill implements L1CommandExecutor {
-	private static Logger _log = Logger.getLogger(L1AddSkill.class.getName());
-
 	private L1AddSkill() {
 	}
 

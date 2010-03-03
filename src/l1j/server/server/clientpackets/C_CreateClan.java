@@ -19,8 +19,6 @@
 
 package l1j.server.server.clientpackets;
 
-import java.util.logging.Logger;
-
 import l1j.server.server.ClientThread;
 import l1j.server.server.datatables.ClanTable;
 import l1j.server.server.model.L1Clan;
@@ -34,8 +32,6 @@ import l1j.server.server.serverpackets.S_ServerMessage;
 public class C_CreateClan extends ClientBasePacket {
 
 	private static final String C_CREATE_CLAN = "[C] C_CreateClan";
-	private static Logger _log = Logger.getLogger(C_CreateClan.class.getName());
-
 	public C_CreateClan(byte abyte0[], ClientThread clientthread)
 			throws Exception {
 		super(abyte0);

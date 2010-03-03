@@ -21,7 +21,6 @@ package l1j.server.server.clientpackets;
 
 import java.util.logging.Logger;
 
-import l1j.server.Config;
 import l1j.server.server.Account;
 
 import l1j.server.server.datatables.IpTable;
@@ -57,7 +56,7 @@ public class C_Drawal extends ClientBasePacket {
 	public C_Drawal(byte abyte0[], ClientThread clientthread)
 			throws Exception {
 		super(abyte0);
-		int i = readD();
+		readD();
 		int j = readD();
 
 		L1PcInstance pc = clientthread.getActiveChar();

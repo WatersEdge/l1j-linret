@@ -20,16 +20,12 @@ package l1j.server.server.command.executor;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.StringTokenizer;
-import java.util.logging.Logger;
 import l1j.server.L1DatabaseFactory;
 import l1j.server.server.utils.SQLUtil;
 import l1j.server.server.model.Instance.L1PcInstance;
 import l1j.server.server.serverpackets.S_SystemMessage;
 import l1j.server.server.model.L1Teleport;
 public class L1GotoBug implements L1CommandExecutor {
-	private static Logger _log = Logger.getLogger(L1GotoBug.class.getName());
-
 	private L1GotoBug() {
 	}
 

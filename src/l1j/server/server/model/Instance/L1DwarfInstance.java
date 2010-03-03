@@ -18,7 +18,6 @@
  */
 package l1j.server.server.model.Instance;
 
-import java.util.ArrayList;
 import java.util.logging.Logger;
 
 import l1j.server.server.datatables.NPCTalkDataTable;
@@ -91,7 +90,7 @@ public class L1DwarfInstance extends L1NpcInstance {
 
 	@Override
 	public void onFinalAction(L1PcInstance pc, String Action) {
-		int objid = getTemplateid();
+		getTemplateid();
 		if (Action.equalsIgnoreCase("retrieve")) {
 			_log.finest("Retrive items in storage");
 		} else if (Action.equalsIgnoreCase("retrieve-pledge")) {

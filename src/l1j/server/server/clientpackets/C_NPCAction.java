@@ -25,7 +25,6 @@ import java.util.Random;
 import java.util.TimeZone;
 
 import l1j.server.Config;
-import l1j.server.server.ActionCodes;
 import l1j.server.server.ClientThread;
 import l1j.server.server.WarTimeController;
 import l1j.server.server.datatables.CastleTable;
@@ -78,8 +77,6 @@ import l1j.server.server.serverpackets.S_HPUpdate;
 import l1j.server.server.serverpackets.S_MPUpdate;
 import l1j.server.server.serverpackets.S_Message_YN;
 import l1j.server.server.serverpackets.S_NPCTalkReturn;
-import l1j.server.server.serverpackets.S_OwnCharAttrDef;
-import l1j.server.server.serverpackets.S_OwnCharStatus;
 import l1j.server.server.serverpackets.S_PetList;
 import l1j.server.server.serverpackets.S_RetrieveList;
 import l1j.server.server.serverpackets.S_RetrieveElfList;

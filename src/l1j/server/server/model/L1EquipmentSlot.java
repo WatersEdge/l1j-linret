@@ -21,7 +21,6 @@ package l1j.server.server.model;
 import java.util.ArrayList;
 
 import l1j.server.server.datatables.SkillsTable;
-import l1j.server.server.model.L1EquipmentTimer;
 import l1j.server.server.model.Instance.L1ItemInstance;
 import l1j.server.server.model.Instance.L1PcInstance;
 import l1j.server.server.model.skill.L1SkillId;
@@ -122,7 +121,7 @@ public class L1EquipmentSlot {
 	}
 
 	private void removeWeapon(L1ItemInstance weapon) {
-		int itemId = weapon.getItem().getItemId();
+		weapon.getItem().getItemId();
 		_owner.setWeapon(null);
 		_owner.setCurrentWeapon(0);
 		weapon.stopEquipmentTimer(_owner);

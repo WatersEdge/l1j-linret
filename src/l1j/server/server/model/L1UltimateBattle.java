@@ -84,7 +84,7 @@ public class L1UltimateBattle {
 
 	private static int BEFORE_MINUTE = 5; 
 
-	private HashMap startxp = new HashMap(); 
+	private HashMap<String, Integer> startxp = new HashMap<String, Integer>(); 
 
 	private Set<Integer> _managers = new HashSet<Integer>();
 	private SortedSet<Integer> _ubTimes = new TreeSet<Integer>();

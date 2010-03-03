@@ -24,7 +24,6 @@ import l1j.server.server.IdFactory;
 import l1j.server.server.datatables.NpcTable;
 import l1j.server.server.model.Instance.L1NpcInstance;
 import l1j.server.server.model.Instance.L1PcInstance;
-import l1j.server.server.model.Instance.L1TowerInstance;
 import l1j.server.server.serverpackets.S_NPCPack;
 import l1j.server.server.templates.L1Npc;
 
@@ -34,7 +33,7 @@ import l1j.server.server.templates.L1Npc;
 public class L1WarSpawn {
 	private static L1WarSpawn _instance;
 
-	private Constructor _constructor;
+	private Constructor<?> _constructor;
 
 	public L1WarSpawn() {
 	}

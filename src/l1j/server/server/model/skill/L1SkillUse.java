@@ -20,10 +20,8 @@
 package l1j.server.server.model.skill;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -33,7 +31,6 @@ import l1j.server.server.ActionCodes;
 import l1j.server.server.datatables.NpcTable;
 import l1j.server.server.datatables.PolyTable;
 import l1j.server.server.datatables.SkillsTable;
-import l1j.server.server.model.L1Attack;
 import l1j.server.server.model.L1CastleLocation;
 import l1j.server.server.model.L1Character;
 import l1j.server.server.model.L1CurseParalysis;
@@ -50,7 +47,6 @@ import l1j.server.server.model.L1World;
 import l1j.server.server.model.Instance.*;
 import l1j.server.server.model.poison.L1DamagePoison;
 import l1j.server.server.model.trap.L1WorldTraps;
-import l1j.server.server.serverpackets.S_AttackMissPacket;
 import l1j.server.server.serverpackets.S_ChangeHeading;
 import l1j.server.server.serverpackets.S_ChangeName;
 import l1j.server.server.serverpackets.S_ChangeShape;
@@ -63,7 +59,6 @@ import l1j.server.server.serverpackets.S_DoActionGFX;
 import l1j.server.server.serverpackets.S_DoActionShop;
 import l1j.server.server.serverpackets.S_HPUpdate;
 import l1j.server.server.serverpackets.S_Invis;
-import l1j.server.server.serverpackets.S_Light;
 import l1j.server.server.serverpackets.S_MPUpdate;
 import l1j.server.server.serverpackets.S_Message_YN;
 import l1j.server.server.serverpackets.S_NpcChatPacket;
@@ -86,7 +81,6 @@ import l1j.server.server.serverpackets.S_SkillSound;
 import l1j.server.server.serverpackets.S_Sound;
 import l1j.server.server.serverpackets.S_Strup;
 import l1j.server.server.serverpackets.S_TrueTarget;
-import l1j.server.server.serverpackets.S_UseArrowSkill;
 import l1j.server.server.serverpackets.S_UseAttackSkill;
 import l1j.server.server.templates.L1BookMark;
 import l1j.server.server.templates.L1Npc;
@@ -166,8 +160,6 @@ public class L1SkillUse {
 
 	private static class TargetStatus {
 		private L1Character _target = null;
-		private boolean _isAction = false;
-		private boolean _isSendStatus = false; 
 		private boolean _isCalc = true;
 
 		public TargetStatus(L1Character _cha) {
@@ -184,22 +176,6 @@ public class L1SkillUse {
 
 		public boolean isCalc() {
 			return _isCalc;
-		}
-
-		public void isAction(boolean _flg) {
-			_isAction = _flg;
-		}
-
-		public boolean isAction() {
-			return _isAction;
-		}
-
-		public void isSendStatus(boolean _flg) {
-			_isSendStatus = _flg;
-		}
-
-		public boolean isSendStatus() {
-			return _isSendStatus;
 		}
 	}
 
@@ -905,14 +881,6 @@ public class L1SkillUse {
 			return false;
 		}
 		return true;
-	}
-
-	private boolean isEnoughHp() {
-		return false;
-	}
-
-	private boolean isEnoughMp() {
-		return false;
 	}
 
 	//

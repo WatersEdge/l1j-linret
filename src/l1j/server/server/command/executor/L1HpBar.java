@@ -18,8 +18,6 @@
  */
 package l1j.server.server.command.executor;
 
-import java.util.logging.Logger;
-
 import l1j.server.server.model.L1Object;
 import l1j.server.server.model.Instance.L1MonsterInstance;
 import l1j.server.server.model.Instance.L1PcInstance;
@@ -30,8 +28,6 @@ import l1j.server.server.serverpackets.S_HPMeter;
 import l1j.server.server.serverpackets.S_SystemMessage;
 
 public class L1HpBar implements L1CommandExecutor {
-	private static Logger _log = Logger.getLogger(L1HpBar.class.getName());
-
 	private L1HpBar() {
 	}
 

@@ -22,7 +22,6 @@ import l1j.server.server.Opcodes;
 import l1j.server.server.model.Instance.L1ItemInstance;
 
 public class S_IdentifyDesc extends ServerBasePacket {
-	private static final String S_ITEM_DESC = "[S] S_ItemDesc";
 	private byte[] _byte = null;
 
 	/**

@@ -19,16 +19,12 @@
 package l1j.server.server.command.executor;
 
 import java.util.StringTokenizer;
-import java.util.logging.Logger;
-
 import l1j.server.server.datatables.ExpTable;
 import l1j.server.server.model.Instance.L1PcInstance;
 import l1j.server.server.serverpackets.S_SystemMessage;
 import l1j.server.server.utils.IntRange;
 
 public class L1Level implements L1CommandExecutor {
-	private static Logger _log = Logger.getLogger(L1Level.class.getName());
-
 	private L1Level() {
 	}
 

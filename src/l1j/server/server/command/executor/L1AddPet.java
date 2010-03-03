@@ -89,7 +89,7 @@ public class L1AddPet implements L1CommandExecutor {
 		L1Pet l1pet = PetTable.getInstance().getTemplate(itemObjectId);
 		if (l1pet != null) {
 			L1Npc npcTemp = NpcTable.getInstance().getTemplate(l1pet.get_npcid());
-			L1PetInstance pet = new L1PetInstance(npcTemp, pc, l1pet);
+			new L1PetInstance(npcTemp, pc, l1pet);
 		}
 	}
 }

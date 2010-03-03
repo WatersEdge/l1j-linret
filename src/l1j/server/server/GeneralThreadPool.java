@@ -26,15 +26,10 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Logger;
-
 import l1j.server.Config;
 import l1j.server.server.model.monitor.L1PcMonitor;
 
 public class GeneralThreadPool {
-	private static Logger _log = Logger.getLogger(GeneralThreadPool.class
-			.getName());
-
 	private static GeneralThreadPool _instance;
 
 	private static final int SCHEDULED_CORE_POOL_SIZE = 10;
@@ -144,10 +139,6 @@ public class GeneralThreadPool {
 			t.setName(_name + "-" + _threadNumber.getAndIncrement());
 			t.setPriority(_prio);
 			return t;
-		}
-
-		public ThreadGroup getGroup() {
-			return _group;
 		}
 	}
 }

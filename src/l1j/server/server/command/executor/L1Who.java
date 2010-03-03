@@ -18,23 +18,16 @@
  */
 package l1j.server.server.command.executor;
 
-import java.util.Collection;
-import java.util.logging.Logger;
-
 import l1j.server.server.model.L1World;
 import l1j.server.server.model.Instance.L1PcInstance;
 import l1j.server.server.serverpackets.S_SystemMessage;
-import l1j.server.server.serverpackets.S_WhoAmount;
 import l1j.server.server.utils.SQLUtil;
 import l1j.server.L1DatabaseFactory;
 import java.sql.ResultSet;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import l1j.server.server.model.Instance.L1PcInstance;
 
 public class L1Who implements L1CommandExecutor {
-	private static Logger _log = Logger.getLogger(L1Who.class.getName());
-
 	private L1Who() {
 	}
 

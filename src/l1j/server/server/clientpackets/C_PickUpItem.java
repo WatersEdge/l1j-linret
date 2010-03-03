@@ -18,9 +18,6 @@
  */
 package l1j.server.server.clientpackets;
 
-import java.util.logging.Logger;
-
-import l1j.server.Config;
 import l1j.server.server.Account;
 
 import l1j.server.server.datatables.IpTable;
@@ -42,9 +39,6 @@ import l1j.server.server.serverpackets.S_ServerMessage;
 public class C_PickUpItem extends ClientBasePacket {
 
 	private static final String C_PICK_UP_ITEM = "[C] C_PickUpItem";
-	private static Logger _log = Logger.getLogger(C_PickUpItem.class
-			.getName());
-
 	private void broadcastToAll(String s) {
 
 		L1World.getInstance().broadcastPacketToAll(new S_SystemMessage(s));

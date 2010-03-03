@@ -34,7 +34,6 @@ import l1j.server.server.model.Instance.L1SummonInstance;
 import l1j.server.server.serverpackets.S_CurseBlind;
 import l1j.server.server.serverpackets.S_Dexup;
 import l1j.server.server.serverpackets.S_HPUpdate;
-import l1j.server.server.serverpackets.S_Light;
 import l1j.server.server.serverpackets.S_MPUpdate;
 import l1j.server.server.serverpackets.S_OwnCharAttrDef;
 import l1j.server.server.serverpackets.S_OwnCharStatus;

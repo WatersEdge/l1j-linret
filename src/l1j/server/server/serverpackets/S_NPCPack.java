@@ -24,7 +24,6 @@ import l1j.server.server.datatables.NPCTalkDataTable;
 import l1j.server.server.model.L1NpcTalkData;
 import l1j.server.server.model.Instance.L1FieldObjectInstance;
 import l1j.server.server.model.Instance.L1NpcInstance;
-import l1j.server.server.model.skill.L1SkillId;
 
 // Referenced classes of package l1j.server.server.serverpackets:
 // ServerBasePacket
@@ -35,14 +34,7 @@ public class S_NPCPack extends ServerBasePacket {
 
 
 	private static final int STATUS_POISON = 1;
-	private static final int STATUS_INVISIBLE = 2;
 	private static final int STATUS_PC = 4;
-	private static final int STATUS_FREEZE = 8;
-	private static final int STATUS_BRAVE = 16;
-	private static final int STATUS_ELFBRAVE = 32;
-	private static final int STATUS_FASTMOVABLE = 64;
-	private static final int STATUS_GHOST = 128;
-
 	private byte[] _byte = null;
 
 	public S_NPCPack(L1NpcInstance npc) {
