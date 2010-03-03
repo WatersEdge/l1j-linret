@@ -18,8 +18,6 @@
  */
 package l1j.server.server.model.Instance;
 
-import java.util.logging.Logger;
-
 import l1j.server.server.ActionCodes;
 import l1j.server.server.GeneralThreadPool;
 import l1j.server.server.model.L1Attack;
@@ -36,9 +34,6 @@ public class L1DoorInstance extends L1NpcInstance {
 	private static final long serialVersionUID = 1L;
 	public static final int PASS = 0;
 	public static final int NOT_PASS = 1;
-
-	private static Logger _log = Logger.getLogger(L1DoorInstance.class
-			.getName());
 
 	public L1DoorInstance(L1Npc template) {
 		super(template);

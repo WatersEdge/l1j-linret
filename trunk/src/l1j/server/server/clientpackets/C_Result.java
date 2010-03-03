@@ -402,7 +402,6 @@ public class C_Result extends ClientBasePacket {
 			int buyPrice;
 			int buyTotalCount;
 			int buyCount;
-			L1ItemInstance targetItem;
 			boolean[] isRemoveFromList = new boolean[8];
 
 			L1PcInstance targetPc = null;

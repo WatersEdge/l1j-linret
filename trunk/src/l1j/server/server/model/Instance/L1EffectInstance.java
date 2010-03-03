@@ -18,9 +18,6 @@
  */
 package l1j.server.server.model.Instance;
 
-import java.util.concurrent.ScheduledFuture;
-import java.util.logging.Logger;
-
 import l1j.server.server.ActionCodes;
 import l1j.server.server.GeneralThreadPool;
 import l1j.server.server.WarTimeController;
@@ -39,17 +36,13 @@ public class L1EffectInstance extends L1NpcInstance {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private static Logger _log = Logger.getLogger(L1EffectInstance.class
-			.getName());
-
-	private ScheduledFuture<?> _effectFuture;
 	private static final int FW_DAMAGE_INTERVAL = 1000;
 
 	public L1EffectInstance(L1Npc template) {
 		super(template);
 
 		if (getNpcTemplate().get_npcId() == 81157) { // FW
-			_effectFuture = GeneralThreadPool.getInstance().schedule(
+			GeneralThreadPool.getInstance().schedule(
 					new FwDamageTimer(this), 0);
 		}
 	}

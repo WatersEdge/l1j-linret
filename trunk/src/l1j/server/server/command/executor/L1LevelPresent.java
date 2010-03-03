@@ -19,8 +19,6 @@
 package l1j.server.server.command.executor;
 
 import java.util.StringTokenizer;
-import java.util.logging.Logger;
-
 import l1j.server.server.datatables.ItemTable;
 import l1j.server.server.model.L1DwarfInventory;
 import l1j.server.server.model.Instance.L1PcInstance;
@@ -28,9 +26,6 @@ import l1j.server.server.serverpackets.S_SystemMessage;
 import l1j.server.server.templates.L1Item;
 
 public class L1LevelPresent implements L1CommandExecutor {
-	private static Logger _log = Logger.getLogger(L1LevelPresent.class
-			.getName());
-
 	private L1LevelPresent() {
 	}
 

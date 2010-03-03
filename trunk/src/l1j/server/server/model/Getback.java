@@ -54,10 +54,6 @@ public class Getback {
 	private int _getbackTownId;
 	private int _getbackTownIdForElf;
 	private int _getbackTownIdForDarkelf;
-	//TODO Not used
-	//private boolean _escapable; // Unused (mapids to have here, before coming to check on it)
-	private boolean _escapable; //
-
 	private Getback() {
 	}
 
@@ -93,9 +89,7 @@ public class Getback {
 				getback._getbackTownIdForElf = rs.getInt("getback_townid_elf");
 				getback._getbackTownIdForDarkelf = rs
 						.getInt("getback_townid_darkelf");
-				//TODO Not used
-				//getback._escapable = rs.getBoolean("scrollescape");
-				getback._escapable = rs.getBoolean("scrollescape");
+				rs.getBoolean("scrollescape");
 				ArrayList<Getback> getbackList = _getback
 						.get(getback._areaMapId);
 				if (getbackList == null) {

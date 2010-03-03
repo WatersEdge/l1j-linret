@@ -25,7 +25,6 @@ import l1j.server.server.ActionCodes;
 import l1j.server.server.WarTimeController;
 import l1j.server.server.datatables.SkillsTable;
 import l1j.server.server.model.Instance.L1ItemInstance;
-import l1j.server.server.model.Instance.L1MagicInstance;
 import l1j.server.server.model.Instance.L1NpcInstance;
 import l1j.server.server.model.Instance.L1PcInstance;
 import l1j.server.server.model.Instance.L1PetInstance;
@@ -90,16 +89,6 @@ public class L1Magic {
 				_targetNpc = (L1NpcInstance) target;
 			}
 		}
-	}
-
-	private int getSpellPower() {
-		int spellPower = 0;
-		if (_calcType == PC_PC || _calcType == PC_NPC) {
-			spellPower = _pc.getSp();
-		} else if (_calcType == NPC_PC || _calcType == NPC_NPC) {
-			spellPower = _npc.getSp();
-		}
-		return spellPower;
 	}
 
 	private int getMagicLevel() {

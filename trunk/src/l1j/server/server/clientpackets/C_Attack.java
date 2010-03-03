@@ -37,8 +37,6 @@ import l1j.server.server.serverpackets.S_ServerMessage;
 // ClientBasePacket
 
 public class C_Attack extends ClientBasePacket {
-	private static final String C_Attack = "[C] C_Attack";
-
 	public C_Attack(byte[] decrypt, ClientThread client) {
 		super(decrypt);
 		int targetId = readD();

@@ -78,7 +78,5 @@ public class S_DelSkill extends ServerBasePacket {
 		return "[S] S_DelSkill";
 	}
 
-	private static final String _S__OB_DelSKILL = "[S] S_DelSkill";
-
 
 }

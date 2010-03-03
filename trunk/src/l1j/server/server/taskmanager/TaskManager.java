@@ -17,12 +17,9 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 package l1j.server.server.taskmanager;
-import static l1j.server.server.taskmanager.TaskTypes.TYPE_GLOBAL_TASK;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Calendar;
 import java.util.concurrent.ScheduledFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,7 +28,6 @@ import javolution.util.FastList;
 import javolution.util.FastMap;
 
 import l1j.server.L1DatabaseFactory;
-import l1j.server.server.ThreadPoolManager;
 import l1j.server.server.taskmanager.tasks.TaskRestart;
 import l1j.server.server.taskmanager.tasks.TaskShutdown;
 import l1j.server.server.utils.SQLUtil;
@@ -173,9 +169,7 @@ public final class TaskManager {
 				if (task == null) {
 					continue;
 				}
-				//TODO Not used
-				TaskTypes type = TaskTypes.valueOf(rs.getString("type"));
-				//TaskTypes type = TaskTypes.valueOf(rs.getString("type"));
+				TaskTypes.valueOf(rs.getString("type"));
 			}
 
 		} catch (Exception e) {
@@ -209,49 +203,6 @@ public final class TaskManager {
 			}
 		}
 
-	}
-
-	private boolean launchTask(ExecutedTask task) {
-		final ThreadPoolManager scheduler = ThreadPoolManager.getInstance();
-		final TaskTypes type = task.getType();
-
-		if (type == TYPE_GLOBAL_TASK) {
-			long interval = Long.valueOf(task.getParams()[0]) * 86400000L;
-			String[] hour = task.getParams()[1].split(":");
-
-			if (hour.length != 3) {
-				_log.warning("Task " + task.getId()
-						+ " has incorrect parameters");
-				return false;
-			}
-
-			Calendar check = Calendar.getInstance();
-			check.setTimeInMillis(task.getLastActivation() + interval);
-
-			Calendar min = Calendar.getInstance();
-			try {
-				min.set(Calendar.HOUR_OF_DAY, Integer.valueOf(hour[0]));
-				min.set(Calendar.MINUTE, Integer.valueOf(hour[1]));
-				min.set(Calendar.SECOND, Integer.valueOf(hour[2]));
-			} catch (Exception e) {
-				_log.warning("Bad parameter on task " + task.getId() + ": "
-						+ e.getMessage());
-				return false;
-			}
-
-			long delay = min.getTimeInMillis() - System.currentTimeMillis();
-
-			if (check.after(min) || delay < 0) {
-				delay += interval;
-			}
-
-			task._scheduled = scheduler.scheduleGeneralAtFixedRate(task, delay,
-					interval);
-
-			return true;
-		}
-
-		return false;
 	}
 
 	public static boolean addUniqueTask(String task, TaskTypes type,

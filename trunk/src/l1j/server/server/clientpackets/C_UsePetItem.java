@@ -19,8 +19,6 @@
 
 package l1j.server.server.clientpackets;
 
-import java.util.logging.Logger;
-
 import l1j.server.server.ClientThread;
 import l1j.server.server.datatables.PetItemTable;
 import l1j.server.server.model.L1World;
@@ -36,13 +34,11 @@ import l1j.server.server.templates.L1PetItem;
 public class C_UsePetItem extends ClientBasePacket {
 
 	private static final String C_USE_PET_ITEM = "[C] C_UsePetItem";
-	private static Logger _log = Logger.getLogger(C_UsePetItem.class.getName());
-
 	public C_UsePetItem(byte abyte0[], ClientThread clientthread)
 			throws Exception {
 		super(abyte0);
 
-		int data = readC(); // ?
+		readC();
 		int petId = readD();
 		int listNo = readC();
 

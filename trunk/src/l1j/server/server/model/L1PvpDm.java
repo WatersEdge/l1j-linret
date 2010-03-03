@@ -10,31 +10,17 @@
 */
 package l1j.server.server.model;
 
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Random;
-import l1j.server.server.IdFactory;
 import l1j.server.server.GeneralThreadPool;
-import l1j.server.server.datatables.NpcTable;
-import l1j.server.server.model.L1Object;
 import l1j.server.server.model.L1World;
-//import l1j.server.server.model.L1PvpDmPinkName;
-import l1j.server.server.model.Instance.L1DoorInstance;
-import l1j.server.server.model.Instance.L1NpcInstance;
 import l1j.server.server.model.Instance.L1PcInstance;
-import l1j.server.server.model.Instance.L1ScarecrowInstance;
-import l1j.server.server.model.skill.L1SkillId;
 import l1j.server.server.serverpackets.S_PinkName;
 import l1j.server.server.serverpackets.S_ChangeName;
-import l1j.server.server.model.skill.L1SkillUse;
-import l1j.server.server.serverpackets.S_NPCPack;
 import l1j.server.server.serverpackets.S_ServerMessage;
-import l1j.server.server.templates.L1Npc;
-
-import l1j.server.server.model.Instance.L1PcInstance;
 
 public class L1PvpDm {
 
@@ -48,7 +34,7 @@ public class L1PvpDm {
 	private int _PvpDmStatus = STATUS_NONE;
 	private int _winnersCount = 0;
 	private int _goalCount = 0;
-	private HashMap members = new HashMap(); 
+	private HashMap<L1PcInstance, String> members = new HashMap<L1PcInstance, String>(); 
 	private static L1PvpDm _instance;
 
 	public static L1PvpDm getInstance() {

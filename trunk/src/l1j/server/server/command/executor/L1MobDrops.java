@@ -18,19 +18,14 @@
  */
 package l1j.server.server.command.executor;
 
-import java.util.logging.Logger;
-
 import java.util.ArrayList;
 
-import l1j.server.server.model.L1Teleport;
-import l1j.server.server.model.L1World;
 import l1j.server.server.model.Instance.L1PcInstance;
 import l1j.server.server.serverpackets.S_SystemMessage;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import l1j.server.server.utils.SQLUtil;
-import l1j.server.server.model.Instance.L1ItemInstance;
 import l1j.server.server.datatables.ItemTable;
 import l1j.server.server.templates.L1Item;
 import l1j.server.L1DatabaseFactory;
@@ -40,8 +35,6 @@ import l1j.server.server.datatables.NpcTable;
 import l1j.server.server.templates.L1Npc;
 
 public class L1MobDrops implements L1CommandExecutor {
-	private static Logger _log = Logger.getLogger(L1MobDrops.class.getName());
-
 	private L1MobDrops() {
 	}
 

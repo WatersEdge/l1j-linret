@@ -22,8 +22,6 @@ package l1j.server.server.serverpackets;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
-import java.util.logging.Logger;
-
 import l1j.server.server.Opcodes;
 
 // Referenced classes of package l1j.server.server.serverpackets:
@@ -88,7 +86,6 @@ public class S_CommonNews extends ServerBasePacket {
 	}
 
 	private static final String _S__0B_COMMONNEWS = "[S] S_CommonNews";
-	private static Logger _log = Logger.getLogger(S_CommonNews.class.getName());
 	private ArrayList<String> _announcements;
 
 }

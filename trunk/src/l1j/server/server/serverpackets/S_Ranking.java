@@ -32,7 +32,6 @@ import l1j.server.L1DatabaseFactory;
 import l1j.server.server.Opcodes;
 import l1j.server.server.model.Instance.L1NpcInstance;
 import l1j.server.server.model.Instance.L1PcInstance;
-import l1j.server.server.model.Instance.L1BoardInstance;
 import l1j.server.server.utils.SQLUtil;
 
 public class S_Ranking extends ServerBasePacket {

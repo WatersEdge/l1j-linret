@@ -18,8 +18,6 @@
  */
 package l1j.server.server;
 
-import java.util.logging.Logger;
-
 import l1j.server.server.datatables.LightSpawnTable;
 import l1j.server.server.model.L1Object;
 import l1j.server.server.model.L1World;
@@ -27,9 +25,6 @@ import l1j.server.server.model.gametime.L1GameTimeClock;
 import l1j.server.server.model.Instance.L1FieldObjectInstance;
 
 public class LightTimeController implements Runnable {
-	private static Logger _log = Logger.getLogger(LightTimeController.class
-			.getName());
-
 	private static LightTimeController _instance;
 
 	private boolean isSpawn = false;

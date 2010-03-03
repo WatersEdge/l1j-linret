@@ -19,8 +19,6 @@
 
 package l1j.server.server.serverpackets;
 
-import java.util.logging.Logger;
-
 import l1j.server.server.Opcodes;
 import l1j.server.server.model.Instance.L1ItemInstance;
 
@@ -30,8 +28,6 @@ import l1j.server.server.model.Instance.L1ItemInstance;
 public class S_DropItem extends ServerBasePacket {
 
 	private static final String _S__OB_DropItem = "[S] S_DropItem";
-	private static Logger _log = Logger.getLogger(S_DropItem.class.getName());
-
 	private byte[] _byte = null;
 
 	public S_DropItem(L1ItemInstance item) {

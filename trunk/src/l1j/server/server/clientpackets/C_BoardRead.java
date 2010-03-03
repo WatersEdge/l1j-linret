@@ -19,8 +19,6 @@
 
 package l1j.server.server.clientpackets;
 
-import java.util.logging.Logger;
-
 import l1j.server.server.ClientThread;
 import l1j.server.server.model.L1Object;
 import l1j.server.server.model.L1World;
@@ -33,9 +31,7 @@ import l1j.server.server.model.Instance.L1PcInstance;
 public class C_BoardRead extends ClientBasePacket {
 
 	private static final String C_BOARD_READ = "[C] C_BoardRead";
-	private static Logger _log = Logger.getLogger(C_BoardRead.class.getName());
-
-/*	public C_BoardRead(byte decrypt[], ClientThread client) {
+	/*	public C_BoardRead(byte decrypt[], ClientThread client) {
 		super(decrypt);
 		int objId = readD();
 		int topicNumber = readD();

@@ -18,8 +18,6 @@
  */
 package l1j.server.server.clientpackets;
 
-import java.util.logging.Logger;
-
 import l1j.server.server.ActionCodes;
 import l1j.server.server.ClientThread;
 import l1j.server.server.datatables.HouseTable;
@@ -34,15 +32,13 @@ import l1j.server.server.templates.L1House;
 
 public class C_Door extends ClientBasePacket {
 
-	private static Logger _log = Logger.getLogger(C_Door.class
-			.getName());
 	private static final String C_DOOR = "[C] C_Door";
 
 	public C_Door(byte abyte0[], ClientThread client)
 			throws Exception {
 		super(abyte0);
-		int locX = readH();
-		int locY = readH();
+		readH();
+		readH();
 		int objectId = readD();
 
 		L1PcInstance pc = client.getActiveChar();

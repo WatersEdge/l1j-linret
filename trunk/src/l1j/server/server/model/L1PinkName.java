@@ -18,8 +18,6 @@
  */
 package l1j.server.server.model;
 
-import java.util.logging.Logger;
-
 import l1j.server.server.GeneralThreadPool;
 import l1j.server.server.WarTimeController;
 import l1j.server.server.model.Instance.L1PcInstance;
@@ -29,9 +27,6 @@ import l1j.server.server.serverpackets.S_PinkName;
 // L1PinkName
 
 public class L1PinkName {
-	private static final Logger _log = Logger.getLogger(L1PinkName.class
-			.getName());
-
 	private L1PinkName() {
 	}
 

@@ -16,7 +16,6 @@
  */
 package l1j.server.server.model;
 
-import java.lang.reflect.Constructor;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -39,8 +38,6 @@ public class L1MobGroupSpawn {
 			.getName());
 
 	private static L1MobGroupSpawn _instance;
-
-	private Constructor _constructor;
 
 	private static Random _random = new Random();
 

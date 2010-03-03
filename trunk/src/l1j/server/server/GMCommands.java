@@ -43,10 +43,6 @@ public class GMCommands {
 	boolean spawnTF = false;
 	
 	private static GMCommands _instance;
-	private String _lastCmd = "";
-	private int _lastItemId = 0;
-	private int _lastSpawnId = 45000;
-
 	private GMCommands() {
 	}
 

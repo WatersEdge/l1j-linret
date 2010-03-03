@@ -32,7 +32,6 @@ import l1j.server.L1DatabaseFactory;
 import l1j.server.server.Opcodes;
 import l1j.server.server.model.Instance.L1NpcInstance;
 import l1j.server.server.model.Instance.L1PcInstance;
-import l1j.server.server.model.Instance.L1BoardInstance;
 import l1j.server.server.utils.SQLUtil;
 
 public class S_EnchantRanking extends ServerBasePacket {
@@ -42,8 +41,7 @@ public class S_EnchantRanking extends ServerBasePacket {
 	private static Logger _log = Logger.getLogger(S_EnchantRanking.class.getName());
 
  	private byte[] _byte = null;
- 	private int j = 0;
-  static String[] name;
+ 	static String[] name;
   static String[] name1;
   static String[] castlename;
   static String[] clanname;
@@ -118,7 +116,6 @@ public class S_EnchantRanking extends ServerBasePacket {
 
  	private void buildPacket(L1PcInstance pc, int number) {
  		String date = time();
- 		String type = null;
  		String title = null;
 	  writeC(Opcodes.S_OPCODE_BOARDREAD);
 	  writeD(number);
@@ -153,22 +150,17 @@ public class S_EnchantRanking extends ServerBasePacket {
 	  writeS(date);
 	  switch(pc.getType()) {
 	  	case 0:
-	  		type = "";
-	  		break;
+		break;
 	  	case 1:
-	  		type = "";
-	  		break;
+		break;
 	  	case 2:
-	  		type = "";
-	  		break;
+		break;
 	  	case 3:
-	  		type = "";
-	  		break;
+		break;
 	  	case 4:
-	  		type = "";
-	  		break;
+		break;
 	  }
-		int p = Rank(pc, number);
+		Rank(pc, number);
 	    if(number == 1) {
 	        writeS("\n\r" + "  1 " + "+" + enchantlvl[0] + " " + name[0] + "\n\r" + "   Owned by: " + name1[0] +"\n\r" + "  2 " + "+" + enchantlvl[1] + " " + name[1] + "\n\r" + "  Owned by: " + name1[1] + "\n\r" +	  	          "  3 " + "+" + enchantlvl[2]  + " " + name[2] + "\n\r" + "   : " + name1[2] + "\n\r" +	  	          "  4 " + "+" + enchantlvl[3] + " " + name[3] + "\n\r" + "   : " + name1[3] + "\n\r" +	  	          "  5 " + "+" + enchantlvl[4] + " " + name[4] + "\n\r" + "   : " + name1[4] + "\n\r" +	  	          "  6 " + "+" + enchantlvl[5] + " " + name[5] + "\n\r" + "   : " + name1[5] + "\n\r" +	  	          "  7 " + "+" + enchantlvl[6] + " " + name[6] + "\n\r" + "   : " + name1[6] +"\n\r" +	  	          "  8 " + "+" + enchantlvl[7] + " " + name[7] + "\n\r" + "   : " + name1[7] +"\n\r" +	  	          "  9 " + "+" + enchantlvl[8] + " " + name[8] + "\n\r" + "   : " + name1[8] +"\n\r"+	  	          " 10 " + "+" + enchantlvl[9] + " " + name[9] + "\n\r" + "   : " + name1[9] +"\n\r" +	  	                      "      ");
 	  } else if(number == 2) { //
@@ -205,7 +197,7 @@ public class S_EnchantRanking extends ServerBasePacket {
 		Connection con = null;
 		PreparedStatement pstm = null;
 		ResultSet rs = null;
-		int objid = pc.getId();
+		pc.getId();
 		int i = 0;
 		try {
 			con = L1DatabaseFactory.getInstance().getConnection();

@@ -23,23 +23,14 @@ import java.util.logging.Logger;
 
 import l1j.server.Config;
 import l1j.server.server.GeneralThreadPool;
-import l1j.server.server.datatables.FurnitureSpawnTable;
-import l1j.server.server.datatables.LetterTable;
-import l1j.server.server.datatables.PetTable;
-import l1j.server.server.model.Instance.L1FurnitureInstance;
 import l1j.server.server.model.Instance.L1ItemInstance;
 import l1j.server.server.model.Instance.L1PcInstance;
-//import l1j.server.server.serverpackets.S_ServerMessage;
-import l1j.server.server.serverpackets.S_ServerMessage;
 
 // Referenced classes of package l1j.server.server.model:
 // L1DeleteItemOnGround
 
 public class L1DeleteItemOnGround {
 	private DeleteTimer _deleteTimer;
-	private int _time = 0;
-	private int _range = 0;
-
 	private static final Logger _log = Logger
 			.getLogger(L1DeleteItemOnGround.class.getName());
 

@@ -28,10 +28,8 @@ import l1j.server.server.model.Instance.L1PcInstance;
 public class S_OwnCharPack extends ServerBasePacket {
 
 	private static final String S_OWN_CHAR_PACK = "[S] S_OwnCharPack";
-	private static final int STATUS_POISON = 1;
 	private static final int STATUS_INVISIBLE = 2;
 	private static final int STATUS_PC = 4;
-	private static final int STATUS_FREEZE = 8;
 	private static final int STATUS_BRAVE = 16;
 	private static final int STATUS_ELFBRAVE = 32;
 	private static final int STATUS_FASTMOVABLE = 64;

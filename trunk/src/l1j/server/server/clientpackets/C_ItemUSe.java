@@ -31,7 +31,6 @@ import l1j.server.Config;
 import l1j.server.server.ActionCodes;
 import l1j.server.server.ClientThread;
 import l1j.server.server.FishingTimeController;
-import l1j.server.server.GMCommands;
 import l1j.server.server.IdFactory;
 import l1j.server.server.datatables.CharacterTable;
 import l1j.server.server.datatables.FurnitureSpawnTable;
@@ -124,8 +123,6 @@ public class C_ItemUSe extends ClientBasePacket {
 	private static Logger _log = Logger.getLogger(C_ItemUSe.class.getName());
 
 	private static Random _random = new Random();
-	private int addtime; // used for stacking. do not remove.
-
 	public C_ItemUSe(byte abyte0[], ClientThread client) throws Exception {
 		super(abyte0);
 		int itemObjid = readD();
@@ -160,7 +157,6 @@ public class C_ItemUSe extends ClientBasePacket {
 		int l = 0;
 
 		String s = "";
-		int bmapid = 0;
 		int btele = 0;
 		int blanksc_skillid = 0;
 		int spellsc_objid = 0;
@@ -242,7 +238,7 @@ public class C_ItemUSe extends ClientBasePacket {
 			l = readD();
 		} else if (itemId == 140100 || itemId == 40100 || itemId == 40099
 				|| itemId == 40086 || itemId == 40863) {
-			bmapid = readH();
+			readH();
 			btele = readD();
 			pc.sendPackets(new S_Paralysis(S_Paralysis.TYPE_TELEPORT_UNLOCK,
 					false));
@@ -2814,101 +2810,6 @@ public class C_ItemUSe extends ClientBasePacket {
 		pc.getInventory().removeItem(item, item.getCount());
 	}
 
-	private int EnchantChance(L1ItemInstance l1iteminstance) {
-		byte byte0 = 0;
-		int i = l1iteminstance.getEnchantLevel();
-		if (l1iteminstance.getItem().getType2() == 1) {
-			switch (i) {
-			case 0: // '\0'
-				byte0 = 50;
-				break;
-
-			case 1: // '\001'
-				byte0 = 33;
-				break;
-
-			case 2: // '\002'
-				byte0 = 25;
-				break;
-
-			case 3: // '\003'
-				byte0 = 25;
-				break;
-
-			case 4: // '\004'
-				byte0 = 25;
-				break;
-
-			case 5: // '\005'
-				byte0 = 20;
-				break;
-
-			case 6: // '\006'
-				byte0 = 33;
-				break;
-
-			case 7: // '\007'
-				byte0 = 33;
-				break;
-
-			case 8: // '\b'
-				byte0 = 33;
-				break;
-
-			case 9: // '\t'
-				byte0 = 25;
-				break;
-
-			case 10: // '\n'
-				byte0 = 20;
-				break;
-			}
-		} else if (l1iteminstance.getItem().getType2() == 2) {
-			switch (i) {
-			case 0: // '\0'
-				byte0 = 50;
-				break;
-
-			case 1: // '\001'
-				byte0 = 33;
-				break;
-
-			case 2: // '\002'
-				byte0 = 25;
-				break;
-
-			case 3: // '\003'
-				byte0 = 25;
-				break;
-
-			case 4: // '\004'
-				byte0 = 25;
-				break;
-
-			case 5: // '\005'
-				byte0 = 20;
-				break;
-
-			case 6: // '\006'
-				byte0 = 17;
-				break;
-
-			case 7: // '\007'
-				byte0 = 14;
-				break;
-
-			case 8: // '\b'
-				byte0 = 12;
-				break;
-
-			case 9: // '\t'
-				byte0 = 11;
-				break;
-			}
-		}
-		return byte0;
-	}
-
 	private void UseHeallingPotion(L1PcInstance pc, int healHp, int gfxid) {
 		if (pc.hasSkillEffect(DECAY_POTION) == true) {
 			pc.sendPackets(new S_ServerMessage(698));
@@ -3307,9 +3208,7 @@ public class C_ItemUSe extends ClientBasePacket {
 	}
 
 	private void UseArmor(L1PcInstance activeChar, L1ItemInstance armor) {
-		//never used
-		//int itemid = armor.getItem().getItemId();
-		int itemid = armor.getItem().getItemId();
+		armor.getItem().getItemId();
 		int type = armor.getItem().getType();
 		L1PcInventory pcInventory = activeChar.getInventory();
 		boolean equipeSpace;
@@ -5226,7 +5125,7 @@ public class C_ItemUSe extends ClientBasePacket {
 					//Object obj = null;
 					try {
 						String s = l1npc.getImpl();
-						Constructor constructor = Class.forName(
+						Constructor<?> constructor = Class.forName(
 								"l1j.server.server.model.Instance." + s
 										+ "Instance").getConstructors()[0];
 						Object aobj[] = { l1npc };

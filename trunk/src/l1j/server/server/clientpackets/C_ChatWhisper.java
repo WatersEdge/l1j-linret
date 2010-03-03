@@ -26,7 +26,6 @@ import l1j.server.server.model.L1World;
 import l1j.server.server.model.Instance.L1PcInstance;
 import l1j.server.server.serverpackets.S_ChatPacket;
 import l1j.server.server.serverpackets.S_ServerMessage;
-import l1j.server.server.serverpackets.S_SystemMessage;
 
 // Referenced classes of package l1j.server.server.clientpackets:
 // ClientBasePacket

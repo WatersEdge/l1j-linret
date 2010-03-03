@@ -24,7 +24,6 @@ import l1j.server.server.ClientThread;
 import l1j.server.server.datatables.BuddyTable;
 import l1j.server.server.datatables.CharacterTable;
 import l1j.server.server.model.L1Buddy;
-import l1j.server.server.model.L1World;
 import l1j.server.server.model.Instance.L1PcInstance;
 import l1j.server.server.serverpackets.S_ServerMessage;
 import l1j.server.server.templates.L1CharName;
