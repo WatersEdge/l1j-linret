@@ -19,6 +19,8 @@
 
 package l1j.server.server.serverpackets;
 
+import java.util.logging.Logger;
+
 import l1j.server.server.Opcodes;
 import l1j.server.server.model.Instance.L1PcInstance;
 
@@ -28,8 +30,13 @@ import l1j.server.server.model.Instance.L1PcInstance;
 public class S_OwnCharPack extends ServerBasePacket {
 
 	private static final String S_OWN_CHAR_PACK = "[S] S_OwnCharPack";
+	private static Logger _log = Logger
+			.getLogger(S_OwnCharPack.class.getName());
+
+	private static final int STATUS_POISON = 1;
 	private static final int STATUS_INVISIBLE = 2;
 	private static final int STATUS_PC = 4;
+	private static final int STATUS_FREEZE = 8;
 	private static final int STATUS_BRAVE = 16;
 	private static final int STATUS_ELFBRAVE = 32;
 	private static final int STATUS_FASTMOVABLE = 64;
@@ -50,7 +57,7 @@ public class S_OwnCharPack extends ServerBasePacket {
 		}
 		if (pc.isBrave()) {
 			status |= STATUS_BRAVE;
-			}
+		}
 		if (pc.isElfBrave()) {
 		
 		//need to be tested
@@ -64,6 +71,7 @@ public class S_OwnCharPack extends ServerBasePacket {
 			status |= STATUS_GHOST;
 		}
 
+		// int addbyte = 0;
 		writeC(Opcodes.S_OPCODE_CHARPACK);
 		writeH(pc.getX());
 		writeH(pc.getY());

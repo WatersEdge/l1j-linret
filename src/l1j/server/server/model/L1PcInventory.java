@@ -66,28 +66,30 @@ public class L1PcInventory extends L1Inventory {
 	public L1PcInstance getOwner() {
 		return _owner;
 	}
-
-	public int getWeight30() {
-		return calcWeight30(getWeight());
+	
+	// 240iKÌEFCgðÔ·
+	public int getWeight240() {
+		return calcWeight240(getWeight());
 	}
 
-	public int calcWeight30(int weight) {
-		int weight30 = 0;
+	// 240iKÌEFCgðZo·é
+	public int calcWeight240(int weight) {
+		int weight240 = 0;
 		if (Config.RATE_WEIGHT_LIMIT != 0) {
 			double maxWeight = _owner.getMaxWeight();
 			if (weight > maxWeight) {
-				weight30 = 29;
+				weight240 = 240;
 			} else {
-				double wpTemp = (weight * 100 / maxWeight) * 29.00 / 100.00;
+				double wpTemp = (weight * 100 / maxWeight) * 240.00 / 100.00;
 				DecimalFormat df = new DecimalFormat("00.##");
 				df.format(wpTemp);
 				wpTemp = Math.round(wpTemp);
-				weight30 = (int) (wpTemp);
+				weight240 = (int) (wpTemp);
 			}
-		} else { 
-			weight30 = 0;
+		} else { // EFCg[gªOÈçdÊíÉO
+			weight240 = 0;
 		}
-		return weight30;
+		return weight240;
 	}
 
 	@Override
@@ -115,7 +117,7 @@ public class L1PcInventory extends L1Inventory {
 			}
 			return WEIGHT_OVER;
 		}
-		if (calcWeight30(weight) >= 29) {
+		if (calcWeight240(weight) >= 240) {
 			if (message) {
 				sendOverMessage(82);
 			}
@@ -151,6 +153,10 @@ public class L1PcInventory extends L1Inventory {
 					item.setEquipped(false);
 					setEquipped(item, true, true, false);
 				}
+				if (item.getItem().getType2() == 0 && item.getItem()
+						.getType() == 2) { // lightnACe
+					item.setRemainingTime(item.getItem().getLightFuel());
+				}
 				L1World.getInstance().storeObject(item);
 			}
 		} catch (Exception e) {
@@ -163,7 +169,7 @@ public class L1PcInventory extends L1Inventory {
 		_owner.sendPackets(new S_AddItem(item));
 		if (item.getItem().getWeight() != 0) {
 			_owner.sendPackets(
-					new S_PacketBox(S_PacketBox.WEIGHT, getWeight30()));
+					new S_PacketBox(S_PacketBox.WEIGHT, getWeight240()));
 		}
 		try {
 			CharactersItemStorage storage = CharactersItemStorage.create();
@@ -172,6 +178,12 @@ public class L1PcInventory extends L1Inventory {
 			_log.log(Level.SEVERE, e.getLocalizedMessage(), e);
 		}
 	}
+
+	public static final int COL_ATTR_ENCHANT_LEVEL = 2048;
+
+	public static final int COL_ATTR_ENCHANT_KIND = 1024;
+
+	public static final int COL_BLESS = 512;
 
 	public static final int COL_REMAINING_TIME = 256;
 
@@ -201,7 +213,19 @@ public class L1PcInventory extends L1Inventory {
 
 	@Override
 	public void updateItem(L1ItemInstance item, int column) {
-		if (column >= COL_REMAINING_TIME) { // 
+		if (column >= COL_ATTR_ENCHANT_LEVEL) { // ®«­»
+			_owner.sendPackets(new S_ItemStatus(item));
+			column -= COL_ATTR_ENCHANT_LEVEL;
+		}
+		if (column >= COL_ATTR_ENCHANT_KIND) { // ®«­»ÌíÞ
+			_owner.sendPackets(new S_ItemStatus(item));
+			column -= COL_ATTR_ENCHANT_KIND;
+		}
+		if (column >= COL_BLESS) { // jEó
+			_owner.sendPackets(new S_ItemColor(item));
+			column -= COL_BLESS;
+		}
+		if (column >= COL_REMAINING_TIME) { // gpÂ\ÈcèÔ
 			_owner.sendPackets(new S_ItemName(item));
 			column -= COL_REMAINING_TIME;
 		}
@@ -213,7 +237,7 @@ public class L1PcInventory extends L1Inventory {
 			_owner.sendPackets(new S_ItemStatus(item));
 			_owner.sendPackets(new S_ItemColor(item));
 			_owner.sendPackets(new S_PacketBox(
-					S_PacketBox.WEIGHT, getWeight30()));
+					S_PacketBox.WEIGHT, getWeight240()));
 			column -= COL_ITEMID;
 		}
 		if (column >= COL_DELAY_EFFECT) { 
@@ -231,7 +255,7 @@ public class L1PcInventory extends L1Inventory {
 			}
 			if (item.getItem().getWeight() != 0) {
 				_owner.sendPackets(new S_PacketBox(
-						S_PacketBox.WEIGHT, getWeight30()));
+						S_PacketBox.WEIGHT, getWeight240()));
 			}
 			column -= COL_COUNT;
 		}
@@ -261,7 +285,19 @@ public class L1PcInventory extends L1Inventory {
 
 		try {
 			CharactersItemStorage storage = CharactersItemStorage.create();
-			if (column >= COL_REMAINING_TIME) { // 
+			if (column >= COL_ATTR_ENCHANT_LEVEL) { // ®«­»
+				storage.updateItemAttrEnchantLevel(item);
+				column -= COL_ATTR_ENCHANT_LEVEL;
+			}
+			if (column >= COL_ATTR_ENCHANT_KIND) { // ®«­»ÌíÞ
+				storage.updateItemAttrEnchantKind(item);
+				column -= COL_ATTR_ENCHANT_KIND;
+			}
+			if (column >= COL_BLESS) { // jEó
+				storage.updateItemBless(item);
+				column -= COL_BLESS;
+			}
+			if (column >= COL_REMAINING_TIME) { // gpÂ\ÈcèÔ
 				storage.updateItemRemainingTime(item);
 				column -= COL_REMAINING_TIME;
 			}
@@ -318,10 +354,11 @@ public class L1PcInventory extends L1Inventory {
 		_items.remove(item);
 		if (item.getItem().getWeight() != 0) {
 			_owner.sendPackets(
-					new S_PacketBox(S_PacketBox.WEIGHT, getWeight30()));
+					new S_PacketBox(S_PacketBox.WEIGHT, getWeight240()));
 		}
 	}
 
+	// ACeðE³¹éiL1ItemInstanceÌÏXAâ³lÌÝèAcharacter_itemsÌXVApPbgMÜÅÇj
 	public void setEquipped(L1ItemInstance item, boolean equipped) {
 		setEquipped(item, equipped, false, false);
 	}

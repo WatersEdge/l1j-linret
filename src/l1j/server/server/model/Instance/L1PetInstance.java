@@ -35,7 +35,6 @@ import l1j.server.server.model.L1World;
 import l1j.server.server.model.skill.L1SkillId;
 import l1j.server.server.serverpackets.S_DoActionGFX;
 import l1j.server.server.serverpackets.S_HPMeter;
-import l1j.server.server.serverpackets.S_Light;
 import l1j.server.server.serverpackets.S_NpcChatPacket;
 import l1j.server.server.serverpackets.S_PetMenuPacket;
 import l1j.server.server.serverpackets.S_PetPack;
@@ -43,15 +42,17 @@ import l1j.server.server.serverpackets.S_ServerMessage;
 import l1j.server.server.templates.L1Npc;
 import l1j.server.server.templates.L1Pet;
 import l1j.server.server.templates.L1PetType;
+import static l1j.server.server.model.skill.L1SkillId.*;
 
 public class L1PetInstance extends L1NpcInstance {
 
 	private static final long serialVersionUID = 1L;
 	private static Random _random = new Random();
 
-	//@Override
-	public boolean noTarget(int depth) {
-		if (_currentPetStatus == 3) { // If pet is in rest mode
+	// ^[Qbgª¢È¢êÌ
+	@Override
+	public boolean noTarget() {
+		if (_currentPetStatus == 3) { //  xeÌê
 			return true;
 		} else if (_currentPetStatus == 4) { 
 			if (_petMaster != null
@@ -71,27 +72,9 @@ public class L1PetInstance extends L1NpcInstance {
 			if (Math.abs(getHomeX() - getX()) > 1
 					|| Math.abs(getHomeY() - getY()) > 1) {
 				int dir = moveDirection(getHomeX(), getHomeY());
-				if (dir == -1) { // If the pet cant find a way to the owner
-						//Original code
-						/*setHomeX(getX());
-						setHomeY(getY());*/
-					//Fix by Ssargon, should make summons move better without getting stuck
-					try {
-						Thread.sleep(200);
-						// Prevent infinite recursion by max-bounding retry depth
-						if (depth > 80) {
-							setHomeX(getX());
-							setHomeY(getY());
-							return true;
-						}
-						else {
-							return noTarget(depth+1);
-						}
-					} catch (Exception exception) {
-						setHomeX(getX());
-						setHomeY(getY());
-						return true;
-					}
+				if (dir == -1) { // z[ª£ê·¬Ä½ç»Ýnªz[
+					setHomeX(getX());
+					setHomeY(getY());
 				} else {
 					setDirectionMove(dir);
 					setSleepTime(calcSleepTime(getPassispeed(), MOVE_SPEED));
@@ -211,9 +194,9 @@ public class L1PetInstance extends L1NpcInstance {
 	@Override
 	public void receiveDamage(L1Character attacker, int damage) {
 		if (getCurrentHp() > 0) {
-			if (damage > 0) { 
-				setHate(attacker, 0); 
-				removeSkillEffect(L1SkillId.FOG_OF_SLEEPING);
+			if (damage > 0) { // ñÌêÍUµÈ¢B
+				setHate(attacker, 0); // ybgÍwCg³µ
+				removeSkillEffect(FOG_OF_SLEEPING);
 			}
 
 			if (attacker instanceof L1PcInstance && damage > 0) {
@@ -377,7 +360,6 @@ public class L1PetInstance extends L1NpcInstance {
 
 	@Override
 	public void onPerceive(L1PcInstance perceivedFrom) {
-		perceivedFrom.sendPackets(new S_Light(this.getId(), getLightSize()));
 		perceivedFrom.addKnownObject(this);
 		perceivedFrom.sendPackets(new S_PetPack(this, perceivedFrom)); 
 		if (isDead()) {
@@ -406,8 +388,6 @@ public class L1PetInstance extends L1NpcInstance {
 		L1Attack attack = new L1Attack(player, this);
 		if (attack.calcHit()) {
 			attack.calcDamage();
-			attack.calcStaffOfMana();
-			attack.addPcPoisonAttack(player, this);
 		}
 		attack.action();
 		attack.commit();
@@ -426,16 +406,9 @@ public class L1PetInstance extends L1NpcInstance {
 				l1pet.set_level(getLevel());
 				l1pet.set_hp(getMaxHp());
 				l1pet.set_mp(getMaxMp());
-				PetTable.getInstance().storePet(l1pet); //
+				PetTable.getInstance().storePet(l1pet); // DBÉ«Ý
 			}
 		}
-	}
-
-	/*
-	 * Save to DataBase
-	 */
-	public void save() {
-		PetTable.getInstance().storePet(PetTable.getInstance().getTemplate(_itemObjId));
 	}
 
 	@Override

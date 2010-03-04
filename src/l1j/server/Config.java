@@ -64,6 +64,11 @@ public final class Config {
 
 	public static int CLIENT_LANGUAGE;
 
+	public static String CLIENT_LANGUAGE_CODE;
+
+	public static String[] LANGUAGE_CODE_ARRAY = { "UTF8", "EUCKR", "UTF8",
+			"BIG5", "SJIS", "GBK" };
+
 	public static boolean HOSTNAME_LOOKUPS;
 
 	public static int AUTOMATIC_KICK;
@@ -149,6 +154,8 @@ public final class Config {
 	public static int ENCHANT_CHANCE_WEAPON;
 
 	public static int ENCHANT_CHANCE_ARMOR;
+
+	public static int ATTR_ENCHANT_CHANCE;
 
 	public static double RATE_WEIGHT_LIMIT;
 
@@ -271,6 +278,10 @@ public final class Config {
 	public static int MAX_CLAN_WAREHOUSE_ITEM;
 
 	public static boolean DELETE_CHARACTER_AFTER_7DAYS;
+
+	public static int NPC_DELETION_TIME;
+
+	public static int DEFAULT_CHARACTER_SLOT;
 	
 	public static boolean MONITOR_COMMANDS;
 
@@ -304,6 +315,14 @@ public final class Config {
 	public static int DARKELF_MAX_HP;
 
 	public static int DARKELF_MAX_MP;
+
+	public static int DRAGONKNIGHT_MAX_HP;
+
+	public static int DRAGONKNIGHT_MAX_MP;
+
+	public static int ILLUSIONIST_MAX_HP;
+
+	public static int ILLUSIONIST_MAX_MP;
 
 	public static int LV50_EXP;
 
@@ -447,50 +466,82 @@ public final class Config {
 					"com.mysql.jdbc.Driver");
 			DB_URL = serverSettings
 					.getProperty("URL",
-							"jdbc:mysql://localhost/l1jdb?useUnicode=true&characterEncoding=utf8");
+							"jdbc:mysql://localhost/l1jdb?useUnicode=true&characterEncoding=sjis");
 			DB_LOGIN = serverSettings.getProperty("Login", "root");
 			DB_PASSWORD = serverSettings.getProperty("Password", "");
-			PASSWORD_SALT = serverSettings.getProperty("PasswordSalt", "");
-			THREAD_P_TYPE_GENERAL = Integer.parseInt(serverSettings.getProperty("GeneralThreadPoolType", "0"), 10);
-			THREAD_P_SIZE_GENERAL = Integer.parseInt(serverSettings.getProperty("GeneralThreadPoolSize", "0"), 10);
-			CLIENT_LANGUAGE = Integer.parseInt(serverSettings.getProperty("ClientLanguage", "4"));
-			TIME_ZONE = serverSettings.getProperty("TimeZone", "EST");
-			HOSTNAME_LOOKUPS = Boolean.parseBoolean(serverSettings.getProperty("HostnameLookups", "false"));
-			AUTOMATIC_KICK = Integer.parseInt(serverSettings.getProperty("AutomaticKick", "10"));
-			AUTO_CREATE_ACCOUNTS = Boolean.parseBoolean(serverSettings.getProperty("AutoCreateAccounts", "true"));
-			MAX_ONLINE_USERS = Short.parseShort(serverSettings.getProperty("MaximumOnlineUsers", "30"));
-			CACHE_MAP_FILES = Boolean.parseBoolean(serverSettings.getProperty("CacheMapFiles", "false"));
-			LOAD_V2_MAP_FILES = Boolean.parseBoolean(serverSettings.getProperty("LoadV2MapFiles", "false"));
-			CHECK_MOVE_INTERVAL = Boolean.parseBoolean(serverSettings.getProperty("CheckMoveInterval", "false"));
-			CHECK_ATTACK_INTERVAL = Boolean.parseBoolean(serverSettings.getProperty("CheckAttackInterval", "false"));
-			// CHECK_SPELL_INTERVAL = Boolean.parseBoolean(serverSettings.getProperty("CheckSpellInterval", "false"));
-			Use_Show_INGAMENEWS_Time = Boolean.parseBoolean(serverSettings.getProperty("UseINGAMENEWS_Time", "false"));
-			Show_INGAMENEWS_Time = Integer.parseInt(serverSettings.getProperty("ShowINGAMENEWS_Time", "30"));
-			INJUSTICE_COUNT = Short.parseShort(serverSettings.getProperty("InjusticeCount", "10"));
-			JUSTICE_COUNT = Integer.parseInt(serverSettings.getProperty("JusticeCount", "4"));
-			CHECK_STRICTNESS = Integer.parseInt(serverSettings.getProperty("CheckStrictness", "102"));
-			LOGGING_WEAPON_ENCHANT = Byte.parseByte(serverSettings.getProperty("LoggingWeaponEnchant", "0"));
-			LOGGING_ARMOR_ENCHANT = Byte.parseByte(serverSettings.getProperty("LoggingArmorEnchant", "0"));
-			LOGGING_CHAT_NORMAL = Boolean.parseBoolean(serverSettings.getProperty("LoggingChatNormal", "false"));
-			LOGGING_CHAT_WHISPER = Boolean.parseBoolean(serverSettings.getProperty("LoggingChatWhisper", "false"));
-			LOGGING_CHAT_SHOUT = Boolean.parseBoolean(serverSettings.getProperty("LoggingChatShout", "false"));
-			LOGGING_CHAT_WORLD = Boolean.parseBoolean(serverSettings.getProperty("LoggingChatWorld", "false"));
-			LOGGING_CHAT_CLAN = Boolean.parseBoolean(serverSettings.getProperty("LoggingChatClan", "false"));
-			LOGGING_CHAT_PARTY = Boolean.parseBoolean(serverSettings.getProperty("LoggingChatParty", "false"));
-			LOGGING_CHAT_COMBINED = Boolean.parseBoolean(serverSettings.getProperty("LoggingChatCombined", "false"));
-			LOGGING_CHAT_CHAT_PARTY = Boolean.parseBoolean(serverSettings.getProperty("LoggingChatChatParty", "false"));
-			LOGGING_INCOMING_PACKETS = Boolean.parseBoolean(serverSettings.getProperty("LoggingIncomingPackets", "false"));
-			AUTOSAVE_INTERVAL = Integer.parseInt(serverSettings.getProperty("AutosaveInterval", "1200"), 10);
-			AUTOSAVE_INTERVAL_INVENTORY = Integer.parseInt(serverSettings.getProperty("AutosaveIntervalOfInventory", "300"), 10);
-			SKILLTIMER_IMPLTYPE = Integer.parseInt(serverSettings.getProperty("SkillTimerImplType", "1"));
-			NPCAI_IMPLTYPE = Integer.parseInt(serverSettings.getProperty("NpcAIImplType", "1"));
-			TELNET_SERVER = Boolean.parseBoolean(serverSettings.getProperty("TelnetServer", "false"));
-			TELNET_SERVER_PORT = Integer.parseInt(serverSettings.getProperty("TelnetServerPort", "23"));
-			PC_RECOGNIZE_RANGE = Integer.parseInt(serverSettings.getProperty("PcRecognizeRange", "20"));
-			CHARACTER_CONFIG_IN_SERVER_SIDE = Boolean.parseBoolean(serverSettings.getProperty("CharacterConfigInServerSide", "true"));
-			ALLOW_2PC = Boolean.parseBoolean(serverSettings.getProperty("Allow2PC", "true"));
-			LEVEL_DOWN_RANGE = Integer.parseInt(serverSettings.getProperty("LevelDownRange", "0"));
-
+			THREAD_P_TYPE_GENERAL = Integer.parseInt(serverSettings
+					.getProperty("GeneralThreadPoolType", "0"), 10);
+			THREAD_P_SIZE_GENERAL = Integer.parseInt(serverSettings
+					.getProperty("GeneralThreadPoolSize", "0"), 10);
+			CLIENT_LANGUAGE = Integer.parseInt(serverSettings.getProperty(
+					"ClientLanguage", "4"));
+			CLIENT_LANGUAGE_CODE = LANGUAGE_CODE_ARRAY[CLIENT_LANGUAGE];
+			TIME_ZONE = serverSettings.getProperty("TimeZone", "JST");
+			HOSTNAME_LOOKUPS = Boolean.parseBoolean(serverSettings.getProperty(
+					"HostnameLookups", "false"));
+			AUTOMATIC_KICK = Integer.parseInt(serverSettings.getProperty(
+					"AutomaticKick", "10"));
+			AUTO_CREATE_ACCOUNTS = Boolean.parseBoolean(serverSettings
+					.getProperty("AutoCreateAccounts", "true"));
+			MAX_ONLINE_USERS = Short.parseShort(serverSettings.getProperty(
+					"MaximumOnlineUsers", "30"));
+			CACHE_MAP_FILES = Boolean.parseBoolean(serverSettings.getProperty(
+					"CacheMapFiles", "false"));
+			LOAD_V2_MAP_FILES = Boolean.parseBoolean(serverSettings
+					.getProperty("LoadV2MapFiles", "false"));
+			CHECK_MOVE_INTERVAL = Boolean.parseBoolean(serverSettings
+					.getProperty("CheckMoveInterval", "false"));
+			CHECK_ATTACK_INTERVAL = Boolean.parseBoolean(serverSettings
+					.getProperty("CheckAttackInterval", "false"));
+			CHECK_SPELL_INTERVAL = Boolean.parseBoolean(serverSettings
+					.getProperty("CheckSpellInterval", "false"));
+			INJUSTICE_COUNT = Short.parseShort(serverSettings.getProperty(
+					"InjusticeCount", "10"));
+			JUSTICE_COUNT = Integer.parseInt(serverSettings.getProperty(
+					"JusticeCount", "4"));
+			CHECK_STRICTNESS = Integer.parseInt(serverSettings.getProperty(
+					"CheckStrictness", "102"));
+			LOGGING_WEAPON_ENCHANT = Byte.parseByte(serverSettings.getProperty(
+					"LoggingWeaponEnchant", "0"));
+			LOGGING_ARMOR_ENCHANT = Byte.parseByte(serverSettings.getProperty(
+					"LoggingArmorEnchant", "0"));
+			LOGGING_CHAT_NORMAL = Boolean.parseBoolean(serverSettings
+					.getProperty("LoggingChatNormal", "false"));
+			LOGGING_CHAT_WHISPER = Boolean.parseBoolean(serverSettings
+					.getProperty("LoggingChatWhisper", "false"));
+			LOGGING_CHAT_SHOUT = Boolean.parseBoolean(serverSettings
+					.getProperty("LoggingChatShout", "false"));
+			LOGGING_CHAT_WORLD = Boolean.parseBoolean(serverSettings
+					.getProperty("LoggingChatWorld", "false"));
+			LOGGING_CHAT_CLAN = Boolean.parseBoolean(serverSettings
+					.getProperty("LoggingChatClan", "false"));
+			LOGGING_CHAT_PARTY = Boolean.parseBoolean(serverSettings
+					.getProperty("LoggingChatParty", "false"));
+			LOGGING_CHAT_COMBINED = Boolean.parseBoolean(serverSettings
+					.getProperty("LoggingChatCombined", "false"));
+			LOGGING_CHAT_CHAT_PARTY = Boolean.parseBoolean(serverSettings
+					.getProperty("LoggingChatChatParty", "false"));
+			AUTOSAVE_INTERVAL = Integer.parseInt(serverSettings.getProperty(
+					"AutosaveInterval", "1200"), 10);
+			AUTOSAVE_INTERVAL_INVENTORY = Integer.parseInt(serverSettings
+					.getProperty("AutosaveIntervalOfInventory", "300"), 10);
+			SKILLTIMER_IMPLTYPE = Integer.parseInt(serverSettings.getProperty(
+					"SkillTimerImplType", "1"));
+			NPCAI_IMPLTYPE = Integer.parseInt(serverSettings.getProperty(
+					"NpcAIImplType", "1"));
+			TELNET_SERVER = Boolean.parseBoolean(serverSettings.getProperty(
+					"TelnetServer", "false"));
+			TELNET_SERVER_PORT = Integer.parseInt(serverSettings.getProperty(
+					"TelnetServerPort", "23"));
+			PC_RECOGNIZE_RANGE = Integer.parseInt(serverSettings.getProperty(
+					"PcRecognizeRange", "20"));
+			CHARACTER_CONFIG_IN_SERVER_SIDE = Boolean
+					.parseBoolean(serverSettings.getProperty(
+							"CharacterConfigInServerSide", "true"));
+			ALLOW_2PC = Boolean.parseBoolean(serverSettings.getProperty(
+					"Allow2PC", "true"));
+			LEVEL_DOWN_RANGE = Integer.parseInt(serverSettings.getProperty(
+					"LevelDownRange", "0"));
 			SEND_PACKET_BEFORE_TELEPORT = Boolean.parseBoolean(serverSettings
 					.getProperty("SendPacketBeforeTeleport", "false"));
 			DETECT_DB_RESOURCE_LEAKS = Boolean.parseBoolean(serverSettings
@@ -524,6 +575,8 @@ public final class Config {
 					"EnchantChanceWeapon", "68"));
 			ENCHANT_CHANCE_ARMOR = Integer.parseInt(rateSettings.getProperty(
 					"EnchantChanceArmor", "52"));
+			ATTR_ENCHANT_CHANCE = Integer.parseInt(rateSettings.getProperty(
+					"AttrEnchantChance", "10"));
 			RATE_WEIGHT_LIMIT = Double.parseDouble(rateSettings.getProperty(
 					"RateWeightLimit", "1"));
 			RATE_WEIGHT_LIMIT_PET = Double.parseDouble(rateSettings
@@ -673,6 +726,10 @@ public final class Config {
 					"MaxClanWarehouseItem", "200"));
 			DELETE_CHARACTER_AFTER_7DAYS = Boolean.parseBoolean(altSettings
 					.getProperty("DeleteCharacterAfter7Days", "True"));
+			NPC_DELETION_TIME = Integer.parseInt(altSettings.getProperty(
+					"NpcDeletionTime", "10"));
+			DEFAULT_CHARACTER_SLOT = Integer.parseInt(altSettings.getProperty(
+					"DefaultCharacterSlot", "6"));
 		} catch (Exception e) {
 			_log.log(Level.SEVERE, e.getLocalizedMessage(), e);
 			throw new Error("Failed to Load " + ALT_SETTINGS_FILE + " File.");
@@ -707,6 +764,14 @@ public final class Config {
 					"DarkelfMaxHP", "1000"));
 			DARKELF_MAX_MP = Integer.parseInt(charSettings.getProperty(
 					"DarkelfMaxMP", "900"));
+			DRAGONKNIGHT_MAX_HP = Integer.parseInt(charSettings.getProperty(
+					"DragonKnightMaxHP", "1400"));
+			DRAGONKNIGHT_MAX_MP = Integer.parseInt(charSettings.getProperty(
+					"DragonKnightMaxMP", "600"));
+			ILLUSIONIST_MAX_HP = Integer.parseInt(charSettings.getProperty(
+					"IllusionistMaxHP", "900"));
+			ILLUSIONIST_MAX_MP = Integer.parseInt(charSettings.getProperty(
+					"IllusionistMaxMP", "1100"));
 			LV50_EXP = Integer.parseInt(charSettings
 					.getProperty("Lv50Exp", "1"));
 			LV51_EXP = Integer.parseInt(charSettings
@@ -892,6 +957,8 @@ public final class Config {
 			ENCHANT_CHANCE_WEAPON = Integer.parseInt(pValue);
 		} else if (pName.equalsIgnoreCase("EnchantChanceArmor")) {
 			ENCHANT_CHANCE_ARMOR = Integer.parseInt(pValue);
+		} else if (pName.equalsIgnoreCase("AttrEnchantChance")) {
+			ATTR_ENCHANT_CHANCE = Integer.parseInt(pValue);
 		} else if (pName.equalsIgnoreCase("Weightrate")) {
 			RATE_WEIGHT_LIMIT = Byte.parseByte(pValue);
 		}
@@ -952,6 +1019,10 @@ public final class Config {
 			MAX_CLAN_WAREHOUSE_ITEM = Integer.valueOf(pValue);
 		} else if (pName.equalsIgnoreCase("DeleteCharacterAfter7Days")) {
 			DELETE_CHARACTER_AFTER_7DAYS = Boolean.valueOf(pValue);
+		} else if (pName.equalsIgnoreCase("NpcDeletionTime")) {
+			NPC_DELETION_TIME = Integer.valueOf(pValue);
+		} else if (pName.equalsIgnoreCase("DefaultCharacterSlot")) {
+			DEFAULT_CHARACTER_SLOT = Integer.valueOf(pValue);
 		}
 		// charsettings.properties
 		else if (pName.equalsIgnoreCase("PrinceMaxHP")) {
@@ -974,6 +1045,14 @@ public final class Config {
 			DARKELF_MAX_HP = Integer.parseInt(pValue);
 		} else if (pName.equalsIgnoreCase("DarkelfMaxMP")) {
 			DARKELF_MAX_MP = Integer.parseInt(pValue);
+		} else if (pName.equalsIgnoreCase("DragonKnightMaxHP")) {
+			DRAGONKNIGHT_MAX_HP = Integer.parseInt(pValue);
+		} else if (pName.equalsIgnoreCase("DragonKnightMaxMP")) {
+			DRAGONKNIGHT_MAX_MP = Integer.parseInt(pValue);
+		} else if (pName.equalsIgnoreCase("IllusionistMaxHP")) {
+			ILLUSIONIST_MAX_HP = Integer.parseInt(pValue);
+		} else if (pName.equalsIgnoreCase("IllusionistMaxMP")) {
+			ILLUSIONIST_MAX_MP = Integer.parseInt(pValue);
 		} else if (pName.equalsIgnoreCase("Lv50Exp")) {
 			LV50_EXP = Integer.parseInt(pValue);
 		} else if (pName.equalsIgnoreCase("Lv51Exp")) {

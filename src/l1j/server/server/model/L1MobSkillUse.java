@@ -105,7 +105,10 @@ public class L1MobSkillUse {
 		return _mobSkillTemplate;
 	}
 
-	public boolean skillUse(L1Character tg) {
+	/*
+	 * gK[ÌðÌÝ`FbNB
+	 */
+	public boolean isSkillTrigger(L1Character tg) {
 		if (_mobSkillTemplate == null) {
 			return false;
 		}
@@ -122,42 +125,101 @@ public class L1MobSkillUse {
 		for (i = 0; i < getMobSkillTemplate().getSkillSize()
 				&& getMobSkillTemplate().getType(i) != L1MobSkill.TYPE_NONE; i++) {
 
+	
 			int changeType = getMobSkillTemplate().getChangeTarget(i);
 			if (changeType > 0) {
 				_target = changeTarget(changeType, i);
 			} else {
+				// Ýè³êÄÈ¢êÍ{Ì^[QbgÉ·é
 				_target = tg;
 			}
 
-			if (isSkillUseble(i) == false) {
-				continue;
+			if (isSkillUseble(i, false)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/*
+	 * XLU XLUÂ\ÈçÎtrueðÔ·B UÅ«È¯êÎfalseðÔ·B
+	 */
+	public boolean skillUse(L1Character tg, boolean isTriRnd) {
+		if (_mobSkillTemplate == null) {
+			return false;
+		}
+		_target = tg;
+
+		int type;
+		type = getMobSkillTemplate().getType(0);
+
+		if (type == L1MobSkill.TYPE_NONE) {
+			return false;
+		}
+
+		int[] skills = null;
+		int skillSizeCounter = 0;
+		int skillSize = getMobSkillTemplate().getSkillSize();
+		if (skillSize >= 0) {
+			skills = new int[skillSize];
+		}
+
+		int i = 0;
+		for (i = 0; i < getMobSkillTemplate().getSkillSize()
+				&& getMobSkillTemplate().getType(i) != L1MobSkill.TYPE_NONE; i++) {
+
+			// changeTargetªÝè³êÄ¢éêA^[QbgÌüêÖ¦
+			int changeType = getMobSkillTemplate().getChangeTarget(i);
+			if (changeType > 0) {
+				_target = changeTarget(changeType, i);
+			} else {
+				// Ýè³êÄÈ¢êÍ{Ì^[QbgÉ·é
+				_target = tg;
 			}
 
-			type = getMobSkillTemplate().getType(i);
-			if (type == L1MobSkill.TYPE_PHYSICAL_ATTACK) {
-				if (physicalAttack(i) == true) {
-					skillUseCountUp(i);
-					return true;
-				}
-			} else if (type == L1MobSkill.TYPE_MAGIC_ATTACK) {
-				if (magicAttack(i) == true) {
-					skillUseCountUp(i);
-					return true;
-				}
-			} else if (type == L1MobSkill.TYPE_SUMMON) {
-				if (summon(i) == true) {
-					skillUseCountUp(i);
-					return true;
-				}
-			} else if (type == L1MobSkill.TYPE_POLY) {
-				if (poly(i) == true) {
-					skillUseCountUp(i);
-					return true;
-				}
+			if (isSkillUseble(i, isTriRnd) == false) {
+				continue;
+			} else { // ðÉ ¤XLª¶Ý·é
+				skills[skillSizeCounter] = i;
+				skillSizeCounter++;
+			}
+		}
+
+		if (skillSizeCounter != 0) {
+			int num = _rnd.nextInt(skillSizeCounter);
+			if (useSkill(skills[num])) { // XLgp
+				return true;
 			}
 		}
 
 		return false;
+	}
+
+	private boolean useSkill(int i) {
+		boolean isUseSkill = false;
+		int type = getMobSkillTemplate().getType(i);
+		if (type == L1MobSkill.TYPE_PHYSICAL_ATTACK) { // ¨U
+			if (physicalAttack(i) == true) {
+				skillUseCountUp(i);
+				isUseSkill = true;
+			}
+		} else if (type == L1MobSkill.TYPE_MAGIC_ATTACK) { // @U
+			if (magicAttack(i) == true) {
+				skillUseCountUp(i);
+				isUseSkill = true;
+			}
+		} else if (type == L1MobSkill.TYPE_SUMMON) { // T·é
+			if (summon(i) == true) {
+				skillUseCountUp(i);
+				isUseSkill = true;
+			}
+		} else if (type == L1MobSkill.TYPE_POLY) { // ­§Ïg³¹é
+			if (poly(i) == true) {
+				skillUseCountUp(i);
+				isUseSkill = true;
+			}
+		}
+		return isUseSkill;
 	}
 
 	private boolean summon(int idx) {
@@ -219,8 +281,14 @@ public class L1MobSkillUse {
 			usePoly = true;
 		}
 		if (usePoly) {
-			_attacker.broadcastPacket(new S_SkillSound(_attacker.getId(), 230));
-
+			// Ïg³¹½êAIWÌð\¦·éB
+			for (L1PcInstance pc : L1World.getInstance()
+					.getVisiblePlayer(_attacker)) {
+				pc.sendPackets(new S_SkillSound(pc.getId(), 230));
+				pc.broadcastPacket(new S_SkillSound(pc.getId(), 230));
+				break;
+			}
+			// @ðg¤®ìÌGtFNg
 			S_DoActionGFX gfx = new S_DoActionGFX(_attacker.getId(),
 					ActionCodes.ACTION_SkillBuff);
 			_attacker.broadcastPacket(gfx);
@@ -359,15 +427,21 @@ public class L1MobSkillUse {
 		return true;
 	}
 
-	private boolean isSkillUseble(int skillIdx) {
+	/*
+	 */
+	private boolean isSkillUseble(int skillIdx, boolean isTriRnd) {
 		boolean useble = false;
+		int type = getMobSkillTemplate().getType(skillIdx);
 
-		if (getMobSkillTemplate().getTriggerRandom(skillIdx) > 0) {
-			int chance = _rnd.nextInt(100) + 1;
-			if (chance < getMobSkillTemplate().getTriggerRandom(skillIdx)) {
-				useble = true;
-			} else {
-				return false;
+		if (isTriRnd || type == L1MobSkill.TYPE_SUMMON
+				|| type == L1MobSkill.TYPE_POLY) {
+			if (getMobSkillTemplate().getTriggerRandom(skillIdx) > 0) {
+				int chance = _rnd.nextInt(100) + 1;
+				if (chance < getMobSkillTemplate().getTriggerRandom(skillIdx)) {
+					useble = true;
+				} else {
+					return false;
+				}
 			}
 		}
 

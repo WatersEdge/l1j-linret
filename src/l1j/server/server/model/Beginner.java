@@ -70,6 +70,10 @@ public class Beginner {
 				pstm1.setString(2, "W");
 			} else if (pc.isDarkelf()) {
 				pstm1.setString(2, "D");
+			} else if (pc.isDragonKnight()) { // hSiCg
+				pstm1.setString(2, "R");
+			} else if (pc.isIllusionist()) { // C[WjXg
+				pstm1.setString(2, "I");
 			} else {
 				pstm1.setString(2, "A");
 			}
@@ -87,9 +91,12 @@ public class Beginner {
 					pstm2.setInt(5, rs.getInt("count"));
 					pstm2.setInt(6, 0);
 					pstm2.setInt(7, rs.getInt("enchantlvl"));
-					pstm2.setInt(8, rs.getInt("is_id"));
+					pstm2.setInt(8, 0);
 					pstm2.setInt(9, 0);
 					pstm2.setInt(10, rs.getInt("charge_count"));
+					pstm2.setInt(11, 0);
+					pstm2.setTimestamp(12, null);
+					pstm2.setInt(13, 1);
 					pstm2.execute();
 				} catch (SQLException e2) {
 					_log.log(Level.SEVERE, e2.getLocalizedMessage(), e2);

@@ -60,8 +60,14 @@ public class C_Shop extends ClientBasePacket {
 			return;
 		}
 
-		ArrayList<L1PrivateShopSellList> sellList = pc.getSellList();
-		ArrayList<L1PrivateShopBuyList> buyList = pc.getBuyList();
+		int mapId = pc.getMapId();
+		if (mapId != 340 && mapId != 350 && mapId != 360 && mapId != 370) {
+			pc.sendPackets(new S_ServerMessage(876)); // ±ÌêÅÍÂl¤XðJ¯Ü¹ñB
+			return;
+		}
+
+		ArrayList sellList = pc.getSellList();
+		ArrayList buyList = pc.getBuyList();
 		L1ItemInstance checkItem;
 		boolean tradable = true;
 
@@ -137,6 +143,12 @@ public class C_Shop extends ClientBasePacket {
 					pc.sendPackets(new S_ServerMessage(166,
 							checkItem.getItem().getName(), "Ready"));
 				}
+				if (checkItem.getBless() >= 128) { 
+					pc.sendPackets(new S_ServerMessage(210, checkItem.getItem()
+							.getName()));
+					return;
+				}
+
 				Object[] petlist = pc.getPetList().values().toArray();
 				for (Object petObject : petlist) {
 					if (petObject instanceof L1PetInstance) {

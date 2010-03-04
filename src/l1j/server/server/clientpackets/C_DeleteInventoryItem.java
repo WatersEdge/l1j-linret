@@ -65,6 +65,11 @@ public class C_DeleteInventoryItem extends ClientBasePacket {
 			pc.sendPackets(new S_ServerMessage(125));
 			return;
 		}
+		if (item.getBless() >= 128) { 
+			pc.sendPackets(new S_ServerMessage(210, item.getItem().getName()));
+			return;
+		}
+
 		pc.getInventory().removeItem(item, item.getCount());
 		pc.turnOnOffLight();
 	}

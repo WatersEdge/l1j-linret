@@ -25,8 +25,6 @@ public class S_GMHtml extends ServerBasePacket {
 		writeC(Opcodes.S_OPCODE_SHOWHTML);
 		writeD(_objid);
 		writeS("hsiw");
-		writeH(1);
-		writeH(0x01);
 		writeS(html);
 	}
 

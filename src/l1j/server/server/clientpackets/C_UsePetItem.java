@@ -38,7 +38,7 @@ public class C_UsePetItem extends ClientBasePacket {
 			throws Exception {
 		super(abyte0);
 
-		readC();
+		int data = readC();
 		int petId = readD();
 		int listNo = readC();
 

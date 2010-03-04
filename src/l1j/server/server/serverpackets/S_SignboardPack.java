@@ -30,6 +30,14 @@ public class S_SignboardPack extends ServerBasePacket {
 	private static final String S_SIGNBOARD_PACK = "[S] S_SignboardPack";
 
 	private static final int STATUS_POISON = 1;
+	private static final int STATUS_INVISIBLE = 2;
+	private static final int STATUS_PC = 4;
+	private static final int STATUS_FREEZE = 8;
+	private static final int STATUS_BRAVE = 16;
+	private static final int STATUS_ELFBRAVE = 32;
+	private static final int STATUS_FASTMOVABLE = 64;
+	private static final int STATUS_GHOST = 128;
+
 	private byte[] _byte = null;
 
 	public S_SignboardPack(L1SignboardInstance signboard) {
@@ -39,7 +47,7 @@ public class S_SignboardPack extends ServerBasePacket {
 		writeD(signboard.getId());
 		writeH(signboard.getGfxId());
 		writeC(0);
-		writeC(0);
+		writeC(getDirection(signboard.getHeading()));
 		writeC(0);
 		writeC(0);
 		writeD(0);
@@ -63,6 +71,28 @@ public class S_SignboardPack extends ServerBasePacket {
 		writeC(0);
 		writeC(0xFF);
 		writeC(0xFF);
+	}
+
+	private int getDirection(int heading) {
+		int dir = 0;
+		switch (heading) {
+		case 2:
+			dir = 1;
+			break;
+		case 3:
+			dir = 2;
+			break;
+		case 4:
+			dir = 3;
+			break;
+		case 6:
+			dir = 4;
+			break;
+		case 7:
+			dir = 5;
+			break;
+		}
+		return dir;
 	}
 
 	@Override

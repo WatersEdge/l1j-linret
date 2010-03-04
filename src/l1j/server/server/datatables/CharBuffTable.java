@@ -35,19 +35,26 @@ public class CharBuffTable {
 	private static Logger _log = Logger
 			.getLogger(CharBuffTable.class.getName());
 
-	private static final int[] buffSkill = { 2, 67,
-			3, 99, 151, 159, 168, 
-			43, 54, 1000, 1001, STATUS_ELFBRAVE, //
-			52, 101, 150, 
-			26, 42, 109, 110, 
-			114, 115, 117, 
-			148, 155, 163, 
-			149, 156, 166, 
-			1002, 1005,
-			COOKING_1_0_N, COOKING_1_0_S, COOKING_1_1_N, COOKING_1_1_S,
+	private static final int[] buffSkill = { 2, 67, // CgAVFCv`FW
+			3, 99, 151, 159, 168, // V[hAVhEA[}[AA[XXLAA[XuXAACAXL
+			43, 54, 1000, 1001, STATUS_ELFBRAVE, // wCXgAO[^[wCXgAuCu|[VAO[|[VAGbt
+			52, 101, 150, // z[[EH[NA[rOANZ[VAEBhEH[N
+			26, 42, 109, 110, // PE:DEXAPE:STRAhX}CeB[AhXfNX^eB[
+			114, 115, 117, // O[EBOI[AVCjOI[AuCuI[
+			148, 155, 163, // t@CA[EF|At@CA[uXAo[jOEF|
+			149, 156, 166, // EBhVbgAXg[ACAXg[Vbg
+			1002, 1005, // u[|[VA`bgÖ~
+			COOKING_1_0_N, COOKING_1_0_S, COOKING_1_1_N, COOKING_1_1_S, // ¿(fU[gÍ­)
 			COOKING_1_2_N, COOKING_1_2_S, COOKING_1_3_N, COOKING_1_3_S,
 			COOKING_1_4_N, COOKING_1_4_S, COOKING_1_5_N, COOKING_1_5_S,
-			COOKING_1_6_N, COOKING_1_6_S };
+			COOKING_1_6_N, COOKING_1_6_S, COOKING_2_0_N, COOKING_2_0_S,
+			COOKING_2_1_N, COOKING_2_1_S, COOKING_2_2_N, COOKING_2_2_S,
+			COOKING_2_3_N, COOKING_2_3_S, COOKING_2_4_N, COOKING_2_4_S,
+			COOKING_2_5_N, COOKING_2_5_S, COOKING_2_6_N, COOKING_2_6_S,
+			COOKING_3_0_N, COOKING_3_0_S, COOKING_3_1_N, COOKING_3_1_S,
+			COOKING_3_2_N, COOKING_3_2_S, COOKING_3_3_N, COOKING_3_3_S,
+			COOKING_3_4_N, COOKING_3_4_S, COOKING_3_5_N, COOKING_3_5_S,
+			COOKING_3_6_N, COOKING_3_6_S };
 
 	private static void StoreBuff(int objId, int skillId, int time, int polyId) {
 		java.sql.Connection con = null;

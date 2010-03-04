@@ -40,9 +40,8 @@ import l1j.server.server.templates.L1Command;
 public class GMCommands {
 	private static Logger _log = Logger.getLogger(GMCommands.class.getName());
 
-	boolean spawnTF = false;
-	
 	private static GMCommands _instance;
+
 	private GMCommands() {
 	}
 

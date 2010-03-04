@@ -34,7 +34,14 @@ public class S_NPCPack extends ServerBasePacket {
 
 
 	private static final int STATUS_POISON = 1;
+	private static final int STATUS_INVISIBLE = 2;
 	private static final int STATUS_PC = 4;
+	private static final int STATUS_FREEZE = 8;
+	private static final int STATUS_BRAVE = 16;
+	private static final int STATUS_ELFBRAVE = 32;
+	private static final int STATUS_FASTMOVABLE = 64;
+	private static final int STATUS_GHOST = 128;
+
 	private byte[] _byte = null;
 
 	public S_NPCPack(L1NpcInstance npc) {
@@ -98,18 +105,6 @@ public class S_NPCPack extends ServerBasePacket {
 		writeC(0);
 		writeC(0xFF);
 		writeC(0xFF);
-		/*
-		 * writeC(68); writeH(npc.get_x()); writeH(npc.get_y());
-		 * writeD(npc.get_objectId()); writeH(npc.get_gfxid());
-		 * writeC(npc.get_status()); writeC(npc.get_heading());
-		 * writeC(npc.get_NPCType()); writeC(i); writeC(j); writeH(0);
-		 * writeC(0); writeH(npc.get_lawful()); writeS(npc.get_nameid());
-		 * writeC(0); writeD(0); writeD(0); writeC(255); writeC(0);
-		 * writeC(npc.get_level()); writeC(0); writeH(65535); //
-		 * writeD(0x401799a); //GameTime?
-		 * writeD(GameTimeController.getInstance().getGameTime()); //GameTime
-		 * writeC(8); writeC(0);
-		 */
 	}
 
 	@Override

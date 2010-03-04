@@ -33,7 +33,9 @@ import l1j.server.server.model.Instance.L1PcInstance;
 import l1j.server.server.model.skill.L1SkillId;
 import l1j.server.server.serverpackets.S_ChatPacket;
 import l1j.server.server.serverpackets.S_NpcChatPacket;
+import l1j.server.server.serverpackets.S_PacketBox;
 import l1j.server.server.serverpackets.S_ServerMessage;
+import static l1j.server.server.model.skill.L1SkillId.*;
 
 // Referenced classes of package l1j.server.server.clientpackets:
 // ClientBasePacket
@@ -48,9 +50,9 @@ public class C_Chat extends ClientBasePacket {
 		L1PcInstance pc = clientthread.getActiveChar();
 		int chatType = readC();
 		String chatText = readS();
-		if (pc.hasSkillEffect(L1SkillId.SILENCE)
-				|| pc.hasSkillEffect(L1SkillId.AREA_OF_SILENCE)
-				|| pc.hasSkillEffect(L1SkillId.STATUS_POISON_SILENCE) || pc.getMapId() == 509 && !pc.isGm()) {
+		if (pc.hasSkillEffect(SILENCE)
+				|| pc.hasSkillEffect(AREA_OF_SILENCE)
+				|| pc.hasSkillEffect(STATUS_POISON_SILENCE) || pc.getMapId() == 509 && !pc.isGm()) {
 			return;
 		}
 		if (pc.hasSkillEffect(1005)) { 
@@ -248,7 +250,7 @@ public class C_Chat extends ClientBasePacket {
 			}
 		} else {
 			pc.sendPackets(new S_ServerMessage(195, String
-					.valueOf(Config.GLOBAL_CHAT_LEVEL))); // x%0LN^[`bgB
+					.valueOf(Config.GLOBAL_CHAT_LEVEL))); 
 		}
 	}
 

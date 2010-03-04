@@ -18,6 +18,7 @@
  */
 package l1j.server.server.model.Instance;
 
+import java.util.ArrayList;
 import java.util.logging.Logger;
 
 import l1j.server.server.datatables.NPCTalkDataTable;
@@ -36,10 +37,9 @@ public class L1DwarfInstance extends L1NpcInstance {
 	private static Logger _log = Logger.getLogger(L1DwarfInstance.class
 			.getName());
 
-	// commented out - not used
-	//private ArrayList _tpLocs;
+	private ArrayList _tpLocs;
 
-	//private int _tpId;
+	private int _tpId;
 
 	/**
 	 * @param template
@@ -51,8 +51,7 @@ public class L1DwarfInstance extends L1NpcInstance {
 	@Override
 	public void onAction(L1PcInstance pc) {
 		L1Attack attack = new L1Attack(pc, this);
-	    attack.calcHit();
-		attack.addPcPoisonAttack(pc, this);
+		attack.calcHit();
 		attack.action();
 	}
 
@@ -90,7 +89,7 @@ public class L1DwarfInstance extends L1NpcInstance {
 
 	@Override
 	public void onFinalAction(L1PcInstance pc, String Action) {
-		getTemplateid();
+		int objid = getTemplateid();
 		if (Action.equalsIgnoreCase("retrieve")) {
 			_log.finest("Retrive items in storage");
 		} else if (Action.equalsIgnoreCase("retrieve-pledge")) {

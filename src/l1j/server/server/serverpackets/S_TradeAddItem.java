@@ -34,19 +34,9 @@ public class S_TradeAddItem extends ServerBasePacket {
 		writeC(type); // 0: The upper level of a window Trade: Trade window Lower Level
 		writeH(item.getItem().getGfxId());
 		writeS(item.getNumberedViewName(count));
-
-		// 0: blessing 1: Normal 2: Curse 3: No Appraisal
-		if (!item.isIdentified()) { // No expert opinion
-			writeC(3);
-		} else { // Already been appraised
-			if (item.getItem().getBless() == 0) { // Blessing
-				writeC(0);
-			} else if (item.getItem().getBless() == 1) { // Normal
-				writeC(1);
-			} else if (item.getItem().getBless() == 2) { // Curse
-				writeC(2);
-			}
-		}
+		// 0:j  1:Êí 2:ô¢ 3:¢Óè
+		// 128:j&ó 129:&ó 130:ô¢&ó 131:¢Óè&ó
+		writeC(item.getBless());
 		writeC(0x00);
 	}
 

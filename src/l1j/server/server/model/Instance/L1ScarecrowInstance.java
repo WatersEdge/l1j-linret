@@ -35,7 +35,6 @@ public class L1ScarecrowInstance extends L1NpcInstance {
 			}
 			broadcastPacket(new S_ChangeHeading(this)); //
 		}
-		attack.addPcPoisonAttack(player, this);
 		attack.action();
 	}
 

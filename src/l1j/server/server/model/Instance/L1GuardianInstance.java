@@ -43,6 +43,7 @@ import l1j.server.server.serverpackets.S_NPCTalkReturn;
 import l1j.server.server.serverpackets.S_ServerMessage;
 import l1j.server.server.templates.L1Npc;
 import l1j.server.server.utils.CalcExp;
+import static l1j.server.server.model.skill.L1SkillId.*;
 
 public class L1GuardianInstance extends L1NpcInstance {
 	/**
@@ -75,7 +76,11 @@ public class L1GuardianInstance extends L1NpcInstance {
 			if (!pc.isInvisble() || getNpcTemplate().is_agrocoi()) {
 				if (!pc.isElf()) {
 					targetPlayer = pc;
-					wideBroadcastPacket(new S_NpcChatPacket(this, "$804", 2));
+					wideBroadcastPacket(new S_NpcChatPacket(this, "$804", 2)); // GtÈOÌÒæA½ªÉµ¯êÎ­±±©çêB±±Í_¹Èê¾B
+					break;
+				} else if (pc.isElf() && pc.isWantedForElf()) {
+					targetPlayer = pc;
+					wideBroadcastPacket(new S_NpcChatPacket(this, "$815", 1)); // ¯°ðEµ½àÌÍAÈÌÅ»Ìßð ªÈ¤±ÆÉÈé¾ë¤B
 					break;
 				}
 			}
@@ -101,7 +106,6 @@ public class L1GuardianInstance extends L1NpcInstance {
 		}
 		setActived(false);
 		startAI();
-		startChat(CHAT_TIMING_APPEARANCE);
 	}
 
 	@Override
@@ -146,6 +150,7 @@ public class L1GuardianInstance extends L1NpcInstance {
 				attack.calcDamage();
 				attack.calcStaffOfMana();
 				attack.addPcPoisonAttack(player, this);
+				attack.addChaserAttack();
 			}
 			attack.action();
 			attack.commit();
@@ -155,6 +160,7 @@ public class L1GuardianInstance extends L1NpcInstance {
 				attack.calcDamage();
 				attack.calcStaffOfMana();
 				attack.addPcPoisonAttack(player, this);
+				attack.addChaserAttack();
 			}
 			attack.action();
 			attack.commit();

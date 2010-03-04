@@ -63,12 +63,8 @@ public class S_ShopSellList extends ServerBasePacket {
 		for (int i = 0; i < shopItems.size(); i++) {
 			L1ShopItem shopItem = shopItems.get(i);
 			L1Item item = shopItem.getItem();
-			int price;
-			if(npcId != 70017 && npcId != 70049) {  // Exclude Orim and Rozen from taxes
-				price = calc.layTax((int) (shopItem.getPrice() * Config.RATE_SHOP_SELLING_PRICE));
-			} else {
-				price = (int) (shopItem.getPrice() * Config.RATE_SHOP_SELLING_PRICE);
-			}
+			int price = calc.layTax((int)
+					(shopItem.getPrice() * Config.RATE_SHOP_SELLING_PRICE));
 			writeD(i);
 			writeH(shopItem.getItem().getGfxId());
 			writeD(price);
@@ -90,6 +86,7 @@ public class S_ShopSellList extends ServerBasePacket {
 				}
 			}
 		}
+		writeH(0x07); // 0x00:kaimo 0x01:pearl 0x07:adena
 	}
 
 	@Override

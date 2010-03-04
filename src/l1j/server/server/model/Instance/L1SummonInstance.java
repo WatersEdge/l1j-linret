@@ -17,12 +17,12 @@ import l1j.server.server.model.L1World;
 import l1j.server.server.model.skill.L1SkillId;
 import l1j.server.server.serverpackets.S_DoActionGFX;
 import l1j.server.server.serverpackets.S_HPMeter;
-import l1j.server.server.serverpackets.S_Light;
 import l1j.server.server.serverpackets.S_PetMenuPacket;
 import l1j.server.server.serverpackets.S_ServerMessage;
 import l1j.server.server.serverpackets.S_SkillSound;
 import l1j.server.server.serverpackets.S_SummonPack;
 import l1j.server.server.templates.L1Npc;
+import static l1j.server.server.model.skill.L1SkillId.*;
 
 public class L1SummonInstance extends L1NpcInstance {
 	private static final long serialVersionUID = 1L;
@@ -33,8 +33,11 @@ public class L1SummonInstance extends L1NpcInstance {
 	private boolean _isReturnToNature = false;
 	private static Random _random = new Random();
 
-	public boolean noTarget(int depth) {
-		if (_currentPetStatus == 3) { // If summon is in rest mode
+	// ^[Qbgª¢È¢êÌ
+	@Override
+	public boolean noTarget() {
+		if (_currentPetStatus == 3) {
+			//  xeÌê
 			return true;
 		} else if (_currentPetStatus == 4) {
 			if (_master != null
@@ -53,26 +56,10 @@ public class L1SummonInstance extends L1NpcInstance {
 			if (Math.abs(getHomeX() - getX()) > 1
 					|| Math.abs(getHomeY() - getY()) > 1) {
 				int dir = moveDirection(getHomeX(), getHomeY());
-				if (dir == -1) { // If the summon cant find a way to the owner
-						//Original code
-						/*setHomeX(getX());
-						setHomeY(getY());*/
-					//Fix by Ssargon, should make summons move better without getting stuck
-					try {
-						Thread.sleep(200);
-						// Prevent infinite recursion by max-bounding retry depth
-						if (depth > 80) {
-							setHomeX(getX());
-							setHomeY(getY());
-							return true;
-						} else {
-							return noTarget(depth+1);
-						}
-					} catch (Exception exception) {
-						setHomeX(getX());
-						setHomeY(getY());
-						return true;
-					}
+				if (dir == -1) {
+					// z[ª£ê·¬Ä½ç»Ýnªz[
+					setHomeX(getX());
+					setHomeY(getY());
 				} else {
 					setDirectionMove(dir);
 					setSleepTime(calcSleepTime(getPassispeed(), MOVE_SPEED));
@@ -211,8 +198,8 @@ public class L1SummonInstance extends L1NpcInstance {
 	public void receiveDamage(L1Character attacker, int damage) { 
 		if (getCurrentHp() > 0) {
 			if (damage > 0) {
-				setHate(attacker, 0); 
-				removeSkillEffect(L1SkillId.FOG_OF_SLEEPING);
+				setHate(attacker, 0); // TÍwCg³µ
+				removeSkillEffect(FOG_OF_SLEEPING);
 				if (!isExsistMaster()) {
 					_currentPetStatus = 1;
 					setTarget(attacker);
@@ -232,6 +219,7 @@ public class L1SummonInstance extends L1NpcInstance {
 			}
 		} else if (!isDead())
 		{
+			System.out.println("xFTÌgo¸­ª³µ­síêÄ¢È¢Óª èÜ·B¦àµ­ÍÅ©çgoO");
 			Death(attacker);
 		}
 	}
@@ -381,8 +369,6 @@ public class L1SummonInstance extends L1NpcInstance {
 		L1Attack attack = new L1Attack(attacker, this);
 		if (attack.calcHit()) {
 			attack.calcDamage();
-			attack.calcStaffOfMana();
-			attack.addPcPoisonAttack(attacker, this);
 		}
 		attack.action();
 		attack.commit();
@@ -425,7 +411,6 @@ public class L1SummonInstance extends L1NpcInstance {
 
 	@Override
 	public void onPerceive(L1PcInstance perceivedFrom) {
-		perceivedFrom.sendPackets(new S_Light(this.getId(), getLightSize()));
 		perceivedFrom.addKnownObject(this);
 		perceivedFrom.sendPackets(new S_SummonPack(this, perceivedFrom));
 	}

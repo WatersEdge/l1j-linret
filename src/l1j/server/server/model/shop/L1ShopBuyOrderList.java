@@ -51,12 +51,10 @@ public class L1ShopBuyOrderList {
 	private int _totalWeight = 0;
 	private int _totalPrice = 0;
 	private int _totalPriceTaxIncluded = 0;
-	private int _npcid = 0;
 
 	L1ShopBuyOrderList(L1Shop shop) {
 		_shop = shop;
 		_taxCalc = new L1TaxCalculator(shop.getNpcId());
-		_npcid = shop.getNpcId();
 	}
 
 	public void add(int orderNumber, int count) {
@@ -71,12 +69,11 @@ public class L1ShopBuyOrderList {
 				return;
 			}
 		}
-		_totalPrice += price * count;
-		if(_npcid != 70017 && _npcid != 70049) { // Exclude Orim and Rozen from taxes
-			_totalPriceTaxIncluded += _taxCalc.layTax(price) * count;
-		} else {
-			_totalPriceTaxIncluded += price * count;
+		if (_totalPrice < 0) {
+			return;
 		}
+		_totalPrice += price * count;
+		_totalPriceTaxIncluded += _taxCalc.layTax(price) * count;
 		_totalWeight += shopItem.getItem().getWeight() * count
 				* shopItem.getPackCount();
 

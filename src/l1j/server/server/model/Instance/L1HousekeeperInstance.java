@@ -45,7 +45,6 @@ public class L1HousekeeperInstance extends L1NpcInstance {
 		L1Attack attack = new L1Attack(pc, this);
 		attack.calcHit();
 		attack.action();
-		attack.commit();
 	}
 
 	@Override
@@ -57,20 +56,17 @@ public class L1HousekeeperInstance extends L1NpcInstance {
 		String htmlid = null;
 		String[] htmldata = null;
 		boolean isOwner = false;
+
 		if (talking != null) {
 			L1Clan clan = L1World.getInstance().getClan(pc.getClanname());
 			if (clan != null) {
-				try {
-					int houseId = clan.getHouseId();
-					if (houseId != 0) {
-						L1House house = HouseTable.getInstance().getHouseTable(houseId);
-	
-						if (npcid == house.getKeeperId()) {
-							isOwner = true;
-						}
-					} 
-				} catch (Exception e) {
-					System.out.println(e);
+				int houseId = clan.getHouseId();
+				if (houseId != 0) {
+					L1House house = HouseTable.getInstance()
+							.getHouseTable(houseId);
+					if (npcid == house.getKeeperId()) {
+						isOwner = true;
+					}
 				}
 			}
 

@@ -27,6 +27,8 @@ import java.util.Random;
 import l1j.server.server.model.Instance.L1EffectInstance;
 import l1j.server.server.model.Instance.L1PcInstance;
 import l1j.server.server.model.skill.L1SkillId;
+import l1j.server.server.types.Point;
+import static l1j.server.server.model.skill.L1SkillId.*;
 
 public class HpRegeneration extends TimerTask {
 
@@ -110,16 +112,40 @@ public class HpRegeneration extends TimerTask {
 		equipHpr += _pc.getHpr();
 		int bonus = _random.nextInt(maxBonus) + 1;
 
-		if (_pc.hasSkillEffect(L1SkillId.NATURES_TOUCH)) {
+		if (_pc.hasSkillEffect(NATURES_TOUCH)) {
 			bonus += 15;
 		}
 		if (L1HouseLocation.isInHouse(_pc.getX(), _pc.getY(), _pc.getMapId())) {
 			bonus += 5;
 		}
- 		if (_pc.hasSkillEffect(L1SkillId.COOKING_1_5_N)
-				|| _pc.hasSkillEffect(L1SkillId.COOKING_1_5_S)) {
+		if (_pc.getMapId() == 16384 || _pc.getMapId() == 16896
+				|| _pc.getMapId() == 17408 || _pc.getMapId() == 17920
+				|| _pc.getMapId() == 18432 || _pc.getMapId() == 18944
+				|| _pc.getMapId() == 19968 || _pc.getMapId() == 19456
+				|| _pc.getMapId() == 20480 || _pc.getMapId() == 20992
+				|| _pc.getMapId() == 21504 || _pc.getMapId() == 22016
+				|| _pc.getMapId() == 22528 || _pc.getMapId() == 23040
+				|| _pc.getMapId() == 23552 || _pc.getMapId() == 24064
+				|| _pc.getMapId() == 24576 || _pc.getMapId() == 25088) { // h®
+			bonus += 5;
+		}
+		if ((_pc.getLocation().isInScreen(new Point(33055,32336))
+				&& _pc.getMapId() == 4 && _pc.isElf())) {
+			bonus += 5;
+		}
+ 		if (_pc.hasSkillEffect(COOKING_1_5_N)
+				|| _pc.hasSkillEffect(COOKING_1_5_S)) {
 			bonus += 3;
 		}
+ 		if (_pc.hasSkillEffect(COOKING_2_4_N)
+				|| _pc.hasSkillEffect(COOKING_2_4_S)
+				|| _pc.hasSkillEffect(COOKING_3_6_N)
+				|| _pc.hasSkillEffect(COOKING_3_6_S)) {
+			bonus += 2;
+		}
+ 		if (_pc.getOriginalHpr() > 0) { // IWiCON HPRâ³
+ 			bonus += _pc.getOriginalHpr();
+ 		}
 
 		boolean inLifeStream = false;
 		if (isPlayerInLifeStream(_pc)) {
@@ -135,15 +161,8 @@ public class HpRegeneration extends TimerTask {
 			}
 		}
 
-		// fixes the low con DE negative regen.
-		int conHp = _pc.getCon() - 10;
-		
-		if (conHp < 0) 
-		{
-			conHp = 1;
-		}
 		int newHp = _pc.getCurrentHp();
-		newHp += bonus + equipHpr + conHp;
+		newHp += bonus + equipHpr;
 
 		if (newHp < 1) {
 			newHp = 1;
@@ -204,15 +223,17 @@ public class HpRegeneration extends TimerTask {
 	}
 
 	private boolean isOverWeight(L1PcInstance pc) {
-		if (pc.hasSkillEffect(L1SkillId.EXOTIC_VITALIZE)
-				|| pc.hasSkillEffect(L1SkillId.ADDITIONAL_FIRE)) {
+		// GL]`bNoC^CYóÔAAfBVit@CA[óÔ©
+		// S[fEBOõÅ êÎAdÊI[o[ÅÍ³¢ÆÝÈ·B
+		if (pc.hasSkillEffect(EXOTIC_VITALIZE)
+				|| pc.hasSkillEffect(ADDITIONAL_FIRE)) {
 			return false;
 		}
 		if (pc.getInventory().checkEquipped(20049)) {
 			return false;
 		}
 
-		return (14 < pc.getInventory().getWeight30()) ? true : false;
+		return (120 <= pc.getInventory().getWeight240()) ? true : false;
 	}
 
 	private boolean isLv50Quest(L1PcInstance pc) {

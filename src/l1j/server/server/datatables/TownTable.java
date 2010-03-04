@@ -147,63 +147,6 @@ public class TownTable {
 		}
 	}
 
-	public void removeTaxes(int town_id){
-		Connection con = null;
-		PreparedStatement pstm = null;
-		L1Town town = TownTable.getInstance().getTownTable(town_id);
-		town.set_town_fix_tax(0);
-		try {
-			con = L1DatabaseFactory.getInstance().getConnection();
-			pstm = con.prepareStatement("UPDATE town SET town_fix_tax = 0 WHERE town_id = ?");
-			pstm.setInt(1, town_id);
-			pstm.execute();
-		} catch (SQLException e) {
-			_log.log(Level.SEVERE, e.getLocalizedMessage(), e);
-		} finally {
-			SQLUtil.close(pstm);
-			SQLUtil.close(con);
-		}
-	}
-
-	/*public String[] recieveTaxesH(int town_id){
-		return new String[] { ""+recieveTaxes(town_id) };
-	}*/
-
-	public void changeTaxRate(int town_id, int tax_rate){
-		Connection con = null;
-		PreparedStatement pstm = null;
-		L1Town town = TownTable.getInstance().getTownTable(town_id);
-		town.set_tax_rate(tax_rate);
-		try {
-			con = L1DatabaseFactory.getInstance().getConnection();
-			pstm = con.prepareStatement("UPDATE town SET tax_rate = ? WHERE town_id = ?");
-			pstm.setInt(1, tax_rate);
-			pstm.setInt(2, town_id);
-			pstm.execute();
-		} catch (SQLException e) {
-			_log.log(Level.SEVERE, e.getLocalizedMessage(), e);
-		} finally {
-			SQLUtil.close(pstm);
-			SQLUtil.close(con);
-		}
-	}
-
-	public int recieveInfoAboutTaxes(int town_id){
-		return TownTable.getInstance().getTownTable(town_id).get_town_fix_tax();
-	}
-
-	public int getTodaySales(int town_id) {
-		return TownTable.getInstance().getTownTable(town_id).get_sales_money();
-	}
-
-	public int getYesterdaySales(int town_id) {
-		return TownTable.getInstance().getTownTable(town_id).get_sales_money_yesterday();
-	}
-
-	public int recieveTaxRate(int town_id){
-		return TownTable.getInstance().getTownTable(town_id).get_tax_rate();
-	}
-
 	public void updateTaxRate() {
 		Connection con = null;
 		PreparedStatement pstm = null;

@@ -49,6 +49,7 @@ import l1j.server.server.serverpackets.S_SkillIconBlessOfEva;
 import l1j.server.server.serverpackets.S_SkillIconShield;
 import l1j.server.server.serverpackets.S_SkillIconWindShackle;
 import l1j.server.server.serverpackets.S_SkillIconWisdomPotion;
+import l1j.server.server.serverpackets.S_SkillSound;
 import l1j.server.server.serverpackets.S_Strup;
 import l1j.server.server.templates.L1Skills;
 import static l1j.server.server.model.skill.L1SkillId.*;
@@ -316,15 +317,51 @@ class L1SkillStop {
 				pc.broadcastPacket(new S_SkillHaste(pc.getId(), 0, 0));
 			}
 		} else if (skillId == HOLY_WALK || skillId == MOVING_ACCELERATION
-				|| skillId == WIND_WALK) {
+				|| skillId == WIND_WALK || skillId == BLOODLUST) { // z[[EH[NA[rOANZ[VAEBhEH[NAubhXg
 			cha.setBraveSpeed(0);
 			if (cha instanceof L1PcInstance) {
 				L1PcInstance pc = (L1PcInstance) cha;
 				pc.sendPackets(new S_SkillBrave(pc.getId(), 0, 0));
+				pc.broadcastPacket(new S_SkillBrave(pc.getId(), 0, 0));
+			}
+		} else if (skillId == ILLUSION_OGRE) { // C[WFI[K
+			if (cha instanceof L1PcInstance) {
+				L1PcInstance pc = (L1PcInstance) cha;
+				pc.addDmgup(-4);
+				pc.addHitup(-4);
+				pc.addBowDmgup(-4);
+				pc.addBowHitup(-4);
+			}
+		} else if (skillId == ILLUSION_LICH) { // C[WFb`
+			if (cha instanceof L1PcInstance) {
+				L1PcInstance pc = (L1PcInstance) cha;
+				pc.addSp(-2);
+				pc.sendPackets(new S_SPMR(pc));
+			}
+		} else if (skillId == ILLUSION_DIA_GOLEM) { // C[WF_CAhS[
+			if (cha instanceof L1PcInstance) {
+				L1PcInstance pc = (L1PcInstance) cha;
+				pc.addAc(20);
+			}
+		} else if (skillId == ILLUSION_AVATAR) { // C[WFAo^[
+			if (cha instanceof L1PcInstance) {
+				L1PcInstance pc = (L1PcInstance) cha;
+				pc.addDmgup(-10);
+				pc.addBowDmgup(-10);
+			}
+		} else if (skillId == INSIGHT) { // CTCg
+			if (cha instanceof L1PcInstance) {
+				L1PcInstance pc = (L1PcInstance) cha;
+				pc.addStr((byte) -1);
+				pc.addCon((byte) -1);
+				pc.addDex((byte) -1);
+				pc.addWis((byte) -1);
+				pc.addInt((byte) -1);
 			}
 		}
-		// ****** If changes in state-melted
-		else if (skillId == CURSE_BLIND || skillId == DARKNESS || skillId == DARK_BLIND) {
+
+		// ****** óÔÏ»ªð¯½ê
+		else if (skillId == CURSE_BLIND || skillId == DARKNESS) {
 			if (cha instanceof L1PcInstance) {
 				L1PcInstance pc = (L1PcInstance) cha;
 				pc.sendPackets(new S_CurseBlind(0));
@@ -349,7 +386,9 @@ class L1SkillStop {
 				pc.addDmgup(6);
 				pc.addAc(-12);
 			}
-		} else if (skillId == ICE_LANCE || skillId == FREEZING_BLIZZARD) {
+		} else if (skillId == ICE_LANCE // ACXX
+				|| skillId == FREEZING_BLIZZARD // t[WOuU[h
+				|| skillId == FREEZING_BREATH) { // t[WOuX
 			if (cha instanceof L1PcInstance) {
 				L1PcInstance pc = (L1PcInstance) cha;
 				pc.sendPackets(new S_Poison(pc.getId(), 0));
@@ -421,20 +460,67 @@ class L1SkillStop {
 					|| cha instanceof L1PetInstance) {
 				L1NpcInstance npc = (L1NpcInstance) cha;
 				npc.setParalyzed(false);
- 			}
+			}
+		} else if (skillId == GUARD_BRAKE) { // K[huCN
+			if (cha instanceof L1PcInstance) {
+				L1PcInstance pc = (L1PcInstance) cha;
+				pc.addAc(-15);
+			}
+		} else if (skillId == HORROR_OF_DEATH) { // z[IufX
+			if (cha instanceof L1PcInstance) {
+				L1PcInstance pc = (L1PcInstance) cha;
+				pc.addStr(5);
+				pc.addInt(5);
+			}
+		} else if (skillId == STATUS_CUBE_IGNITION_TO_ALLY) { // L[u[COjV]F¡û
+			cha.addFire(-30);
+			if (cha instanceof L1PcInstance) {
+				L1PcInstance pc = (L1PcInstance) cha;
+				pc.sendPackets(new S_OwnCharAttrDef(pc));
+			}
+		} else if (skillId == STATUS_CUBE_QUAKE_TO_ALLY) { // L[u[NGCN]F¡û
+			cha.addEarth(-30);
+			if (cha instanceof L1PcInstance) {
+				L1PcInstance pc = (L1PcInstance) cha;
+				pc.sendPackets(new S_OwnCharAttrDef(pc));
+			}
+		} else if (skillId == STATUS_CUBE_SHOCK_TO_ALLY) { // L[u[VbN]F¡û
+			cha.addWind(-30);
+			if (cha instanceof L1PcInstance) {
+				L1PcInstance pc = (L1PcInstance) cha;
+				pc.sendPackets(new S_OwnCharAttrDef(pc));
+			}
+		} else if (skillId == STATUS_CUBE_IGNITION_TO_ENEMY) { // L[u[COjV]FG
+		} else if (skillId == STATUS_CUBE_QUAKE_TO_ENEMY) { // L[u[NGCN]FG
+		} else if (skillId == STATUS_CUBE_SHOCK_TO_ENEMY) { // L[u[VbN]FG
+		} else if (skillId == STATUS_MR_REDUCTION_BY_CUBE_SHOCK) { // L[u[VbN]ÉæéMR¸­
+// cha.addMr(10);
+// if (cha instanceof L1PcInstance) {
+// L1PcInstance pc = (L1PcInstance) cha;
+// pc.sendPackets(new S_SPMR(pc));
+// }
+		} else if (skillId == STATUS_CUBE_BALANCE) { // L[u[oX]
 		}
 
-		// ****** Status IDs
-		else if (skillId == STATUS_BRAVE || skillId == STATUS_ELFBRAVE) { 
+		// ****** ACeÖW
+		else if (skillId == STATUS_BRAVE || skillId == STATUS_ELFBRAVE) { // uCu|[V
 			if (cha instanceof L1PcInstance) {
 				L1PcInstance pc = (L1PcInstance) cha;
 				pc.sendPackets(new S_SkillBrave(pc.getId(), 0, 0));
+				pc.broadcastPacket(new S_SkillBrave(pc.getId(), 0, 0));
 			}
 			cha.setBraveSpeed(0);
-		} else if (skillId == STATUS_HASTE) {
+		} else if (skillId == STATUS_RIBRAVE) { // OhÌÀ
+			if (cha instanceof L1PcInstance) {
+				L1PcInstance pc = (L1PcInstance) cha;
+				// XXX OhÌÀÌACRðÁ·û@ªs¾
+			}
+			cha.setBraveSpeed(0);
+		} else if (skillId == STATUS_HASTE) { // O[ |[V
 			if (cha instanceof L1PcInstance) {
 				L1PcInstance pc = (L1PcInstance) cha;
 				pc.sendPackets(new S_SkillHaste(pc.getId(), 0, 0));
+				pc.broadcastPacket(new S_SkillHaste(pc.getId(), 0, 0));
 			}
 			cha.setMoveSpeed(0);
 		} else if (skillId == STATUS_BLUE_POTION) {
@@ -476,10 +562,9 @@ class L1SkillStop {
 			if (cha instanceof L1PcInstance) {
 				L1PcInstance pc = (L1PcInstance) cha;
 				pc.addMaxHp(-30);
-				pc
-						.sendPackets(new S_HPUpdate(pc.getCurrentHp(), pc
-						.getMaxHp()));
-				if (pc.isInParty()) { 
+				pc.sendPackets(new S_HPUpdate(pc.getCurrentHp(),
+						pc.getMaxHp()));
+				if (pc.isInParty()) { // p[eB[
 					pc.getParty().updateMiniHP(pc);
 				}
 				pc.sendPackets(new S_PacketBox(53, 1, 0));
@@ -502,9 +587,8 @@ class L1SkillStop {
 			if (cha instanceof L1PcInstance) {
 				L1PcInstance pc = (L1PcInstance) cha;
 				pc.addMaxMp(-20);
-				pc
-						.sendPackets(new S_MPUpdate(pc.getCurrentMp(), pc
-						.getMaxMp()));
+				pc.sendPackets(new S_MPUpdate(pc.getCurrentMp(),
+						pc.getMaxMp()));
 				pc.sendPackets(new S_PacketBox(53, 4, 0));
 				pc.setCookingId(0);
 			}
@@ -526,6 +610,141 @@ class L1SkillStop {
 			if (cha instanceof L1PcInstance) {
 				L1PcInstance pc = (L1PcInstance) cha;
 				pc.sendPackets(new S_PacketBox(53, 7, 0));
+				pc.setDessertId(0);
+			}
+		} else if (skillId == COOKING_2_0_N || skillId == COOKING_2_0_S) { // LrAJiby
+			if (cha instanceof L1PcInstance) {
+				L1PcInstance pc = (L1PcInstance) cha;
+				pc.sendPackets(new S_PacketBox(53, 8, 0));
+				pc.setCookingId(0);
+			}
+		} else if (skillId == COOKING_2_1_N || skillId == COOKING_2_1_S) { // AQ[^[Xe[L
+			if (cha instanceof L1PcInstance) {
+				L1PcInstance pc = (L1PcInstance) cha;
+				pc.addMaxHp(-30);
+				pc.sendPackets(new S_HPUpdate(pc.getCurrentHp(),
+						pc.getMaxHp()));
+				if (pc.isInParty()) { // p[eB[
+					pc.getParty().updateMiniHP(pc);
+				}
+				pc.addMaxMp(-30);
+				pc.sendPackets(new S_MPUpdate(pc.getCurrentMp(),
+						pc.getMaxMp()));
+				pc.sendPackets(new S_PacketBox(53, 9, 0));
+				pc.setCookingId(0);
+			}
+		} else if (skillId == COOKING_2_2_N || skillId == COOKING_2_2_S) { // ^[ghSÌÙq
+			if (cha instanceof L1PcInstance) {
+				L1PcInstance pc = (L1PcInstance) cha;
+				pc.addAc(2);
+				pc.sendPackets(new S_PacketBox(53, 10, 0));
+				pc.setCookingId(0);
+			}
+		} else if (skillId == COOKING_2_3_N || skillId == COOKING_2_3_S) { // LEBpbgÄ«
+			if (cha instanceof L1PcInstance) {
+				L1PcInstance pc = (L1PcInstance) cha;
+				pc.sendPackets(new S_PacketBox(53, 11, 0));
+				pc.setCookingId(0);
+			}
+		} else if (skillId == COOKING_2_4_N || skillId == COOKING_2_4_S) { // XR[sIÄ«
+			if (cha instanceof L1PcInstance) {
+				L1PcInstance pc = (L1PcInstance) cha;
+				pc.sendPackets(new S_PacketBox(53, 12, 0));
+				pc.setCookingId(0);
+			}
+		} else if (skillId == COOKING_2_5_N || skillId == COOKING_2_5_S) { // CbJhV`[
+			if (cha instanceof L1PcInstance) {
+				L1PcInstance pc = (L1PcInstance) cha;
+				pc.addMr(-10);
+				pc.sendPackets(new S_SPMR(pc));
+				pc.sendPackets(new S_PacketBox(53, 13, 0));
+				pc.setCookingId(0);
+			}
+		} else if (skillId == COOKING_2_6_N || skillId == COOKING_2_6_S) { // NrÌøÄ«
+			if (cha instanceof L1PcInstance) {
+				L1PcInstance pc = (L1PcInstance) cha;
+				pc.addSp(-1);
+				pc.sendPackets(new S_SPMR(pc));
+				pc.sendPackets(new S_PacketBox(53, 14, 0));
+				pc.setCookingId(0);
+			}
+		} else if (skillId == COOKING_2_7_N || skillId == COOKING_2_7_S) { // NuX[v
+			if (cha instanceof L1PcInstance) {
+				L1PcInstance pc = (L1PcInstance) cha;
+				pc.sendPackets(new S_PacketBox(53, 15, 0));
+				pc.setDessertId(0);
+			}
+		} else if (skillId == COOKING_3_0_N || skillId == COOKING_3_0_S) { // NX^VAÌnT~Ä«
+			if (cha instanceof L1PcInstance) {
+				L1PcInstance pc = (L1PcInstance) cha;
+				pc.sendPackets(new S_PacketBox(53, 16, 0));
+				pc.setCookingId(0);
+			}
+		} else if (skillId == COOKING_3_1_N || skillId == COOKING_3_1_S) { // OtHÄ«
+			if (cha instanceof L1PcInstance) {
+				L1PcInstance pc = (L1PcInstance) cha;
+				pc.addMaxHp(-50);
+				pc.sendPackets(new S_HPUpdate(pc.getCurrentHp(),
+						pc.getMaxHp()));
+				if (pc.isInParty()) { // p[eB[
+					pc.getParty().updateMiniHP(pc);
+				}
+				pc.addMaxMp(-50);
+				pc.sendPackets(new S_MPUpdate(pc.getCurrentMp(),
+						pc.getMaxMp()));
+				pc.sendPackets(new S_PacketBox(53, 17, 0));
+				pc.setCookingId(0);
+			}
+		} else if (skillId == COOKING_3_2_N || skillId == COOKING_3_2_S) { // RJgXXe[L
+			if (cha instanceof L1PcInstance) {
+				L1PcInstance pc = (L1PcInstance) cha;
+				pc.sendPackets(new S_PacketBox(53, 18, 0));
+				pc.setCookingId(0);
+			}
+		} else if (skillId == COOKING_3_3_N || skillId == COOKING_3_3_S) { // ^[ghSÄ«
+			if (cha instanceof L1PcInstance) {
+				L1PcInstance pc = (L1PcInstance) cha;
+				pc.addAc(3);
+				pc.sendPackets(new S_PacketBox(53, 19, 0));
+				pc.setCookingId(0);
+			}
+		} else if (skillId == COOKING_3_4_N || skillId == COOKING_3_4_S) { // bT[hSÌèHæ
+			if (cha instanceof L1PcInstance) {
+				L1PcInstance pc = (L1PcInstance) cha;
+				pc.addMr(-15);
+				pc.sendPackets(new S_SPMR(pc));
+				pc.addWind(-10);
+				pc.addWater(-10);
+				pc.addFire(-10);
+				pc.addEarth(-10);
+				pc.sendPackets(new S_OwnCharAttrDef(pc));
+				pc.sendPackets(new S_PacketBox(53, 20, 0));
+				pc.setCookingId(0);
+			}
+		} else if (skillId == COOKING_3_5_N || skillId == COOKING_3_5_S) { // hCNÄ«
+			if (cha instanceof L1PcInstance) {
+				L1PcInstance pc = (L1PcInstance) cha;
+				pc.addSp(-2);
+				pc.sendPackets(new S_SPMR(pc));
+				pc.sendPackets(new S_PacketBox(53, 21, 0));
+				pc.setCookingId(0);
+			}
+		} else if (skillId == COOKING_3_6_N || skillId == COOKING_3_6_S) { // [CÌV`[
+			if (cha instanceof L1PcInstance) {
+				L1PcInstance pc = (L1PcInstance) cha;
+				pc.addMaxHp(-30);
+				pc.sendPackets(new S_HPUpdate(pc.getCurrentHp(),
+						pc.getMaxHp()));
+				if (pc.isInParty()) { // p[eB[
+					pc.getParty().updateMiniHP(pc);
+				}
+				pc.sendPackets(new S_PacketBox(53, 22, 0));
+				pc.setCookingId(0);
+			}
+		} else if (skillId == COOKING_3_7_N || skillId == COOKING_3_7_S) { // oVXNÌX[v
+			if (cha instanceof L1PcInstance) {
+				L1PcInstance pc = (L1PcInstance) cha;
+				pc.sendPackets(new S_PacketBox(53, 23, 0));
 				pc.setDessertId(0);
 			}
 		}
@@ -628,7 +847,7 @@ class L1SkillTimerTimerImpl implements L1SkillTimer, Runnable {
 	public void end() {
 		kill();
 		try {
-		L1SkillStop.stopSkill(_cha, _skillId);
+			L1SkillStop.stopSkill(_cha, _skillId);
 		} catch (Throwable e) {
 			_log.log(Level.SEVERE, e.getLocalizedMessage(), e);
 		}

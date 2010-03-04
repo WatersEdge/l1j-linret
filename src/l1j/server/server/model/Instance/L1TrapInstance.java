@@ -30,6 +30,7 @@ import l1j.server.server.model.trap.L1Trap;
 import l1j.server.server.serverpackets.S_RemoveObject;
 import l1j.server.server.serverpackets.S_Trap;
 import l1j.server.server.types.Point;
+import static l1j.server.server.model.skill.L1SkillId.*;
 
 public class L1TrapInstance extends L1Object {
 	/**
@@ -122,8 +123,7 @@ public class L1TrapInstance extends L1Object {
 
 	@Override
 	public void onPerceive(L1PcInstance perceivedFrom) {
-		if (perceivedFrom.isGm()
-				&& perceivedFrom.hasSkillEffect(L1SkillId.GMSTATUS_SHOWTRAPS)) {
+		if (perceivedFrom.hasSkillEffect(GMSTATUS_SHOWTRAPS)) {
 			perceivedFrom.addKnownObject(this);
 			perceivedFrom.sendPackets(new S_Trap(this, _nameForView));
 			_knownPlayers.add(perceivedFrom);

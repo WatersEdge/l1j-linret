@@ -43,7 +43,6 @@ public class S_IdentifyDesc extends ServerBasePacket {
 			name.append("$228 "); // Haunted
 		}
 
-		name.append(item.getItem().getNameId());
 
 		if (item.getItem().getType2() == 1) { // weapon
 			writeH(134); // Monster little monster hit big blow% 1% 2

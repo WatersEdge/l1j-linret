@@ -19,6 +19,8 @@
 
 package l1j.server.server.clientpackets;
 
+
+import l1j.server.Config;
 import l1j.server.server.ClientThread;
 import l1j.server.server.Opcodes;
 import l1j.server.server.datatables.ChatLogTable;
@@ -48,9 +50,9 @@ public class C_ChatWhisper extends ClientBasePacket {
 			return;
 		}
 		//this should be a config option, fixing that later
-		if (whisperFrom.getLevel() < 5) {
+		if (whisperFrom.getLevel() < Config.WHISPER_CHAT_LEVEL) {
 			whisperFrom.sendPackets(new S_ServerMessage(404, String
-					.valueOf(5))); 
+					.valueOf(Config.WHISPER_CHAT_LEVEL))); 
 			return;
 		}
 		L1PcInstance whisperTo = L1World.getInstance().getPlayer(targetName);

@@ -171,6 +171,7 @@ public class L1V2Map extends L1Map {
 		} else {
 			return false;
 		}
+
 		if (isExistDoor(newX, newY)) {
 			return false;
 		}

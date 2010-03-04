@@ -140,5 +140,9 @@ public class GeneralThreadPool {
 			t.setPriority(_prio);
 			return t;
 		}
+
+		public ThreadGroup getGroup() {
+			return _group;
+		}
 	}
 }

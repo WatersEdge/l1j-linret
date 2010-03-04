@@ -36,6 +36,7 @@ import l1j.server.L1DatabaseFactory;
 import l1j.server.server.datatables.ItemTable;
 import l1j.server.server.model.L1Character;
 import l1j.server.server.model.L1Inventory;
+import l1j.server.server.model.L1Quest;
 import l1j.server.server.model.L1World;
 import l1j.server.server.model.Instance.L1ItemInstance;
 import l1j.server.server.model.Instance.L1NpcInstance;
@@ -66,61 +67,8 @@ public class DropTable {
 		return _instance;
 	}
 
-	private static Map<Integer, String> _questDrops;
-
-	public static final int CLASSID_KNIGHT_MALE = 61;
-	public static final int CLASSID_KNIGHT_FEMALE = 48;
-	public static final int CLASSID_ELF_MALE = 138;
-	public static final int CLASSID_ELF_FEMALE = 37;
-	public static final int CLASSID_WIZARD_MALE = 734;
-	public static final int CLASSID_WIZARD_FEMALE = 1186;
-	public static final int CLASSID_DARK_ELF_MALE = 2786;
-	public static final int CLASSID_DARK_ELF_FEMALE = 2796;
-	public static final int CLASSID_PRINCE = 0;
-	public static final int CLASSID_PRINCESS = 1;
-
 	private DropTable() {
 		_droplists = allDropList();
-		_questDrops = questDrops();
-	}
-
-	private Map<Integer, String> questDrops() {
-		Map<Integer, String> questDropsMap = new HashMap<Integer, String>();
-		Connection con = null;
-		PreparedStatement pstm = null;
-		ResultSet rs = null;
-		try {
-			con = L1DatabaseFactory.getInstance().getConnection();
-			pstm = con.prepareStatement("select * from quest_drops");
-			rs = pstm.executeQuery();
-			while (rs.next()) {
-				questDropsMap.put(rs.getInt("item_id"), rs.getString("class"));
-			}
-		} catch (SQLException e) {
-			_log.log(Level.SEVERE, e.getLocalizedMessage(), e);
-		} finally {
-			SQLUtil.close(rs);
-			SQLUtil.close(pstm);
-			SQLUtil.close(con);
-		}
-		return questDropsMap;
-	}
-
-	private String classCode(L1PcInstance pc) {
-		int i = pc.getClassId();
-		if(i == CLASSID_KNIGHT_MALE || i == CLASSID_KNIGHT_FEMALE) {
-			return "K";
-		} else if(i == CLASSID_ELF_MALE || i == CLASSID_ELF_FEMALE) {
-			return "E";
-		} else if(i == CLASSID_WIZARD_MALE || i == CLASSID_WIZARD_FEMALE) {
-			return "W";
-		} else if(i == CLASSID_DARK_ELF_MALE || i == CLASSID_DARK_ELF_FEMALE) {
-			return "D";
-		} else if(i == CLASSID_PRINCE || i == CLASSID_PRINCESS) {
-			return "P";
-		} else {
-			return null;
-		}
 	}
 
 	private HashMap<Integer, ArrayList<L1Drop>> allDropList() {
@@ -235,8 +183,8 @@ public class DropTable {
 		}
 	}
 
-	public void dropShare(L1NpcInstance npc, ArrayList<L1Character> acquisitorList, 
-			ArrayList<Integer> hateList) {
+	public void dropShare(L1NpcInstance npc, ArrayList acquisitorList,
+			ArrayList hateList) {
 		L1Inventory inventory = npc.getInventory();
 		if (inventory.getSize() == 0) {
 			return;
@@ -271,9 +219,12 @@ public class DropTable {
 		Random random = new Random();
 		int randomInt;
 		int chanceHate;
+		int itemId;
 		for (int i = inventory.getSize(); i > 0; i--) {
 			item = inventory.getItems().get(0);
-			if (item.getItem().getType2() == 0 && item.getItem().getType() == 2) { // 
+			itemId = item.getItemId();
+			boolean isGround = false;
+			if (item.getItem().getType2() == 0 && item.getItem().getType() == 2) { // lightnACe
 				item.setNowLighting(false);
 			}
 			item.setIdentified(false); // changed
@@ -285,18 +236,24 @@ public class DropTable {
 					chanceHate += (Integer) hateList.get(j);
 					if (chanceHate > randomInt) {
 						acquisitor = (L1Character) acquisitorList.get(j);
+						if (itemId >= 40131 && itemId <= 40135) {
+							if (!(acquisitor instanceof L1PcInstance)
+									|| hateList.size() > 1) {
+								targetInventory = null;
+								break;
+							}
+							player = (L1PcInstance) acquisitor;
+							if (player.getQuest().get_step(L1Quest
+									.QUEST_LYRA) != 1) {
+								targetInventory = null;
+								break;
+							}
+						}
 						if (acquisitor.getInventory().checkAddItem(item,
 								item.getCount()) == L1Inventory.OK) {
 							targetInventory = acquisitor.getInventory();
 							if (acquisitor instanceof L1PcInstance) {
 								player = (L1PcInstance) acquisitor;
-								// added to exclude quest drops from invalid classes
-								if(_questDrops.containsKey(item.getItemId())) {
-									if(!classCode(player).equals(_questDrops.get(item.getItemId()))) {
-										inventory.deleteItem(item);
-										break;
-									}
-								}
 								L1ItemInstance l1iteminstance = player
 										.getInventory().findItemId(
 												L1ItemId.ADENA);
@@ -305,10 +262,13 @@ public class DropTable {
 									targetInventory = L1World.getInstance()
 											.getInventory(acquisitor.getX(),
 													acquisitor.getY(),
-													acquisitor.getMapId());
-									player.sendPackets(new S_SystemMessage("The limit of the itemcount is 2000000000"));
+													acquisitor.getMapId()); // ÄÈ¢ÌÅ«³ÉÆ·
+									isGround = true;
+									player.sendPackets(new S_ServerMessage(166,
+											"µÄ¢éAfi",
+											"2,000,000,000ð´ßµÄ¢Ü·B")); // \f1%0ª%4%1%3%2
 								} else {
-									if (player.isInParty()) {
+									if (player.isInParty()) { // p[eBÌê
 										partyMember = player.getParty()
 												.getMembers();
 										for (int p = 0; p < partyMember.length; p++) {
@@ -330,7 +290,8 @@ public class DropTable {
 							targetInventory = L1World.getInstance()
 									.getInventory(acquisitor.getX(),
 											acquisitor.getY(),
-											acquisitor.getMapId());
+											acquisitor.getMapId()); // ÄÈ¢ÌÅ«³ÉÆ·
+							isGround = true;
 						}
 						break;
 					}
@@ -389,15 +350,16 @@ public class DropTable {
 				} while (!npc.getMap().isPassable(npc.getX(), npc.getY(), dir));
 				targetInventory = L1World.getInstance().getInventory(
 						npc.getX() + x, npc.getY() + y, npc.getMapId());
+				isGround = true;
 			}
-			if(item != null){
-				inventory.tradeItem(item, item.getCount(), targetInventory);
+			if (itemId >= 40131 && itemId <= 40135) {
+				if (isGround || targetInventory == null) {
+					inventory.removeItem(item, item.getCount());
+					continue;
+				}
 			}
-			npc.turnOnOffLight();
+			inventory.tradeItem(item, item.getCount(), targetInventory);
 		}
-	}
-
-	public ArrayList<L1Drop> getDrops(int mobID) {//New for GMCommands
-		return _droplists.get(mobID);
+		npc.turnOnOffLight();
 	}
 }

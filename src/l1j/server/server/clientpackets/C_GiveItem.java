@@ -57,9 +57,8 @@ public class C_GiveItem extends ClientBasePacket {
 	public C_GiveItem(byte decrypt[], ClientThread client) {
 		super(decrypt);
 		int targetId = readD();
-		@SuppressWarnings("unused")
 		int x = readH();
-		readH();
+		int y = readH();
 		int itemId = readD();
 		int count = readD();
 
@@ -103,7 +102,11 @@ public class C_GiveItem extends ClientBasePacket {
 			return;
 		}
 		if (!item.getItem().isTradable()) {
-			pc.sendPackets(new S_ServerMessage(210, item.getItem().getName())); 
+			pc.sendPackets(new S_ServerMessage(210, item.getItem().getName())); // \f1%0ÍÌÄ½èÜ½Í¼lÉæ¨é±ÆªÅ«Ü¹ñB
+			return;
+		}
+		if (item.getBless() >= 128) { 
+			pc.sendPackets(new S_ServerMessage(210, item.getItem().getName()));
 			return;
 		}
 		for (Object petObject : pc.getPetList().values()) {
@@ -172,7 +175,11 @@ public class C_GiveItem extends ClientBasePacket {
 			charisma += 12;
 		} else if (pc.isWizard()) { 
 			charisma += 6;
-		} else if (pc.isDarkelf()) {
+		} else if (pc.isDarkelf()) { // DE
+			charisma += 6;
+		} else if (pc.isDragonKnight()) { 
+			charisma += 6;
+		} else if (pc.isIllusionist()) { 
 			charisma += 6;
 		}
 		charisma -= petcost;

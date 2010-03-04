@@ -1137,36 +1137,7 @@ public class L1Character extends L1Object {
 	}
 
 	public int getMagicLevel() {
-		int magiclevel = 0;
-		if (this instanceof L1PcInstance) {
-			L1PcInstance pc = (L1PcInstance) this;
-			if (pc.isKnight()) { 
-				magiclevel = getLevel() / 50;
-			} else if (pc.isCrown()) { 
-				magiclevel = getLevel() / 10;
-				if (magiclevel > 2) {
-					magiclevel = 2;
-				}
-			} else if (pc.isElf()) { 
-				magiclevel = getLevel() / 8;
-				if (magiclevel > 6) {
-					magiclevel = 6;
-				}
-			} else if (pc.isDarkelf()) { 
-				magiclevel = getLevel() / 12;
-				if (magiclevel > 2) {
-					magiclevel = 2;
-				}
-			} else if (pc.isWizard()) { 
-				magiclevel = getLevel() / 4;
-				if (magiclevel > 10) {
-					magiclevel = 10;
-				}
-			}
-		} else {
-			magiclevel = getLevel() / 4;
-		}
-		return magiclevel;
+		return getLevel() / 4;
 	}
 
 	public int getMagicBonus() {
@@ -1197,8 +1168,8 @@ public class L1Character extends L1Object {
 	}
 
 	public boolean isInvisble() {
-		return (hasSkillEffect(L1SkillId.INVISIBILITY)
-				|| hasSkillEffect(L1SkillId.BLIND_HIDING));
+		return (hasSkillEffect(INVISIBILITY)
+				|| hasSkillEffect(BLIND_HIDING));
 	}
 
 	public void healHp(int pt) {
@@ -1234,9 +1205,9 @@ public class L1Character extends L1Object {
 		int lightSize = 0;
 		if (this instanceof L1NpcInstance) {
 			L1NpcInstance npc = (L1NpcInstance) this;
-			lightSize = npc.getLightSize(); // 
+			lightSize = npc.getLightSize(); // npc.sqlÌCgTCY
 		}
-		if (hasSkillEffect(L1SkillId.LIGHT)) {
+		if (hasSkillEffect(LIGHT)) {
 			lightSize = 14;
 		}
 

@@ -24,6 +24,8 @@ import l1j.server.Config;
 import l1j.server.server.ActionCodes;
 import l1j.server.server.WarTimeController;
 import l1j.server.server.datatables.SkillsTable;
+import l1j.server.server.model.Instance.L1DollInstance;
+import l1j.server.server.model.Instance.L1DoorInstance;
 import l1j.server.server.model.Instance.L1ItemInstance;
 import l1j.server.server.model.Instance.L1NpcInstance;
 import l1j.server.server.model.Instance.L1PcInstance;
@@ -89,6 +91,17 @@ public class L1Magic {
 				_targetNpc = (L1NpcInstance) target;
 			}
 		}
+	}
+
+	/* ¡¡¡¡¡¡¡¡¡¡¡¡¡¡¡ @¤ÊÖ ¡¡¡¡¡¡¡¡¡¡¡¡¡¡ */
+	private int getSpellPower() {
+		int spellPower = 0;
+		if (_calcType == PC_PC || _calcType == PC_NPC) {
+			spellPower = _pc.getSp();
+		} else if (_calcType == NPC_PC || _calcType == NPC_NPC) {
+			spellPower = _npc.getSp();
+		}
+		return spellPower;
 	}
 
 	private int getMagicLevel() {
@@ -314,11 +327,11 @@ public class L1Magic {
 						|| skillId == AREA_OF_SILENCE || skillId == WIND_SHACKLE
 						|| skillId == STRIKER_GALE || skillId == SHOCK_STUN
 						|| skillId == FOG_OF_SLEEPING || skillId == ICE_LANCE
-						|| skillId == FREEZING_BLIZZARD || skillId == CANCELLATION
-						|| skillId == POLLUTE_WATER || skillId == CURSE_POISON
-						|| skillId == ELEMENTAL_FALL_DOWN || skillId == CURSE_BLIND
-						|| skillId == RETURN_TO_NATURE || skillId == DARK_BLIND
-						|| skillId == SILENCE) {
+						|| skillId == FREEZING_BLIZZARD
+						|| skillId == FREEZING_BREATH
+						|| skillId == POLLUTE_WATER
+						|| skillId == ELEMENTAL_FALL_DOWN
+						|| skillId == RETURN_TO_NATURE) {
 					return false;
 				}
 			}
@@ -330,7 +343,6 @@ public class L1Magic {
 		L1Skills l1skills = SkillsTable.getInstance().getTemplate(skillId);
 		int attackLevel = 0;
 		int defenseLevel = 0;
-		@SuppressWarnings("unused")
 		int mr = 0;
 		int probability = 0;
 
@@ -361,10 +373,55 @@ public class L1Magic {
 			probability = (int) (((l1skills.getProbabilityDice()) / 10D)
 					* (attackLevel - defenseLevel)) + l1skills
 					.getProbabilityValue();
-		} else if (skillId == SHOCK_STUN
-				|| skillId == COUNTER_BARRIER) {
-			//
+
+			// IWiINTÉæé@½
+			if (_calcType == PC_PC || _calcType == PC_NPC) {
+				probability += 2 * _pc.getOriginalMagicHit();
+			}
+		} else if (skillId == SHOCK_STUN) {
+			// ¬÷m¦Í î{m¦ + LV·1É+-2%
+			probability = l1skills.getProbabilityValue() + (attackLevel - defenseLevel) * 2;
+
+			// IWiINTÉæé@½
+			if (_calcType == PC_PC || _calcType == PC_NPC) {
+				probability += 2 * _pc.getOriginalMagicHit();
+			}
+		} else if (skillId == COUNTER_BARRIER) {
+			// ¬÷m¦Í î{m¦ + LV·1É+-1%
 			probability = l1skills.getProbabilityValue() + attackLevel - defenseLevel;
+
+			// IWiINTÉæé@½
+			if (_calcType == PC_PC || _calcType == PC_NPC) {
+				probability += 2 * _pc.getOriginalMagicHit();
+			}
+		} else if (skillId == GUARD_BRAKE || skillId == RESIST_FEAR
+				|| skillId ==HORROR_OF_DEATH) {
+			Random random = new Random();
+			int dice = l1skills.getProbabilityDice();
+			int value = l1skills.getProbabilityValue();
+			int diceCount = 0;
+			diceCount = getMagicBonus() + getMagicLevel();
+
+			if (diceCount < 1) {
+				diceCount = 1;
+			}
+
+			for (int i = 0; i < diceCount; i++) {
+				probability += (random.nextInt(dice) + 1 + value);
+			}
+
+			probability = probability * getLeverage() / 10;
+
+			//IWiINTÉæé@½
+			if (_calcType == PC_PC || _calcType == PC_NPC) {
+				probability += 2 * _pc.getOriginalMagicHit();
+			}
+
+			if (probability >= getTargetMr()) {
+				probability = 100;				
+			} else {
+				probability = 0;
+			}
 		} else {
 			Random random = new Random();
 			int dice = l1skills.getProbabilityDice();
@@ -389,6 +446,11 @@ public class L1Magic {
 			}
 			probability = probability * getLeverage() / 10;
 
+			// IWiINTÉæé@½
+			if (_calcType == PC_PC || _calcType == PC_NPC) {
+				probability += 2 * _pc.getOriginalMagicHit();
+			}
+
 			probability -= getTargetMr();
 
 			if (skillId == TAMING_MONSTER) {
@@ -405,6 +467,37 @@ public class L1Magic {
 				probability *= probabilityRevision;
 			}
 		}
+
+		// óÔÙíÉÎ·éÏ«
+		if (skillId == EARTH_BIND) {
+			if (_calcType == PC_PC || _calcType == NPC_PC) {
+				probability -= _targetPc.getRegistSustain();
+			}
+		} else if (skillId == SHOCK_STUN) {
+			if (_calcType == PC_PC || _calcType == NPC_PC) {
+				probability -= 2 * _targetPc.getRegistStun();
+			}
+		} else if (skillId == CURSE_PARALYZE) {
+			if (_calcType == PC_PC || _calcType == NPC_PC) {
+				probability -= _targetPc.getRegistStone();
+			}
+		} else if (skillId == FOG_OF_SLEEPING) {
+			if (_calcType == PC_PC || _calcType == NPC_PC) {
+				probability -= _targetPc.getRegistSleep();
+			}
+		} else if (skillId == ICE_LANCE
+				|| skillId == FREEZING_BLIZZARD
+				|| skillId == FREEZING_BREATH) {
+			if (_calcType == PC_PC || _calcType == NPC_PC) {
+				probability -= _targetPc.getRegistFreeze();
+			}
+		} else if (skillId == CURSE_BLIND
+				|| skillId == DARKNESS || skillId == DARK_BLIND) {
+			if (_calcType == PC_PC || _calcType == NPC_PC) {
+				probability -= _targetPc.getRegistBlind();
+			}
+		}
+
 		return probability;
 	}
 
@@ -418,15 +511,6 @@ public class L1Magic {
 
 		damage = calcMrDefense(damage);
 
-		if (_calcType == PC_PC || _calcType == NPC_PC) {
-			if (damage > _targetPc.getCurrentHp()) {
-				damage = _targetPc.getCurrentHp();
-			}
-		} else {
-			if (damage > _targetNpc.getCurrentHp()) {
-				damage = _targetNpc.getCurrentHp();
-			}
-		}
 		return damage;
 	}
 
@@ -443,6 +527,9 @@ public class L1Magic {
 			dmg = 0;
 		}
 		if (_targetPc.hasSkillEffect(FREEZING_BLIZZARD)) {
+			dmg = 0;
+		}
+		if (_targetPc.hasSkillEffect(FREEZING_BREATH)) {
 			dmg = 0;
 		}
 		if (_targetPc.hasSkillEffect(EARTH_BIND)) {
@@ -469,6 +556,9 @@ public class L1Magic {
 		if (_targetNpc.hasSkillEffect(FREEZING_BLIZZARD)) {
 			dmg = 0;
 		}
+		if (_targetNpc.hasSkillEffect(FREEZING_BREATH)) {
+			dmg = 0;
+		}
 		if (_targetNpc.hasSkillEffect(EARTH_BIND)) {
 			dmg = 0;
 		}
@@ -493,18 +583,40 @@ public class L1Magic {
 			dmg = (dmg * getLeverage()) / 10;
 		}
 
-		dmg -= _targetPc.getDamageReductionByArmor(); 
+		dmg -= _targetPc.getDamageReductionByArmor(); // hïÉæé_[Wy¸
 
-		if (_targetPc.hasSkillEffect(COOKING_1_0_S)
+		Object[] targetDollList = _targetPc.getDollList().values().toArray(); // }WbNh[Éæé_[Wy¸
+		for (Object dollObject : targetDollList) {
+			L1DollInstance doll = (L1DollInstance) dollObject;
+			dmg -= doll.getDamageReductionByDoll();
+		}
+
+		if (_targetPc.hasSkillEffect(COOKING_1_0_S) // ¿Éæé_[Wy¸
 				|| _targetPc.hasSkillEffect(COOKING_1_1_S)
 				|| _targetPc.hasSkillEffect(COOKING_1_2_S)
 				|| _targetPc.hasSkillEffect(COOKING_1_3_S)
 				|| _targetPc.hasSkillEffect(COOKING_1_4_S)
 				|| _targetPc.hasSkillEffect(COOKING_1_5_S)
-				|| _targetPc.hasSkillEffect(COOKING_1_6_S)) {
+				|| _targetPc.hasSkillEffect(COOKING_1_6_S)
+				|| _targetPc.hasSkillEffect(COOKING_2_0_S)
+				|| _targetPc.hasSkillEffect(COOKING_2_1_S)
+				|| _targetPc.hasSkillEffect(COOKING_2_2_S)
+				|| _targetPc.hasSkillEffect(COOKING_2_3_S)
+				|| _targetPc.hasSkillEffect(COOKING_2_4_S)
+				|| _targetPc.hasSkillEffect(COOKING_2_5_S)
+				|| _targetPc.hasSkillEffect(COOKING_2_6_S)
+				|| _targetPc.hasSkillEffect(COOKING_3_0_S)
+				|| _targetPc.hasSkillEffect(COOKING_3_1_S)
+				|| _targetPc.hasSkillEffect(COOKING_3_2_S)
+				|| _targetPc.hasSkillEffect(COOKING_3_3_S)
+				|| _targetPc.hasSkillEffect(COOKING_3_4_S)
+				|| _targetPc.hasSkillEffect(COOKING_3_5_S)
+				|| _targetPc.hasSkillEffect(COOKING_3_6_S)) {
 			dmg -= 5;
 		}
-		if (_targetPc.hasSkillEffect(COOKING_1_7_S)) { 
+		if (_targetPc.hasSkillEffect(COOKING_1_7_S) // fU[gÉæé_[Wy¸
+				|| _targetPc.hasSkillEffect(COOKING_2_7_S)
+				|| _targetPc.hasSkillEffect(COOKING_3_7_S)) {
 			dmg -= 5;
 		}
 
@@ -514,6 +626,13 @@ public class L1Magic {
 				targetPcLvl = 50;
 			}
 			dmg -= (targetPcLvl - 50) / 5 + 1;
+		}
+		if (_targetPc.hasSkillEffect(DRAGON_SKIN)) {
+			dmg -= 2;
+		}
+		
+		if (_targetPc.hasSkillEffect(PATIENCE)) {
+			dmg -= 2;
 		}
 
 		if (_calcType == NPC_PC) { 
@@ -525,12 +644,12 @@ public class L1Magic {
 			// NOTE: changed these dmgs since pets will get insta-pwned by magic mobs
 			if (!isNowWar) {
 				if (_npc instanceof L1PetInstance) {
-					dmg /= 16; // was 8
+					dmg /= 8;
 				}
 				if (_npc instanceof L1SummonInstance) {
 					L1SummonInstance summon = (L1SummonInstance) _npc;
 					if (summon.isExsistMaster()) {
-						dmg /= 16; // was 8
+						dmg /= 8;
 					}
 				}
 			}
@@ -548,6 +667,9 @@ public class L1Magic {
 		if (_targetPc.hasSkillEffect(FREEZING_BLIZZARD)) {
 			dmg = 0;
 		}
+		if (_targetPc.hasSkillEffect(FREEZING_BREATH)) {
+			dmg = 0;
+		}
 		if (_targetPc.hasSkillEffect(EARTH_BIND)) {
 			dmg = 0;
 		}
@@ -563,7 +685,7 @@ public class L1Magic {
 							4395));
 					_targetPc.broadcastPacket(new S_SkillSound(_targetPc
 							.getId(), 4395));
-					_pc.receiveDamage(_targetPc, dmg);
+					_pc.receiveDamage(_targetPc, dmg, false);
 					dmg = 0;
 					_targetPc.killSkillEffectTimer(COUNTER_MIRROR);
 				}
@@ -631,6 +753,9 @@ public class L1Magic {
 			dmg = 0;
 		}
 		if (_targetNpc.hasSkillEffect(FREEZING_BLIZZARD)) {
+			dmg = 0;
+		}
+		if (_targetNpc.hasSkillEffect(FREEZING_BREATH)) {
 			dmg = 0;
 		}
 		if (_targetNpc.hasSkillEffect(EARTH_BIND)) {
@@ -735,6 +860,25 @@ public class L1Magic {
 
 		magicDamage *= coefficient;
 
+		double criticalCoefficient = 1.5; // @NeBJ
+		int rnd = random.nextInt(100) + 1;
+		if (_calcType == PC_PC || _calcType == PC_NPC) {
+			if (l1skills.getSkillLevel() <= 6) {
+				if (rnd <= (10 + _pc.getOriginalMagicCritical())) {
+					magicDamage *= criticalCoefficient;
+				}
+			}
+		}
+
+		if (_calcType == PC_PC || _calcType == PC_NPC) { // IWiINTÉæé@_[W
+			magicDamage += _pc.getOriginalMagicDamage();
+		}
+		if (_calcType == PC_PC || _calcType == PC_NPC) { // Ao^[ÉæéÇÁ_[W
+			if (_pc.hasSkillEffect(ILLUSION_AVATAR)) {
+				magicDamage += 10;
+			}
+		}
+
 		return magicDamage;
 	}
 
@@ -769,15 +913,34 @@ public class L1Magic {
 
 	private int calcMrDefense(int dmg) {
 		int mr = getTargetMr();
-		Random random = new Random();
-		int rnd = random.nextInt(100) + 1;
-		if (mr >= rnd) {
-			dmg /= 2;
+
+		double mrFloor = 0;
+		if (_calcType == PC_PC || _calcType == PC_NPC) {
+			if (mr <= 100) {
+				mrFloor = Math.floor((mr - _pc.getOriginalMagicHit()) / 2);
+			} else if (mr >= 100) {
+				mrFloor = Math.floor((mr - _pc.getOriginalMagicHit()) / 10);
+			}
+			double mrCoefficient = 0;
+			if (mr <= 100) {
+				mrCoefficient = 1 - 0.01 * mrFloor;
+			} else if (mr >= 100) {
+				mrCoefficient = 0.6 - 0.01 * mrFloor;
+			}
+			dmg *= mrCoefficient;
+		} else if (_calcType == NPC_PC || _calcType == NPC_NPC) {
+			Random random = new Random();
+			int rnd = random.nextInt(100) + 1;
+			if (mr >= rnd) {
+				dmg /= 2;
+			}
 		}
 
-		return dmg;
+		return dmg; 
 	}
 
+	//  ®«Éæé_[Wy¸ 
+	// attr:0.³®«@,1.n@,2.Î@,4.@,8.@(,16.õ@)
 	private double calcAttrResistance(int attr) {
 		int resist = 0;
 		if (_calcType == PC_PC || _calcType == NPC_PC) {
@@ -868,9 +1031,9 @@ public class L1Magic {
 				_pc.setCurrentMp(newMp);
 			}
 			_targetPc.receiveManaDamage(_pc, drainMana);
-			_targetPc.receiveDamage(_pc, damage);
+			_targetPc.receiveDamage(_pc, damage, true);
 		} else if (_calcType == NPC_PC) {
-			_targetPc.receiveDamage(_npc, damage);
+			_targetPc.receiveDamage(_npc, damage, true);
 		}
 	}
 
