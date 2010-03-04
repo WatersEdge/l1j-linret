@@ -132,8 +132,7 @@ public class L1WarSpawn {
 	private void SpawnWarObject(L1Npc l1npc, int locx, int locy, short mapid) {
 		try {
 			if (l1npc != null) {
-				//TODO Not used
-				//Object obj = null;
+				Object obj = null;
 				String s = l1npc.getImpl();
 				_constructor = Class.forName(
 						(new StringBuilder()).append(

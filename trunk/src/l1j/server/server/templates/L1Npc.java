@@ -279,16 +279,6 @@ public class L1Npc extends L1Object implements Cloneable {
 		_agro = flag;
 	}
 
-	private boolean _agrochao;
-	
-	public boolean is_agrochao() {
-		return _agrochao;
-	}
-
-	public void set_agrochao(boolean flag) {
-		_agrochao = flag;
-	}
-	
 	private int _gfxid;
 
 	public int get_gfxid() {
@@ -609,6 +599,16 @@ public class L1Npc extends L1Object implements Cloneable {
 		_transformGfxId = i;
 	}
 
+	private int _altAtkSpeed;
+
+	public int getAltAtkSpeed() {
+		return _altAtkSpeed;
+	}
+
+	public void setAltAtkSpeed(int altAtkSpeed) {
+		_altAtkSpeed = altAtkSpeed;
+	}
+
 	private int _atkMagicSpeed;
 
 	public int getAtkMagicSpeed() {
@@ -648,6 +648,7 @@ public class L1Npc extends L1Object implements Cloneable {
 	public void setAmountFixed(boolean fixed) {
 		_amountFixed = fixed;
 	}
+
 	private boolean _changeHead;
 
 	public boolean getChangeHead() {
@@ -657,7 +658,7 @@ public class L1Npc extends L1Object implements Cloneable {
 	public void setChangeHead(boolean changeHead) {
 		_changeHead = changeHead;
 	}
-	
+
 	private boolean _isCantResurrect;
 
 	public boolean isCantResurrect() {
@@ -666,5 +667,5 @@ public class L1Npc extends L1Object implements Cloneable {
 
 	public void setCantResurrect(boolean isCantResurrect) {
 		_isCantResurrect = isCantResurrect;
-	}	
+	}
 }

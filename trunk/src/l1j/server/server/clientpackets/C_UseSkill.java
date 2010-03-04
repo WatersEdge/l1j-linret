@@ -51,7 +51,10 @@ public class C_UseSkill extends ClientBasePacket {
 			return;
 		}
 		if (!pc.getMap().isUsableSkill()) {
-			pc.sendPackets(new S_ServerMessage(563));
+			pc.sendPackets(new S_ServerMessage(563)); // \f1±±ÅÍg¦Ü¹ñB
+			return;
+		}
+		if (!pc.isSkillMastery(skillId)) {
 			return;
 		}
 

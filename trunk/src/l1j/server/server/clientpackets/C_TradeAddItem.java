@@ -29,6 +29,7 @@ import l1j.server.server.serverpackets.S_Disconnect;
 import l1j.server.server.ClientThread;
 import l1j.server.server.model.L1Inventory;
 import l1j.server.server.model.L1Trade;
+import l1j.server.server.model.L1World;
 import l1j.server.server.model.Instance.L1ItemInstance;
 import l1j.server.server.model.Instance.L1PcInstance;
 import l1j.server.server.model.Instance.L1PetInstance;
@@ -72,6 +73,11 @@ public class C_TradeAddItem extends ClientBasePacket {
 		L1Trade trade = new L1Trade();
 		L1ItemInstance item = pc.getInventory().getItem(itemid);
 		if (!item.getItem().isTradable()) {
+			pc.sendPackets(new S_ServerMessage(210, item.getItem().getName())); // \f1%0ÍÌÄ½èÜ½Í¼lÉæ¨é±ÆªÅ«Ü¹ñB
+			return;
+		}
+		if (item.getBless() >= 128) { // ó³ê½õ
+			// \f1%0ÍÌÄ½èÜ½Í¼lÉæ¨é±ÆªÅ«Ü¹ñB
 			pc.sendPackets(new S_ServerMessage(210, item.getItem().getName()));
 			return;
 		}
@@ -89,6 +95,9 @@ public class C_TradeAddItem extends ClientBasePacket {
 		L1PcInstance tradingPartner = (L1PcInstance) L1World.getInstance()
 				.findObject(pc.getTradeID());
 		if (tradingPartner == null) {
+			return;
+		}
+		if (pc.getTradeOk()) {
 			return;
 		}
 		if (tradingPartner.getInventory().checkAddItem(item, itemcount)

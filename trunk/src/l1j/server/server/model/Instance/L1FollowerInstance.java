@@ -18,6 +18,8 @@
  */
 package l1j.server.server.model.Instance;
 
+import java.util.logging.Logger;
+
 import java.lang.reflect.Constructor;
 import l1j.server.server.IdFactory;
 import l1j.server.server.datatables.ItemTable;
@@ -37,9 +39,12 @@ import l1j.server.server.templates.L1Npc;
 public class L1FollowerInstance extends L1NpcInstance {
 	private static final long serialVersionUID = 1L;
 
+	private static Logger _log = Logger.getLogger(L1FollowerInstance.class
+			.getName());
 
 	@Override
-	public boolean noTarget(int depth) {
+	public boolean noTarget() {
+		L1NpcInstance targetNpc = null;
 		for (L1Object object : L1World.getInstance().getVisibleObjects(this)) {
 			if (object instanceof L1NpcInstance) {
 				L1NpcInstance npc = (L1NpcInstance) object;
@@ -169,6 +174,7 @@ public class L1FollowerInstance extends L1NpcInstance {
 			attack.calcDamage();
 			attack.calcStaffOfMana();
 			attack.addPcPoisonAttack(pc, this);
+			attack.addChaserAttack();
 		}
 		attack.action();
 		attack.commit();

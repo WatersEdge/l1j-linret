@@ -41,7 +41,6 @@ public class C_SelectTarget extends ClientBasePacket {
 		super(abyte0);
 
 		int petId = readD();
-		@SuppressWarnings("unused")
 		int type = readC();
 		int targetId = readD();
 

@@ -52,7 +52,6 @@ public class L1TeleporterInstance extends L1NpcInstance {
 	public void onAction(L1PcInstance player) {
 		L1Attack attack = new L1Attack(player, this);
 		attack.calcHit();
-		attack.addPcPoisonAttack(player, this);
 		attack.action();
 	}
 

@@ -51,6 +51,10 @@ public class Account {
 
 	private boolean _banned;
 
+
+	private int _characterSlot;
+
+
 	private boolean _isValid = false;
 	
 	private static Logger _log = Logger.getLogger(Account.class.getName());
@@ -108,7 +112,7 @@ public class Account {
 			account._lastActive = new Timestamp(System.currentTimeMillis());
 
 			con = L1DatabaseFactory.getInstance().getConnection();
-			String sqlstr = "INSERT INTO accounts SET login=?,password=?,lastactive=?,access_level=?,ip=?,host=?,banned=?";
+			String sqlstr = "INSERT INTO accounts SET login=?,password=?,lastactive=?,access_level=?,ip=?,host=?,banned=?,character_slot=?";
 			pstm = con.prepareStatement(sqlstr);
 			pstm.setString(1, account._name);
 			pstm.setString(2, account._password);
@@ -117,6 +121,7 @@ public class Account {
 			pstm.setString(5, account._ip);
 			pstm.setString(6, account._host);
 			pstm.setInt(7, account._banned ? 1 : 0);
+			pstm.setInt(8, 0);
 			pstm.execute();
 			_log.info("Created new account for " + name + ".");
 
@@ -164,8 +169,9 @@ public class Account {
 			account._ip = rs.getString("ip");
 			account._host = rs.getString("host");
 			account._banned = rs.getInt("banned") == 0 ? false : true;
+			account._characterSlot = rs.getInt("character_slot");
 
-			_log.fine("account exists: " + account._name + " from " + account._ip);
+			_log.fine("account exists");
 		} catch (SQLException e) {
 			_log.log(Level.SEVERE, e.getLocalizedMessage(), e);
 		} finally {
@@ -206,8 +212,35 @@ public class Account {
 	}
 
 	/**
-	 *
-	 *
+	 * XbgðDBÉ½f·é.
+	 * 
+	 * @param account
+	 *            AJEg
+	 */
+	public static void updateCharacterSlot(final Account account) {
+		Connection con = null;
+		PreparedStatement pstm = null;
+
+		try {
+			con = L1DatabaseFactory.getInstance().getConnection();
+			String sqlstr = "UPDATE accounts SET character_slot=? WHERE login=?";
+			pstm = con.prepareStatement(sqlstr);
+			pstm.setInt(1, account.getCharacterSlot());
+			pstm.setString(2, account.getName());
+			pstm.execute();
+			account._characterSlot = account.getCharacterSlot();
+			_log.fine("update characterslot for " + account.getName());
+		} catch (Exception e) {
+			_log.log(Level.SEVERE, e.getLocalizedMessage(), e);
+		} finally {
+			SQLUtil.close(pstm);
+			SQLUtil.close(con);
+		}
+	}
+
+	/**
+	 * LN^[LðJEg·é.
+	 * 
 	 * @return int
 	 */
 	public int countCharacters() {
@@ -408,5 +441,18 @@ public class Account {
 	 */
 	public boolean isBanned() {
 		return _banned;
+	}
+
+	/**
+	 * LN^[ÌÇÁXbgðæ¾·é.
+	 * 
+	 * @return int
+	 */
+	public int getCharacterSlot() {
+		return _characterSlot;
+	}
+
+	public void setCharacterSlot(int i) {
+		_characterSlot = i;
 	}
 }

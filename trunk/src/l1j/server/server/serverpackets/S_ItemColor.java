@@ -38,7 +38,9 @@ public class S_ItemColor extends ServerBasePacket {
 	private void buildPacket(L1ItemInstance item) {
 		writeC(Opcodes.S_OPCODE_ITEMCOLOR);
 		writeD(item.getId());
-		writeC(item.getItem().getBless()); // 0:b 1:n 2:c -- Value: The item is sealed?
+		// 0:j 1:Êí 2:ô¢ 3:¢Óè
+		// 128:j&ó 129:&ó 130:ô¢&ó 131:¢Óè&ó
+		writeC(item.getBless());
 	}
 
 	@Override

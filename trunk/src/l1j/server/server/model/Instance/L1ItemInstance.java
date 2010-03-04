@@ -38,6 +38,7 @@ import l1j.server.server.templates.L1Item;
 import l1j.server.server.templates.L1Npc;
 import l1j.server.server.templates.L1Pet;
 import l1j.server.server.utils.BinaryOutputStream;
+import static l1j.server.server.model.skill.L1SkillId.*;
 
 // Referenced classes of package l1j.server.server.model:
 // L1Object, L1PcInstance
@@ -54,8 +55,6 @@ public class L1ItemInstance extends L1Object {
 
 	private L1Item _item;
 
-	private boolean _isActive = false;
-	
 	private boolean _isEquipped = false;
 
 	private int _enchantLevel;
@@ -79,6 +78,12 @@ public class L1ItemInstance extends L1Object {
 	private boolean _isRunning = false;
 
 	private EnchantTimer _timer;
+
+	private int _bless;
+
+	private int _attrEnchantKind;
+
+	private int _attrEnchantLevel;
 
 	public L1ItemInstance() {
 		_count = 1;
@@ -139,15 +144,7 @@ public class L1ItemInstance extends L1Object {
 	public boolean isStackable() {
 		return _item.isStackable();
 	}
-	/* For illumination items*/ 
-	public boolean isActive()
-	{ 
-		return _isActive; 
-	}  
-	public void setActive(boolean isActive)
-	{ 
-		_isActive = isActive; } 
-	
+
 	@Override
 	public void onAction(L1PcInstance player) {
 	}
@@ -200,10 +197,34 @@ public class L1ItemInstance extends L1Object {
 		_lastWeight = weight;
 	}
 
+	public void setBless(int i) {
+		_bless = i;
+	}
+
+	public int getBless() {
+		return _bless;
+	}
+
+	public void setAttrEnchantKind(int i) {
+		_attrEnchantKind = i;
+	}
+
+	public int getAttrEnchantKind() {
+		return _attrEnchantKind;
+	}
+
+	public void setAttrEnchantLevel(int i) {
+		_attrEnchantLevel = i;
+	}
+
+	public int getAttrEnchantLevel() {
+		return _attrEnchantLevel;
+	}
+
 	public int getMr() {
 		int mr = _item.get_mdef();
 		if (getItemId() == 20011 || getItemId() == 20110
-				|| getItemId() == 120011) {
+				|| getItemId() == 21108 || getItemId() == 120011) {
 			mr += getEnchantLevel();
 		}
 		if (getItemId() == 20056 || getItemId() == 120056
@@ -252,6 +273,12 @@ public class L1ItemInstance extends L1Object {
 
 		public Timestamp lastUsed = null;
 
+		public int bless;
+
+		public int attrEnchantKind;
+
+		public int attrEnchantLevel;
+
 		public void updateAll() {
 			count = getCount();
 			itemId = getItemId();
@@ -262,6 +289,9 @@ public class L1ItemInstance extends L1Object {
 			chargeCount = getChargeCount();
 			remainingTime = getRemainingTime();
 			lastUsed = getLastUsed();
+			bless = getBless();
+			attrEnchantKind = getAttrEnchantKind();
+			attrEnchantLevel = getAttrEnchantLevel();
 		}
 
 		public void updateCount() {
@@ -299,6 +329,18 @@ public class L1ItemInstance extends L1Object {
 		public void updateLastUsed() {
 			lastUsed = getLastUsed();
 		}
+
+		public void updateBless() {
+			bless = getBless();
+		}
+
+		public void updateAttrEnchantKind() {
+			attrEnchantKind = getAttrEnchantKind();
+		}
+
+		public void updateAttrEnchantLevel() {
+			attrEnchantLevel = getAttrEnchantLevel();
+		}
 	}
 
 	public LastStatus getLastStatus() {
@@ -334,6 +376,15 @@ public class L1ItemInstance extends L1Object {
 		}
 		if (getRemainingTime() != _lastStatus.remainingTime) {
 			column += L1PcInventory.COL_REMAINING_TIME;
+		}
+		if (getBless() != _lastStatus.bless) {
+			column += L1PcInventory.COL_BLESS;
+		}
+		if (getAttrEnchantKind() != _lastStatus.attrEnchantKind) {
+			column += L1PcInventory.COL_ATTR_ENCHANT_KIND;
+		}
+		if (getAttrEnchantLevel() != _lastStatus.attrEnchantLevel) {
+			column += L1PcInventory.COL_ATTR_ENCHANT_LEVEL;
 		}
 
 		return column;
@@ -390,7 +441,54 @@ public class L1ItemInstance extends L1Object {
 		StringBuilder name = new StringBuilder();
 
 		if (isIdentified()) {
-			if (getItem().getType2() == 1 || getItem().getType2() == 2) {
+			if (getItem().getType2() == 1) { // í
+				int attrEnchantLevel = getAttrEnchantLevel();
+				if (attrEnchantLevel > 0) {
+					String attrStr = null;
+					switch (getAttrEnchantKind()) {
+					case 1: // n
+						if (attrEnchantLevel == 1) {
+							attrStr = "$6124";
+						} else if (attrEnchantLevel == 2) {
+							attrStr = "$6125";
+						} else if (attrEnchantLevel == 3) {
+							attrStr = "$6126";
+						}
+						break;
+					case 2: // Î
+						if (attrEnchantLevel == 1) {
+							attrStr = "$6115";
+						} else if (attrEnchantLevel == 2) {
+							attrStr = "$6116";
+						} else if (attrEnchantLevel == 3) {
+							attrStr = "$6117";
+						}
+						break;
+					case 4: // 
+						if (attrEnchantLevel == 1) {
+							attrStr = "$6118";
+						} else if (attrEnchantLevel == 2) {
+							attrStr = "$6119";
+						} else if (attrEnchantLevel == 3) {
+							attrStr = "$6120";
+						}
+						break;
+					case 8: // 
+						if (attrEnchantLevel == 1) {
+							attrStr = "$6121";
+						} else if (attrEnchantLevel == 2) {
+							attrStr = "$6122";
+						} else if (attrEnchantLevel == 3) {
+							attrStr = "$6123";
+						}
+						break;
+					default:
+						break;
+					}
+					name.append(attrStr + " ");
+				}
+			}
+			if (getItem().getType2() == 1 || getItem().getType2() == 2) { // íEhï
 				if (getEnchantLevel() >= 0) {
 					name.append("+" + getEnchantLevel() + " ");
 				} else if (getEnchantLevel() < 0) {
@@ -398,7 +496,11 @@ public class L1ItemInstance extends L1Object {
 				}
 			}
 		}
-		name.append(_item.getNameId());
+		if (isIdentified()) {
+			name.append(_item.getIdentifiedNameId());
+		} else {
+			name.append(_item.getUnidentifiedNameId());
+		}
 		if (isIdentified()) {
 			if (getItem().getMaxChargeCount() > 0) {
 				name.append(" (" + getChargeCount() + ")");
@@ -475,30 +577,59 @@ public class L1ItemInstance extends L1Object {
 			if (getItem().isTwohandedWeapon()) {
 				os.writeC(4);
 			}
-			if (getItem().getHitModifier() != 0) {
-				os.writeC(5);
-				os.writeC(getItem().getHitModifier());
+			// U¬÷
+			if (itemType2 == 1) { // weapon
+				if (getItem().getHitModifier() != 0) {
+					os.writeC(5);
+					os.writeC(getItem().getHitModifier());
+				}
+			} else if (itemType2 == 2) { // armor
+				if (getItem().getHitModifierByArmor() != 0) {
+					os.writeC(5);
+					os.writeC(getItem().getHitModifierByArmor());
+				}
 			}
-			if (getItem().getDmgModifier() != 0) {
-				os.writeC(6);
-				os.writeC(getItem().getDmgModifier());
+ 			// ÇÁÅ
+			if (itemType2 == 1) { // weapon
+				if (getItem().getDmgModifier() != 0) {
+					os.writeC(6);
+					os.writeC(getItem().getDmgModifier());
+				}
+			} else if (itemType2 == 2) { // armor
+				if (getItem().getDmgModifierByArmor() != 0) {
+					os.writeC(6);
+					os.writeC(getItem().getDmgModifierByArmor());
+				}
 			}
+			// gpÂ\
 			int bit = 0;
 			bit |= getItem().isUseRoyal()   ? 1 : 0;
 			bit |= getItem().isUseKnight()  ? 2 : 0;
 			bit |= getItem().isUseElf()     ? 4 : 0;
 			bit |= getItem().isUseMage()    ? 8 : 0;
 			bit |= getItem().isUseDarkelf() ? 16 : 0;
+			bit |= getItem().isUseDragonknight() ? 32 : 0;
+			bit |= getItem().isUseIllusionist() ? 64 : 0;
+			// bit |= getItem().isUseHiPet() ? 64 : 0; // nCybg
 			os.writeC(7);
 			os.writeC(bit);
-	
-			if (getItem().getBowHitRate() != 0) {
+			// |Ì½¦â³
+			if (getItem().getBowHitModifierByArmor() != 0) {
 				os.writeC(24);
-				os.writeC(getItem().getBowHitRate());
+				os.writeC(getItem().getBowHitModifierByArmor());
 			}
-			// Mp
-			if (itemId == 126 || itemId == 127) { 
+			// |Ì_[Wâ³
+			if (getItem().getBowDmgModifierByArmor() != 0) {
+				os.writeC(35);
+				os.writeC(getItem().getBowDmgModifierByArmor());
+			}
+			// MPzû
+			if (itemId == 126 || itemId == 127) { // }iX^btA|SÌ}iX^bt
 				os.writeC(16);
+			}
+			// HPzû
+			if (itemId == 262) { // fBXgNV
+				os.writeC(34);
 			}
 			// STR~CHA
 			if (getItem().get_addstr() != 0) {
@@ -725,21 +856,21 @@ class EnchantTimer extends TimerTask {
 		}
 
 		switch(skillId) {
-			case L1SkillId.HOLY_WEAPON:
+			case HOLY_WEAPON:
 				setHolyDmgByMagic(1);
 				setHitByMagic(1);
 				break;
 
-			case L1SkillId.ENCHANT_WEAPON:
+			case ENCHANT_WEAPON:
 				setDmgByMagic(2);
 				break;
 
-			case L1SkillId.BLESS_WEAPON:
+			case BLESS_WEAPON:
 				setDmgByMagic(2);
 				setHitByMagic(2);
 				break;
 
-			case L1SkillId.SHADOW_FANG:
+			case SHADOW_FANG:
 				setDmgByMagic(5);
 				break;
 

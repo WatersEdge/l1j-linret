@@ -75,7 +75,7 @@ public class L1MobGroupSpawn {
 		for (L1NpcCount minion : mobGroup.getMinions()) {
 			if (minion.isZero()) {
 				continue;
-				}
+			}
 			for (int i = 0; i < minion.getCount(); i++) {
 				mob = spawn(leader, minion.getId());
 				if (mob != null) {

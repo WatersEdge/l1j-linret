@@ -37,7 +37,6 @@ import l1j.server.server.storage.mysql.MySqlCharacterStorage;
 import l1j.server.server.templates.L1CharName;
 import l1j.server.server.utils.SQLUtil;
 
-@SuppressWarnings("unused")
 public class CharacterTable {
 	private CharacterStorage _charStorage;
 
@@ -150,6 +149,54 @@ public class CharacterTable {
 			pstm.setInt(2, pc.getId());
 			pstm.execute();
 		} catch (SQLException e) {
+			_log.log(Level.SEVERE, e.getLocalizedMessage(), e);
+		} finally {
+			SQLUtil.close(pstm);
+			SQLUtil.close(con);
+		}
+	}
+
+	public static void updatePartnerId(int targetId) {
+		updatePartnerId(targetId, 0);
+	}
+
+	public static void updatePartnerId(int targetId, int partnerId) {
+		Connection con = null;
+		PreparedStatement pstm = null;
+		try {
+			con = L1DatabaseFactory.getInstance().getConnection();
+			pstm = con
+					.prepareStatement("UPDATE characters SET PartnerID=? WHERE objid=?");
+			pstm.setInt(1, partnerId);
+			pstm.setInt(2, targetId);
+			pstm.execute();
+		} catch (Exception e) {
+			_log.log(Level.SEVERE, e.getLocalizedMessage(), e);
+		} finally {
+			SQLUtil.close(pstm);
+			SQLUtil.close(con);
+		}
+	}
+
+	public static void saveCharStatus(L1PcInstance pc) {
+		Connection con = null;
+		PreparedStatement pstm = null;
+		try {
+			con = L1DatabaseFactory.getInstance().getConnection();
+			pstm = con
+					.prepareStatement("UPDATE characters SET OriginalStr= ?"
+							+ ", OriginalCon= ?, OriginalDex= ?, OriginalCha= ?"
+							+ ", OriginalInt= ?, OriginalWis= ?"
+							+ " WHERE objid=?");
+			pstm.setInt(1, pc.getBaseStr());
+			pstm.setInt(2, pc.getBaseCon());
+			pstm.setInt(3, pc.getBaseDex());
+			pstm.setInt(4, pc.getBaseCha());
+			pstm.setInt(5, pc.getBaseInt());
+			pstm.setInt(6, pc.getBaseWis());
+			pstm.setInt(7, pc.getId());
+			pstm.execute();
+		} catch (Exception e) {
 			_log.log(Level.SEVERE, e.getLocalizedMessage(), e);
 		} finally {
 			SQLUtil.close(pstm);

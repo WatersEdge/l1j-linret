@@ -70,12 +70,24 @@ public class L1BossCycle {
 			return _period;
 		}
 
+		public void setPeriod(String period) {
+			this._period = period;
+		}
+
 		public String getStart() {
 			return _start;
 		}
 
+		public void setStart(String start) {
+			_start = start;
+		}
+
 		public String getEnd() {
 			return _end;
+		}
+
+		public void setEnd(String end) {
+			_end = end;
 		}
 	}
 

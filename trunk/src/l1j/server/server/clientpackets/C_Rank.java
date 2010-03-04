@@ -41,7 +41,7 @@ public class C_Rank extends ClientBasePacket {
 			throws Exception {
 		super(abyte0);
 
-		readC();
+		int data = readC(); // ?
 		int rank = readC();
 		String name = readS();
 

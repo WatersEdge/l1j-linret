@@ -98,7 +98,7 @@ public class DoorSpawnTable {
 					L1World.getInstance().storeObject(door);
 					L1World.getInstance().addVisibleObject(door);
 
-						_doorList.add(door);
+					_doorList.add(door);
 				}
 			} while (true);
 		} catch (SQLException e) {

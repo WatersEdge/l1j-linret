@@ -68,10 +68,13 @@ public class L1Shop {
 		if (item == null) {
 			return false;
 		}
-		if (item.isEquipped()) { 
+		if (item.isEquipped()) { // õÅ êÎsÂ
 			return false;
 		}
-		if (item.getEnchantLevel() != 0) { 
+		if (item.getEnchantLevel() != 0) { // ­»(orã»)³êÄ¢êÎsÂ
+			return false;
+		}
+		if (item.getBless() >= 128) { // ó³ê½õ
 			return false;
 		}
 

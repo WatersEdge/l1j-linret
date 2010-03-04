@@ -33,6 +33,7 @@ import l1j.server.server.serverpackets.S_DoActionGFX;
 import l1j.server.server.serverpackets.S_NPCTalkReturn;
 import l1j.server.server.templates.L1Npc;
 import l1j.server.server.types.Point;
+import static l1j.server.server.model.skill.L1SkillId.*;
 
 public class L1GuardInstance extends L1NpcInstance {
 	/**
@@ -101,7 +102,6 @@ public class L1GuardInstance extends L1NpcInstance {
 		}
 		setActived(false);
 		startAI();
-		startChat(CHAT_TIMING_APPEARANCE); 
 	}
 
 	@Override
@@ -113,6 +113,7 @@ public class L1GuardInstance extends L1NpcInstance {
 					attack.calcDamage();
 					attack.calcStaffOfMana();
 					attack.addPcPoisonAttack(pc, this);
+					attack.addChaserAttack();
 				}
 				attack.action();
 				attack.commit();
@@ -404,7 +405,8 @@ public class L1GuardInstance extends L1NpcInstance {
 			if (newHp > 0) {
 				setCurrentHp(newHp);
 			}
-		} else if (!isDead()) { // 
+		} else if (getCurrentHp() == 0 && !isDead()) {
+		} else if (!isDead()) { 
 			setDead(true);
 			setStatus(ActionCodes.ACTION_Die);
 			Death death = new Death(attacker);

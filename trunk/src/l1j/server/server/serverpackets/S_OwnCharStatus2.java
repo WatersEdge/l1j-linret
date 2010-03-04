@@ -40,7 +40,7 @@ public class S_OwnCharStatus2 extends ServerBasePacket {
 		writeC(cha.getDex());
 		writeC(cha.getCon());
 		writeC(cha.getCha());
-		writeC(cha.getInventory().getWeight30());
+		writeC(cha.getInventory().getWeight240());
 	}
 
 	@Override
@@ -50,7 +50,7 @@ public class S_OwnCharStatus2 extends ServerBasePacket {
 
 	@Override
 	public String getType() {
-		return _S__4F_S_OwnChraStatus2;
+		return "[C] S_OwnCharStatus2";
 	}
 
 	private static final String _S__4F_S_OwnChraStatus2 = "[C] S_OwnCharStatus2";

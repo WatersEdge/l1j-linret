@@ -117,8 +117,8 @@ public class Base64 {
 	 * -9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9,-9 // Decimal 244 - 255
 	 */
 	};
-    //not used?
-	//private final static byte BAD_ENCODING = -9; // Indicates error in
+
+	private final static byte BAD_ENCODING = -9; // Indicates error in
 
 	// encoding
 
@@ -134,6 +134,16 @@ public class Base64 {
 	}
 
 	/* ******** E N C O D I N G M E T H O D S ******** */
+
+	private static byte[] encode3to4(byte[] threeBytes) {
+		return encode3to4(threeBytes, 3);
+	} // end encodeToBytes
+
+	private static byte[] encode3to4(byte[] threeBytes, int numSigBytes) {
+		byte[] dest = new byte[4];
+		encode3to4(threeBytes, 0, numSigBytes, dest, 0);
+		return dest;
+	}
 
 	private static byte[] encode3to4(byte[] b4, byte[] threeBytes,
 			int numSigBytes) {
@@ -329,6 +339,27 @@ public class Base64 {
 	} // end encodeBytes
 
 	/* ******** D E C O D I N G M E T H O D S ******** */
+
+	/**
+	 * Decodes the first four bytes of array <var>fourBytes</var> and returns
+	 * an array up to three bytes long with the decoded values.
+	 * 
+	 * @param fourBytes
+	 *            the array with Base64 content
+	 * @return array with decoded values
+	 * @since 1.3
+	 */
+	private static byte[] decode4to3(byte[] fourBytes) {
+		byte[] outBuff1 = new byte[3];
+		int count = decode4to3(fourBytes, 0, outBuff1, 0);
+		byte[] outBuff2 = new byte[count];
+
+		for (int i = 0; i < count; i++) {
+			outBuff2[i] = outBuff1[i];
+		}
+
+		return outBuff2;
+	}
 
 	/**
 	 * Decodes four bytes from array <var>source</var> and writes the resulting
@@ -587,6 +618,8 @@ public class Base64 {
 	 * @since 1.3
 	 */
 	public static class InputStream extends java.io.FilterInputStream {
+		private int options; // Options specified
+
 		private boolean encode; // Encoding or decoding
 
 		private int position; // Current position in the buffer
@@ -640,6 +673,7 @@ public class Base64 {
 		 */
 		public InputStream(java.io.InputStream in, int options) {
 			super(in);
+			this.options = options;
 			this.breakLines = (options & DONT_BREAK_LINES) != DONT_BREAK_LINES;
 			this.encode = (options & ENCODE) == ENCODE;
 			this.bufferLength = encode ? 4 : 3;
@@ -812,6 +846,8 @@ public class Base64 {
 	 * @since 1.3
 	 */
 	public static class OutputStream extends java.io.FilterOutputStream {
+		private int options;
+
 		private boolean encode;
 
 		private int position;
@@ -868,6 +904,7 @@ public class Base64 {
 		 */
 		public OutputStream(java.io.OutputStream out, int options) {
 			super(out);
+			this.options = options;
 			this.breakLines = (options & DONT_BREAK_LINES) != DONT_BREAK_LINES;
 			this.encode = (options & ENCODE) == ENCODE;
 			this.bufferLength = encode ? 3 : 4;

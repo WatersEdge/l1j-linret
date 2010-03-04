@@ -96,6 +96,11 @@ public class C_DropItem extends ClientBasePacket {
 				pc.sendPackets(new S_ServerMessage(125));
 				return;
 			}
+			if (item.getBless() >= 128) { 
+				pc.sendPackets(new S_ServerMessage(210, item.getItem()
+						.getName()));
+				return;
+			}
 
 			pc.getInventory().tradeItem(item, count,
 					L1World.getInstance().getInventory(x, y, pc.getMapId()));

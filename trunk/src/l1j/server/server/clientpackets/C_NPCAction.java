@@ -33,6 +33,7 @@ import l1j.server.server.datatables.HouseTable;
 import l1j.server.server.datatables.ItemTable;
 import l1j.server.server.datatables.NpcActionTable;
 import l1j.server.server.datatables.NpcTable;
+import l1j.server.server.datatables.PolyTable;
 import l1j.server.server.datatables.SkillsTable;
 import l1j.server.server.datatables.TownTable;
 import l1j.server.server.datatables.UBTable;
@@ -68,6 +69,7 @@ import l1j.server.server.model.skill.L1SkillId;
 import l1j.server.server.model.skill.L1SkillUse;
 import l1j.server.server.serverpackets.S_ApplyAuction;
 import l1j.server.server.serverpackets.S_AuctionBoardRead;
+import l1j.server.server.serverpackets.S_CharReset;
 import l1j.server.server.serverpackets.S_CloseList;
 import l1j.server.server.serverpackets.S_DelSkill;
 import l1j.server.server.serverpackets.S_Deposit;
@@ -150,9 +152,36 @@ public class C_NPCAction extends ClientBasePacket {
 			} else if (obj instanceof L1PcInstance) {
 				target = (L1PcInstance) obj;
 				if (s.matches("[0-9]+")) {
-					summonMonster(target, s);
+					if (target.isSummonMonster()) {
+						summonMonster(target, s);
+						target.setSummonMonster(false);
+					}
 				} else {
-					L1PolyMorph.handleCommands(target, s);
+					int awakeSkillId = target.getAwakeSkillId();
+					if (awakeSkillId == AWAKEN_ANTHARAS
+							|| awakeSkillId == AWAKEN_FAFURION
+							|| awakeSkillId == AWAKEN_VALAKAS) {
+						target.sendPackets(new S_ServerMessage(1384)); // »ÝÌóÔÅÍÏgÅ«Ü¹ñB
+						return;
+					}
+					if (target.isShapeChange()) {
+						L1PolyMorph.handleCommands(target, s);
+						target.setShapeChange(false);
+					} else {
+						L1PolyMorph poly = PolyTable.getInstance()
+								.getTemplate(s);
+						if (poly != null || s.equals("none")) {
+							if (target.getInventory().checkItem(40088)
+									&& usePolyScroll(target, 40088, s)) {
+							}
+							if (target.getInventory().checkItem(40096)
+									&& usePolyScroll(target, 40096, s)) {
+							}
+							if (target.getInventory().checkItem(140088)
+									&& usePolyScroll(target, 140088, s)) {
+							}
+						}
+					}
 				}
 				return;
 			}
@@ -225,9 +254,16 @@ public class C_NPCAction extends ClientBasePacket {
 					return;
 				}
 				int rank = pc.getClanRank();
-				// fix for bp store. this only exludes probationary members.
-				if (rank == L1Clan.CLAN_RANK_PROBATION) {
-					//
+				if (rank != L1Clan.CLAN_RANK_PUBLIC
+						&& rank != L1Clan.CLAN_RANK_GUARDIAN
+						&& rank != L1Clan.CLAN_RANK_PRINCE) {
+					// ^CgÌÈ¢¿õàµ­ÍA©K¢¿õÌêÍA¿qÉðp·é±ÆÍÅ«Ü¹ñB
+					pc.sendPackets(new S_ServerMessage(728));
+					return;
+				}
+				if (rank != L1Clan.CLAN_RANK_PRINCE
+						&& pc.getTitle().equalsIgnoreCase("")) {
+					// ^CgÌÈ¢¿õàµ­ÍA©K¢¿õÌêÍA¿qÉðp·é±ÆÍÅ«Ü¹ñB
 					pc.sendPackets(new S_ServerMessage(728));
 					return;
 				}
@@ -371,7 +407,6 @@ public class C_NPCAction extends ClientBasePacket {
 			for (Object petObject : petList) {
 				if (petObject instanceof L1PetInstance) { 
 					L1PetInstance pet = (L1PetInstance) petObject;
-					pet.save(); // fix for pet xp. do not remove
 					pet.collect();
 					pc.getPetList().remove(pet.getId());
 					pet.deleteMe();
@@ -595,11 +630,13 @@ public class C_NPCAction extends ClientBasePacket {
 								l1skills1.getSkillId());
 					}
 				}
-				if (pc.hasSkillEffect(L1SkillId.ELEMENTAL_PROTECTION)) {
-					pc.removeSkillEffect(L1SkillId.ELEMENTAL_PROTECTION);
+				// G^veNVÉæÁÄã¸µÄ¢é®«häðZbg
+				if (pc.hasSkillEffect(ELEMENTAL_PROTECTION)) {
+					pc.removeSkillEffect(ELEMENTAL_PROTECTION);
 				}
 				pc.sendPackets(new S_DelSkill(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-						0, 0, 0, 0, 0, 0, 0, 248, 252, 252, 255, 0, 0));
+						0, 0, 0, 0, 0, 0, 0, 248, 252, 252, 255, 0, 0, 0, 0, 0,
+						0)); // ³®«@ÈOÌGt@ð@EBhE©çí·é
 				pc.setElfAttr(0);
 				pc.save(); 
 				pc.sendPackets(new S_ServerMessage(678));
@@ -640,7 +677,7 @@ public class C_NPCAction extends ClientBasePacket {
 			htmlid = "";
 		} else if (s.equalsIgnoreCase("ent")) {
 			int npcId = ((L1NpcInstance) obj).getNpcId();
-			if (npcId == 80085) {
+			if (npcId == 80085 || npcId == 80086 || npcId == 80087) {
 				htmlid = enterHauntedHouse(pc);
 			} else if (npcId == 80086 || npcId == 80087) {
 				htmlid = enterPvpDm(pc);
@@ -649,6 +686,43 @@ public class C_NPCAction extends ClientBasePacket {
 			} else if (npcId == 50038 || npcId == 50042 || npcId == 50029
 					|| npcId == 50019 || npcId == 50062) {
 				htmlid = watchUb(pc, npcId);
+			} else if (npcId == 71251) { // 
+				if (!pc.getInventory().checkItem(49142)) { // ó]ÌE\N
+					pc.sendPackets(new S_ServerMessage(1290)); // Xe[^Xú»ÉKvÈACeª èÜ¹ñB
+					return;
+				}
+				L1SkillUse l1skilluse = new L1SkillUse();
+				l1skilluse.handleCommands(pc, CANCELLATION,
+						pc.getId(), pc.getX(), pc.getY(), null, 0,
+						L1SkillUse.TYPE_LOGIN);
+				pc.getInventory().takeoffEquip(945); // ÌpolyIdÅõðSO·B
+				L1Teleport.teleport(pc, 32737, 32789, (short) 997, 4, false);
+				int initStatusPoint = 75 + pc.getElixirStats();
+				int pcStatusPoint = pc.getBaseStr() + pc.getBaseInt()
+						+ pc.getBaseWis() + pc.getBaseDex() + pc.getBaseCon()
+						+ pc.getBaseCha();
+				if (pc.getLevel() > 50) {
+					pcStatusPoint += (pc.getLevel() - 50 - pc.getBonusStats());
+				}
+				int diff = pcStatusPoint - initStatusPoint;
+				/**
+				 * [50Èã]
+				 * 
+				 * ÚOêyÉ - nêyÉ = l¨äL - 50 -> l¨äL = 50 + (ÚOêyÉ - nêyÉ)
+				 */
+				int maxLevel = 1;
+
+				if (diff > 0) {
+					// Å99:çA¥?sxçz¶
+					maxLevel = Math.min(50 + diff, 99);
+				} else {
+					maxLevel = pc.getLevel();
+				}
+
+				pc.setTempMaxLevel(maxLevel);
+				pc.setTempLevel(1);
+				pc.setInCharReset(true);
+				pc.sendPackets(new S_CharReset(pc));
 			} else {
 				htmlid = enterUb(pc, npcId);
 			}
@@ -920,106 +994,59 @@ public class C_NPCAction extends ClientBasePacket {
 			}
 		}
 		else if (((L1NpcInstance) obj).getNpcTemplate().get_npcId() == 80053) {
-			int karmaLevel = pc.getKarmaLevel();
+
 			if (s.equalsIgnoreCase("a")) {
 				int aliceMaterialId = 0;
+				int karmaLevel = 0;
+				int[] material = null;
+				int[] count = null;
+				int createItem = 0;
+				String successHtmlId = null;
+				String htmlId = null;
+
 				int[] aliceMaterialIdList = { 40991, 196, 197, 198, 199, 200,
-						201, 202, 203 };
-				for (int id : aliceMaterialIdList) {
-					if (pc.getInventory().checkItem(id)) {
-						aliceMaterialId = id;
+						201, 202 };
+				int[] karmaLevelList = { -1, -2, -3, -4, -5, -6, -7, -8 };
+				int[][] materialsList = { {40995, 40718, 40991},
+						{40997, 40718, 196}, {40990, 40718, 197},
+						{40994, 40718, 198}, {40993, 40718, 199},
+						{40998, 40718, 200}, {40996, 40718, 201},
+						{40992, 40718, 202} };
+				int[][] countList = { {100, 100, 1}, {100, 100, 1},
+						{100, 100, 1}, {50, 100, 1},
+						{50, 100, 1}, {50, 100, 1},
+						{10, 100, 1}, {10, 100, 1} };
+				int[] createItemList = { 196, 197, 198, 199, 200, 201, 202,
+						203 };
+				String[] successHtmlIdList = { "alice_1", "alice_2", "alice_3",
+						"alice_4", "alice_5", "alice_6", "alice_7", "alice_8" };
+				String[] htmlIdList = { "aliceyet", "alice_1", "alice_2",
+						"alice_3", "alice_4", "alice_5", "alice_5" , "alice_7"};
+
+				for (int i = 0; i < aliceMaterialIdList.length; i++) {
+					if (pc.getInventory().checkItem(aliceMaterialIdList[i])) {
+						aliceMaterialId = aliceMaterialIdList[i];
+						karmaLevel = karmaLevelList[i];
+						material = materialsList[i];
+						count = countList[i];
+						createItem = createItemList[i];
+						successHtmlId = successHtmlIdList[i];
+						htmlId = htmlIdList[i];
 						break;
 					}
 				}
 				if (aliceMaterialId == 0) {
 					htmlid = "alice_no";
-				} else if (aliceMaterialId == 40991) {
-					if (karmaLevel <= -1) {
-						materials = new int[] { 40995, 40718, 40991 };
-						counts = new int[] { 100, 100, 1 };
-						createitem = new int[] { 196 };
+				} else if (aliceMaterialId == aliceMaterialId) {
+					if (pc.getKarmaLevel() <= karmaLevel) {
+						materials = material;
+						counts = count;
+						createitem = new int[] { createItem };
 						createcount = new int[] { 1 };
-						success_htmlid = "alice_1";
+						success_htmlid = successHtmlId;
 						failure_htmlid = "alice_no";
 					} else {
-						htmlid = "aliceyet";
-					}
-				} else if (aliceMaterialId == 196) {
-					if (karmaLevel <= -2) {
-						materials = new int[] { 40997, 40718, 196 };
-						counts = new int[] { 100, 100, 1 };
-						createitem = new int[] { 197 };
-						createcount = new int[] { 1 };
-						success_htmlid = "alice_2";
-						failure_htmlid = "alice_no";
-					} else {
-						htmlid = "alice_1";
-					}
-				} else if (aliceMaterialId == 197) {
-					if (karmaLevel <= -3) {
-						materials = new int[] { 40990, 40718, 197 };
-						counts = new int[] { 100, 100, 1 };
-						createitem = new int[] { 198 };
-						createcount = new int[] { 1 };
-						success_htmlid = "alice_3";
-						failure_htmlid = "alice_no";
-					} else {
-						htmlid = "alice_2";
-					}
-				} else if (aliceMaterialId == 198) {
-					if (karmaLevel <= -4) {
-						materials = new int[] { 40994, 40718, 198 };
-						counts = new int[] { 50, 100, 1 };
-						createitem = new int[] { 199 };
-						createcount = new int[] { 1 };
-						success_htmlid = "alice_4";
-						failure_htmlid = "alice_no";
-					} else {
-						htmlid = "alice_3";
-					}
-				} else if (aliceMaterialId == 199) {
-					if (karmaLevel <= -5) {
-						materials = new int[] { 40993, 40718, 199 };
-						counts = new int[] { 50, 100, 1 };
-						createitem = new int[] { 200 };
-						createcount = new int[] { 1 };
-						success_htmlid = "alice_5";
-						failure_htmlid = "alice_no";
-					} else {
-						htmlid = "alice_4";
-					}
-				} else if (aliceMaterialId == 200) {
-					if (karmaLevel <= -6) {
-						materials = new int[] { 40998, 40718, 200 };
-						counts = new int[] { 50, 100, 1 };
-						createitem = new int[] { 201 };
-						createcount = new int[] { 1 };
-						success_htmlid = "alice_6";
-						failure_htmlid = "alice_no";
-					} else {
-						htmlid = "alice_5";
-					}
-				} else if (aliceMaterialId == 201) {
-					if (karmaLevel <= -7) {
-						materials = new int[] { 40996, 40718, 201 };
-						counts = new int[] { 10, 100, 1 };
-						createitem = new int[] { 202 };
-						createcount = new int[] { 1 };
-						success_htmlid = "alice_7";
-						failure_htmlid = "alice_no";
-					} else {
-						htmlid = "alice_6";
-					}
-				} else if (aliceMaterialId == 202) {
-					if (karmaLevel <= -8) {
-						materials = new int[] { 40992, 40718, 202 };
-						counts = new int[] { 10, 100, 1 };
-						createitem = new int[] { 203 };
-						createcount = new int[] { 1 };
-						success_htmlid = "alice_8";
-						failure_htmlid = "alice_no";
-					} else {
-						htmlid = "alice_7";
+						htmlid = htmlId;
 					}
 				} else if (aliceMaterialId == 203) {
 					htmlid = "alice_8";
@@ -1131,91 +1158,62 @@ public class C_NPCAction extends ClientBasePacket {
 			}
 		}
 		else if (((L1NpcInstance) obj).getNpcTemplate().get_npcId() == 80072) {
-			int karmaLevel = pc.getKarmaLevel();
-			if (s.equalsIgnoreCase("0")) {
-				htmlid = "lsmitha";
-			} else if (s.equalsIgnoreCase("1")) {
-				htmlid = "lsmithb";
-			} else if (s.equalsIgnoreCase("2")) {
-				htmlid = "lsmithc";
-			} else if (s.equalsIgnoreCase("3")) {
-				htmlid = "lsmithd";
-			} else if (s.equalsIgnoreCase("4")) {
-				htmlid = "lsmithe";
-			} else if (s.equalsIgnoreCase("5")) {
-				htmlid = "lsmithf";
-			} else if (s.equalsIgnoreCase("6")) {
-				htmlid = "";
-			} else if (s.equalsIgnoreCase("7")) {
-				htmlid = "lsmithg";
-			} else if (s.equalsIgnoreCase("8")) {
-				htmlid = "lsmithh";
+			String sEquals = null;
+			int karmaLevel = 0;
+			int[] material = null;
+			int[] count = null;
+			int createItem = 0;
+			String failureHtmlId = null;
+			String htmlId = null;
+
+			String[] sEqualsList = { "0", "1", "2", "3", "4", "5", "6", "7",
+					"8", "a", "b", "c", "d", "e", "f", "g", "h" };
+			String[] htmlIdList = { "lsmitha", "lsmithb", "lsmithc", "lsmithd",
+					"lsmithe", "", "lsmithf", "lsmithg", "lsmithh" };
+			int[] karmaLevelList = { 1, 2, 3, 4, 5, 6, 7, 8 };
+			int[][] materialsList = { {20158, 40669, 40678},
+					{20144, 40672, 40678}, {20075, 40671, 40678},
+					{20183, 40674, 40678}, {20190, 40674, 40678},
+					{20078, 40674, 40678}, {20078, 40670, 40678},
+					{40719, 40673, 40678} };
+			int[][] countList = { {1, 50, 100}, {1, 50, 100}, {1, 50, 100},
+					{1, 20, 100}, {1, 40, 100}, {1, 5, 100}, {1, 1, 100},
+					{1, 1, 100} };
+			int[] createItemList = { 20083, 20131, 20069, 20179 , 20209, 20290,
+					20261, 20031 };
+			String[] failureHtmlIdList = { "lsmithaa", "lsmithbb", "lsmithcc",
+					"lsmithdd", "lsmithee", "lsmithff", "lsmithgg",
+					"lsmithhh" };
+
+			for (int i = 0; i < sEqualsList.length; i++) {
+				if (s.equalsIgnoreCase(sEqualsList[i])) {
+					sEquals = sEqualsList[i];
+					if (i <= 8) {
+						htmlId = htmlIdList[i];
+					} else if (i > 8) {
+						karmaLevel = karmaLevelList[i - 9];
+						material = materialsList[i - 9];
+						count = countList[i - 9];
+						createItem = createItemList[i - 9];
+						failureHtmlId = failureHtmlIdList[i - 9];
+					}
+					break;
+				}
 			}
-			else if (s.equalsIgnoreCase("a") && karmaLevel >= 1) {
-				materials = new int[] { 20158, 40669, 40678 };
-				counts = new int[] { 1, 50, 100 };
-				createitem = new int[] { 20083 };
-				createcount = new int[] { 1 };
-				success_htmlid = "";
-				failure_htmlid = "lsmithaa";
-			}
-			else if (s.equalsIgnoreCase("b") && karmaLevel >= 2) {
-				materials = new int[] { 20144, 40672, 40678 };
-				counts = new int[] { 1, 50, 100 };
-				createitem = new int[] { 20131 };
-				createcount = new int[] { 1 };
-				success_htmlid = "";
-				failure_htmlid = "lsmithbb";
-			}
-			else if (s.equalsIgnoreCase("c") && karmaLevel >= 3) {
-				materials = new int[] { 20075, 40671, 40678 };
-				counts = new int[] { 1, 50, 100 };
-				createitem = new int[] { 20069 };
-				createcount = new int[] { 1 };
-				success_htmlid = "";
-				failure_htmlid = "lsmithcc";
-			}
-			else if (s.equalsIgnoreCase("d") && karmaLevel >= 4) {
-				materials = new int[] { 20183, 40674, 40678 };
-				counts = new int[] { 1, 20, 100 };
-				createitem = new int[] { 20179 };
-				createcount = new int[] { 1 };
-				success_htmlid = "";
-				failure_htmlid = "lsmithdd";
-			}
-			else if (s.equalsIgnoreCase("e") && karmaLevel >= 5) {
-				materials = new int[] { 20190, 40674, 40678 };
-				counts = new int[] { 1, 40, 100 };
-				createitem = new int[] { 20209 };
-				createcount = new int[] { 1 };
-				success_htmlid = "";
-				failure_htmlid = "lsmithee";
-			}
-			else if (s.equalsIgnoreCase("f") && karmaLevel >= 6) {
-				materials = new int[] { 20078, 40674, 40678 };
-				counts = new int[] { 1, 5, 100 };
-				createitem = new int[] { 20290 };
-				createcount = new int[] { 1 };
-				success_htmlid = "";
-				failure_htmlid = "lsmithff";
-			}
-			else if (s.equalsIgnoreCase("g") && karmaLevel >= 7) {
-				materials = new int[] { 20078, 40670, 40678 };
-				counts = new int[] { 1, 1, 100 };
-				createitem = new int[] { 20261 };
-				createcount = new int[] { 1 };
-				success_htmlid = "";
-				failure_htmlid = "lsmithgg";
-			}
-			else if (s.equalsIgnoreCase("h") && karmaLevel >= 8) {
-				materials = new int[] { 40719, 40673, 40678 };
-				counts = new int[] { 1, 1, 100 };
-				createitem = new int[] { 20031 };
-				createcount = new int[] { 1 };
-				success_htmlid = "";
-				failure_htmlid = "lsmithhh";
+			if (s.equalsIgnoreCase(sEquals)) {
+				if (karmaLevel != 0 && (pc.getKarmaLevel() >= karmaLevel)) {
+					materials = material;
+					counts = count;
+					createitem = new int[] { createItem };
+					createcount = new int[] { 1 };
+					success_htmlid = "";
+					failure_htmlid = failureHtmlId;
+				} else {
+					htmlid = htmlId;
+				}
 			}
 		}
+		// ÆÌÇÒ
 		else if (((L1NpcInstance) obj).getNpcTemplate().get_npcId() == 80074) {
 			L1NpcInstance npc = (L1NpcInstance) obj;
 			if (pc.getKarma() >= 10000000) {
@@ -1428,40 +1426,15 @@ public class C_NPCAction extends ClientBasePacket {
 				|| ((L1NpcInstance) obj).getNpcTemplate().get_npcId() == 70806
 				|| ((L1NpcInstance) obj).getNpcTemplate().get_npcId() == 70830
 				|| ((L1NpcInstance) obj).getNpcTemplate().get_npcId() == 70876) {
-			// NOTE: The following is the custom mayor code. Integrate changes carefully.
-			int npcid = ((L1NpcInstance) obj).getNpcTemplate().get_npcId();
-			int town_id = L1TownLocation.getTownIdByNpcid(npcid);
-			if (town_id >= 1 && town_id <= 10) {
-				if (s.equalsIgnoreCase("r")) {//TODO Town mayor report about income
-					if (obj instanceof L1NpcInstance) {
-						if(TownTable.getInstance().isLeader(client.getActiveChar(), town_id)) {
-							String salesMoney = ""+TownTable.getInstance().getTodaySales(town_id);
-							String salesMoneyYesterday = ""+TownTable.getInstance().getYesterdaySales(town_id);
-							htmlid = "secretary4";
-							htmldata = new String[] { salesMoneyYesterday, salesMoney };
-							}
-						}
-				} else if (s.equalsIgnoreCase("t")) {//TODO Town mayor change tax rates
-					if (obj instanceof L1NpcInstance) {
-						if(TownTable.getInstance().isLeader(client.getActiveChar(), town_id)) {
-						}
-					}
-				} else if (s.equalsIgnoreCase("c")) {//TODO Town mayor recieve compensation
-					if (obj instanceof L1NpcInstance) {
-						L1PcInstance player = client.getActiveChar();
-						if(TownTable.getInstance().isLeader(player, town_id)) {
-							int taxMoney = TownTable.getInstance().recieveInfoAboutTaxes(town_id);
-							L1ItemInstance item = ItemTable.getInstance().createItem(40308);
-							item.setCount(taxMoney);
-							if (player.getInventory().checkAddItem(item , taxMoney) == L1Inventory.OK) {
-								TownTable.getInstance().removeTaxes(town_id);
-								player.getInventory().storeItem(item);
-								player.sendPackets(new S_SystemMessage("You recieved "+taxMoney+" adena in taxes."));
-							}
-						}
-					}
+			// ^EAhoCU[iûüÉÖ·éñj
+			if (s.equalsIgnoreCase("r")) {
+				if (obj instanceof L1NpcInstance) {
+					int npcid = ((L1NpcInstance) obj).getNpcTemplate()
+							.get_npcId();
+					int town_id = L1TownLocation.getTownIdByNpcid(npcid);
 				}
 			}
+			// ^EAhoCU[iÅ¦ÏXj
 			else if (s.equalsIgnoreCase("t")) {
 
 			}
@@ -1500,47 +1473,36 @@ public class C_NPCAction extends ClientBasePacket {
 					htmlid = "";
 				}
 			} else if (s.equalsIgnoreCase("2")) {
-				final int[] item_ids = { 41227 };
-				final int[] item_amounts = { 1 };
-				for (int i = 0; i < item_ids.length; i++) {
-					L1ItemInstance item = pc.getInventory().storeItem(
-							item_ids[i], item_amounts[i]);
-					pc.sendPackets(new S_ServerMessage(143,
-							((L1NpcInstance) obj).getNpcTemplate().get_name(),
-							item.getLogName()));
-				}
-				pc.getQuest().set_step(L1Quest.QUEST_AREX, L1Quest.QUEST_END);
-					htmlid = "";
+				L1ItemInstance item = pc.getInventory().storeItem(41227, 1); // AbNXÌÐîó
+				pc.sendPackets(new S_ServerMessage(143,
+						((L1NpcInstance) obj).getNpcTemplate().get_name(),
+						item.getLogName()));
+						pc.getQuest().set_step(L1Quest.QUEST_AREX,
+						L1Quest.QUEST_END);
+				htmlid = "";
 			}
 		}
+		// |sA(Ì¤)
 		else if (((L1NpcInstance) obj).getNpcTemplate().get_npcId() == 71005) {
 			if (s.equalsIgnoreCase("0")) {
 				if (!pc.getInventory().checkItem(41209)) {
-					final int[] item_ids = { 41209, };
-					final int[] item_amounts = { 1, };
-					for (int i = 0; i < item_ids.length; i++) {
-						L1ItemInstance item = pc.getInventory().storeItem(
-								item_ids[i], item_amounts[i]);
-						pc.sendPackets(new S_ServerMessage(143,
-								((L1NpcInstance) obj).getNpcTemplate()
-										.get_name(), item.getItem().getName()));
-					}
+					L1ItemInstance item = pc.getInventory().storeItem(41209, 1);
+					pc.sendPackets(new S_ServerMessage(143,
+							((L1NpcInstance) obj).getNpcTemplate()
+							.get_name(), item.getItem().getName()));
+					htmlid = ""; // EBhEðÁ·
 				}
-				htmlid = "";
 			}
+			// ACeðó¯æé
 			else if (s.equalsIgnoreCase("1")) {
 				if (pc.getInventory().consumeItem(41213, 1)) {
-					final int[] item_ids = { 40029, };
-					final int[] item_amounts = { 20, };
-					for (int i = 0; i < item_ids.length; i++) {
-						L1ItemInstance item = pc.getInventory().storeItem(
-								item_ids[i], item_amounts[i]);
-						pc.sendPackets(new S_ServerMessage(143,
-								((L1NpcInstance) obj).getNpcTemplate()
-										.get_name(), item.getItem().getName()
-										+ " (" + item_amounts[i] + ")"));
-					}
-					htmlid = ""; 
+					L1ItemInstance item = pc.getInventory().storeItem(40029,
+							20);
+					pc.sendPackets(new S_ServerMessage(143,
+							((L1NpcInstance) obj).getNpcTemplate()
+							.get_name(), item.getItem().getName()
+							+ " (" + 20 + ")"));
+					htmlid = ""; // EBhEðÁ·
 				}
 			}
 		}
@@ -1626,30 +1588,20 @@ public class C_NPCAction extends ClientBasePacket {
 		}
 		else if (((L1NpcInstance) obj).getNpcTemplate().get_npcId() == 71025) {
 			if (s.equalsIgnoreCase("0")) {
-				final int[] item_ids = { 41225, };
-				final int[] item_amounts = { 1, };
-				for (int i = 0; i < item_ids.length; i++) {
-					L1ItemInstance item = pc.getInventory().storeItem(
-							item_ids[i], item_amounts[i]);
-					pc.sendPackets(new S_ServerMessage(143,
-							((L1NpcInstance) obj).getNpcTemplate().get_name(),
-							item.getItem().getName()));
-				}
+				L1ItemInstance item = pc.getInventory().storeItem(41225, 1); // PXLÌ­
+				pc.sendPackets(new S_ServerMessage(143,
+						((L1NpcInstance) obj).getNpcTemplate().get_name(),
+						item.getItem().getName()));
 				htmlid = "jpe0083";
 			}
 		}
 		else if (((L1NpcInstance) obj).getNpcTemplate().get_npcId() == 71055) {
 			if (s.equalsIgnoreCase("0")) {
-				final int[] item_ids = { 40701, };
-				final int[] item_amounts = { 1, };
-				for (int i = 0; i < item_ids.length; i++) {
-					L1ItemInstance item = pc.getInventory().storeItem(
-							item_ids[i], item_amounts[i]);
-					pc.sendPackets(new S_ServerMessage(143,
-							((L1NpcInstance) obj).getNpcTemplate().get_name(),
-							item.getItem().getName()));
-				}
-				pc.getQuest().set_step(L1Quest.QUEST_LUKEIN1, 1);
+				L1ItemInstance item = pc.getInventory().storeItem(40701, 1); // ¬³ÈóÌn}
+				pc.sendPackets(new S_ServerMessage(143,
+						((L1NpcInstance) obj).getNpcTemplate().get_name(),
+						item.getItem().getName()));
+						pc.getQuest().set_step(L1Quest.QUEST_LUKEIN1, 1);
 				htmlid = "lukein8";
 			} else if (s.equalsIgnoreCase("2")) {
 				htmlid = "lukein12";
@@ -1748,15 +1700,10 @@ public class C_NPCAction extends ClientBasePacket {
 		else if (((L1NpcInstance) obj).getNpcTemplate().get_npcId() == 71059) {
 			if (s.equalsIgnoreCase("A")) {
 				htmlid = "rudian6";
-				final int[] item_ids = { 40700 };
-				final int[] item_amounts = { 1 };
-				for (int i = 0; i < item_ids.length; i++) {
-					L1ItemInstance item = pc.getInventory().storeItem(
-							item_ids[i], item_amounts[i]);
-					pc.sendPackets(new S_ServerMessage(143,
-							((L1NpcInstance) obj).getNpcTemplate().get_name(),
-							item.getItem().getName()));
-				}
+				L1ItemInstance item = pc.getInventory().storeItem(40700 , 1);
+				pc.sendPackets(new S_ServerMessage(143,
+						((L1NpcInstance) obj).getNpcTemplate().get_name(),
+						item.getItem().getName()));
 				pc.getQuest().set_step(L1Quest.QUEST_RUDIAN, 1);
 			} else if (s.equalsIgnoreCase("B")) {
 				if (pc.getInventory().checkItem(40710)) {
@@ -1796,21 +1743,7 @@ public class C_NPCAction extends ClientBasePacket {
 				}
 			}
 		}
-		else if (((L1NpcInstance) obj).getNpcTemplate().get_npcId() == 71062) {
-			if (s.equalsIgnoreCase("start")) {
-				htmlid = "kamit2";
-				final int[] item_ids = { 40711 };
-				final int[] item_amounts = { 1 };
-				for (int i = 0; i < item_ids.length; i++) {
-					L1ItemInstance item = pc.getInventory().storeItem(
-							item_ids[i], item_amounts[i]);
-					pc.sendPackets(new S_ServerMessage(143,
-							((L1NpcInstance) obj).getNpcTemplate().get_name(),
-							item.getItem().getName()));
-					pc.getQuest().set_step(L1Quest.QUEST_CADMUS, 3);
-				}
-			}
-		}
+		// J~[(C¯)
 		else if (((L1NpcInstance) obj).getNpcTemplate().get_npcId() == 71036) {
 			if (s.equalsIgnoreCase("a")) {
 				htmlid = "kamyla7";
@@ -1842,18 +1775,14 @@ public class C_NPCAction extends ClientBasePacket {
 		else if (((L1NpcInstance) obj).getNpcTemplate().get_npcId() == 71089) {
 			if (s.equalsIgnoreCase("a")) {
 				htmlid = "francu10";
-				final int[] item_ids = { 40644 };
-				final int[] item_amounts = { 1 };
-				for (int i = 0; i < item_ids.length; i++) {
-					L1ItemInstance item = pc.getInventory().storeItem(
-							item_ids[i], item_amounts[i]);
-					pc.sendPackets(new S_ServerMessage(143,
-							((L1NpcInstance) obj).getNpcTemplate().get_name(),
-							item.getItem().getName()));
-					pc.getQuest().set_step(L1Quest.QUEST_KAMYLA, 2);
-				}
+				L1ItemInstance item = pc.getInventory().storeItem(40644, 1);
+				pc.sendPackets(new S_ServerMessage(143,
+						((L1NpcInstance) obj).getNpcTemplate().get_name(),
+						item.getItem().getName()));
+				pc.getQuest().set_step(L1Quest.QUEST_KAMYLA, 2);
 			}
 		}
+		// ûÌNX^2(C¯)
 		else if (((L1NpcInstance) obj).getNpcTemplate().get_npcId() == 71090) {
 			if (s.equalsIgnoreCase("a")) {
 				htmlid = "";
@@ -1926,24 +1855,18 @@ public class C_NPCAction extends ClientBasePacket {
 				htmlid = "lelder10";
 				pc.getInventory().consumeItem(40633, 1);
 				pc.getQuest().set_step(L1Quest.QUEST_LIZARD, 3);
-			}
-		}
-		else if (((L1NpcInstance) obj).getNpcTemplate().get_npcId() == 71075) {
-			if (s.equalsIgnoreCase("start")) {
-				htmlid = "llizard2";
-				final int[] item_ids = { 40633 };
-				final int[] item_amounts = { 1 };
-				for (int i = 0; i < item_ids.length; i++) {
-					L1ItemInstance item = pc.getInventory().storeItem(
-							item_ids[i], item_amounts[i]);
-					pc.sendPackets(new S_ServerMessage(143,
-							((L1NpcInstance) obj).getNpcTemplate().get_name(),
-							item.getItem().getName()));
-					pc.getQuest().set_step(L1Quest.QUEST_LIZARD, 2);
+			} else if (s.equalsIgnoreCase("C")) {
+				htmlid = "lelder13";
+				if (pc.getQuest().get_step(L1Quest.QUEST_LIZARD) == L1Quest.QUEST_END) {
 				}
-			} else {
+				materials = new int[] { 40634 };
+				counts = new int[] { 1 };
+				createitem = new int[] { 20167 }; // U[h}O[u
+				createcount = new int[] { 1 };
+				pc.getQuest().set_step(L1Quest.QUEST_LIZARD, L1Quest.QUEST_END);
 			}
 		}
+		// bºc· eBI
 		else if (((L1NpcInstance) obj).getNpcTemplate().get_npcId() == 71198) {
 			if (s.equalsIgnoreCase("A")) {
 				if (pc.getQuest().get_step(71198) != 0
@@ -2133,17 +2056,20 @@ public class C_NPCAction extends ClientBasePacket {
 							int htmlA = _random.nextInt(3) + 1;
 						int htmlB = _random.nextInt(100) + 1;
 						switch (htmlA) {
-						case 1:
-							htmlid = "horosa" + htmlB;
-							break;
-						case 2:
-							htmlid = "horosb" + htmlB; 
-							break;
-						case 3:
-							htmlid = "horosc" + htmlB; 
-							break;
-						default:
-							break;
+							case 1:
+								htmlid = "horosa" + htmlB; // horosa1 ~
+															// horosa100
+								break;
+							case 2:
+								htmlid = "horosb" + htmlB; // horosb1 ~
+															// horosb100
+								break;
+							case 3:
+								htmlid = "horosc" + htmlB; // horosc1 ~
+															// horosc100
+								break;
+							default:
+								break;
 						}
 					} else {
 						htmlid = "keplisha8";
@@ -2160,35 +2086,35 @@ public class C_NPCAction extends ClientBasePacket {
 						int PolyId = 6180 + _random.nextInt(64);
 						polyByKeplisha(client, PolyId);
 						switch (html) {
-						case 1:
-							htmlid = "horomon11";
-							break;
-						case 2:
-							htmlid = "horomon12";
-							break;
-						case 3:
-							htmlid = "horomon13";
-							break;
-						case 4:
-							htmlid = "horomon21";
-							break;
-						case 5:
-							htmlid = "horomon22";
-							break;
-						case 6:
-							htmlid = "horomon23";
-							break;
-						case 7:
-							htmlid = "horomon31";
-							break;
-						case 8:
-							htmlid = "horomon32";
-							break;
-						case 9:
-							htmlid = "horomon33";
-							break;
-						default:
-							break;
+							case 1:
+								htmlid = "horomon11";
+								break;
+							case 2:
+								htmlid = "horomon12";
+								break;
+							case 3:
+								htmlid = "horomon13";
+								break;
+							case 4:
+								htmlid = "horomon21";
+								break;
+							case 5:
+								htmlid = "horomon22";
+								break;
+							case 6:
+								htmlid = "horomon23";
+								break;
+							case 7:
+								htmlid = "horomon31";
+								break;
+							case 8:
+								htmlid = "horomon32";
+								break;
+							case 9:
+								htmlid = "horomon33";
+								break;
+							default:
+								break;
 						}
 					}
 				}
@@ -2889,17 +2815,13 @@ public class C_NPCAction extends ClientBasePacket {
 				}
 			} else if (s.equalsIgnoreCase("g")) {
 				htmlid = "";
-				final int[] item_ids = { 41130 }; // 
-				final int[] item_amounts = { 1 };
-				for (int i = 0; i < item_ids.length; i++) {
-					L1ItemInstance item = pc.getInventory().storeItem(
-							item_ids[i], item_amounts[i]);
-					pc.sendPackets(new S_ServerMessage(143,
-							((L1NpcInstance) obj).getNpcTemplate().get_name(),
-							item.getItem().getName()));
-				}
+				L1ItemInstance item = pc.getInventory().storeItem(41130 , 1); // ­Ì_ñ
+				pc.sendPackets(new S_ServerMessage(143,
+						((L1NpcInstance) obj).getNpcTemplate().get_name(),
+						item.getItem().getName())); 
 			}
 		}
+		// ³ñõ(eÌ_a¤)
 		else if (((L1NpcInstance) obj).getNpcTemplate().get_npcId() == 81202) {
 			if (s.equalsIgnoreCase("n")) {
 				htmlid = "";
@@ -2947,17 +2869,599 @@ public class C_NPCAction extends ClientBasePacket {
 				}
 			} else if (s.equalsIgnoreCase("g")) {
 				htmlid = "";
-				final int[] item_ids = { 41121 }; // 
-				final int[] item_amounts = { 1 };
-				for (int i = 0; i < item_ids.length; i++) {
-					L1ItemInstance item = pc.getInventory().storeItem(
-							item_ids[i], item_amounts[i]);
-					pc.sendPackets(new S_ServerMessage(143,
-							((L1NpcInstance) obj).getNpcTemplate().get_name(),
-							item.getItem().getName()));
+				L1ItemInstance item = pc.getInventory().storeItem(41121 , 1); // JwÌ_ñ
+				pc.sendPackets(new S_ServerMessage(143,
+						((L1NpcInstance) obj).getNpcTemplate().get_name(),
+						item.getItem().getName()));
+			}
+		}
+		// ]EÌXg[S[
+		else if (((L1NpcInstance) obj).getNpcTemplate().get_npcId() == 71252) {
+			int weapon1 = 0;
+			int weapon2 = 0;
+			int newWeapon = 0;
+			if (s.equalsIgnoreCase("A")) {
+				weapon1 = 5; // +7G_K[
+				weapon2 = 6; // +7X^oh_K[
+				newWeapon = 259; // }io[[h
+				htmlid = "joegolem9";
+			} else if (s.equalsIgnoreCase("B")) {
+				weapon1 = 145; // +7o[T[J[AbNX
+				weapon2 = 148; // +7O[gAbNX
+				newWeapon = 260; // CWOEBh
+				htmlid = "joegolem10";
+			} else if (s.equalsIgnoreCase("C")) {
+				weapon1 = 52; // +7c[nh\[h
+				weapon2 = 64; // +7O[g\[h
+				newWeapon = 262; // fBXgNV
+				htmlid = "joegolem11";
+			} else if (s.equalsIgnoreCase("D")) {
+				weapon1 = 125; // +7\[T[X^bt
+				weapon2 = 129; // +7CWX^bt
+				newWeapon = 261; // A[NCWX^bt
+				htmlid = "joegolem12";
+			} else if (s.equalsIgnoreCase("E")) {
+				weapon1 = 99; // +7GuXsA[
+				weapon2 = 104; // +7tH`[h
+				newWeapon = 263; // t[WOT[
+				htmlid = "joegolem13";
+			} else if (s.equalsIgnoreCase("F")) {
+				weapon1 = 32; // +7OfBEX
+				weapon2 = 42; // +7CsA
+				newWeapon = 264; // CgjOGbW
+				htmlid = "joegolem14";
+			}
+			if (pc.getInventory().checkEnchantItem(weapon1, 7, 1)
+					&& pc.getInventory().checkEnchantItem(weapon2, 7, 1)
+					&& pc.getInventory().checkItem(41246, 1000) // »Ì
+					&& pc.getInventory().checkItem(49143, 10)) { // ECÌ»
+				pc.getInventory().consumeEnchantItem(weapon1, 7, 1);
+				pc.getInventory().consumeEnchantItem(weapon2, 7, 1);
+				pc.getInventory().consumeItem(41246,1000);
+				pc.getInventory().consumeItem(49143,10);
+				L1ItemInstance item = pc.getInventory().storeItem(newWeapon, 1);
+				pc.sendPackets(new S_ServerMessage(143,
+						((L1NpcInstance) obj).getNpcTemplate().get_name(),
+						item.getItem().getName()));
+			} else {
+				htmlid = "joegolem15";
+				if (!pc.getInventory().checkEnchantItem(weapon1, 7, 1)) {
+					pc.sendPackets(new S_ServerMessage(337, "+7 "
+							+ ItemTable.getInstance().getTemplate(weapon1)
+							.getName())); // \f1%0ªs«µÄ¢Ü·B
+				}
+				if (!pc.getInventory().checkEnchantItem(weapon2, 7, 1)) {
+					pc.sendPackets(new S_ServerMessage(337, "+7 "
+							+ ItemTable.getInstance().getTemplate(weapon2)
+							.getName())); // \f1%0ªs«µÄ¢Ü·B
+				}
+				if (!pc.getInventory().checkItem(41246, 1000)) {
+					int itemCount = 0;
+					itemCount = 1000 - pc.getInventory().countItems(41246);
+					pc.sendPackets(new S_ServerMessage(337, ItemTable
+							.getInstance().getTemplate(41246).getName()
+							+ "(" + itemCount + ")" )); // \f1%0ªs«µÄ¢Ü·B
+				}
+				if (!pc.getInventory().checkItem(49143, 10)) {
+					int itemCount = 0;
+					itemCount = 10 - pc.getInventory().countItems(49143);
+					pc.sendPackets(new S_ServerMessage(337, ItemTable
+							.getInstance().getTemplate(49143).getName()
+							+ "(" + itemCount + ")" )); // \f1%0ªs«µÄ¢Ü·B
 				}
 			}
 		}
+		// ]EÌXg[S[ e[x»
+		else if (((L1NpcInstance) obj).getNpcTemplate().get_npcId() == 71253) {
+			// ucÝÌRAðìév
+			if (s.equalsIgnoreCase("A")) {
+				if (pc.getInventory().checkItem(49101, 100)) {
+					materials = new int[] { 49101 };
+					counts = new int[] { 100 };
+					createitem = new int[] { 49092 };
+					createcount = new int[] { 1 };
+					htmlid = "joegolem18";
+				} else {
+					htmlid = "joegolem19";
+				}
+			} else if (s.equalsIgnoreCase("B")) {
+				if (pc.getInventory().checkItem(49101, 1)) {
+					pc.getInventory().consumeItem(49101, 1);
+					L1Teleport.teleport(pc, 33966, 33253, (short) 4, 5, true);
+					htmlid = "";
+				} else {
+					htmlid = "joegolem20";
+				}
+			}
+		}
+		// e[x IVXÕdÌL[p[
+		else if (((L1NpcInstance) obj).getNpcTemplate().get_npcId() == 71255) {
+			// ue[xIVXÕdÌ®ðÁÄ¢éÈçAIVXÌÕdÉ¨èµÜµå¤Bv
+			if (s.equalsIgnoreCase("e")) {
+				if (pc.getInventory().checkItem(49242, 1)) { // ®Ì`FbN(20lÀè/ÌcÝª»êÄ©ç2h30Í¢À)
+					pc.getInventory().consumeItem(49242, 1);
+					L1Teleport.teleport(pc, 32735, 32831, (short) 782, 2, true);
+					htmlid = "";
+				} else {
+					htmlid = "tebegate3";
+					// uãÀlÉBµÄ¢éêÍv
+					// htmlid = "tebegate4";
+				}
+			}
+		}
+		// rtbh
+		else if (((L1NpcInstance) obj).getNpcTemplate().get_npcId() == 71256) {
+			if (s.equalsIgnoreCase("E")) {
+				if ((pc.getQuest().get_step(L1Quest.QUEST_MOONOFLONGBOW) == 8)
+						&& pc.getInventory().checkItem(40491,30)
+						&& pc.getInventory().checkItem(40495,40)
+						&& pc.getInventory().checkItem(100,1)
+						&& pc.getInventory().checkItem(40509,12)
+						&& pc.getInventory().checkItem(40052,1)
+						&& pc.getInventory().checkItem(40053,1)
+						&& pc.getInventory().checkItem(40054,1)
+						&& pc.getInventory().checkItem(40055,1)
+						&& pc.getInventory().checkItem(41347,1)
+						&& pc.getInventory().checkItem(41350,1)) {
+					pc.getInventory().consumeItem(40491,30);
+					pc.getInventory().consumeItem(40495,40);
+					pc.getInventory().consumeItem(100,1);
+					pc.getInventory().consumeItem(40509,12);
+					pc.getInventory().consumeItem(40052,1);
+					pc.getInventory().consumeItem(40053,1);
+					pc.getInventory().consumeItem(40054,1);
+					pc.getInventory().consumeItem(40055,1);
+					pc.getInventory().consumeItem(41347,1);
+					pc.getInventory().consumeItem(41350,1);
+					htmlid = "robinhood12";
+					pc.getInventory().storeItem(205,1);
+					pc.getQuest().set_step(L1Quest.QUEST_MOONOFLONGBOW, L1Quest
+							.QUEST_END);
+				}
+			} else if (s.equalsIgnoreCase("C")) {
+				if (pc.getQuest().get_step(L1Quest.QUEST_MOONOFLONGBOW) == 7) {
+					if (pc.getInventory().checkItem(41352,4)
+							&& pc.getInventory().checkItem(40618,30)
+							&& pc.getInventory().checkItem(40643,30)
+							&& pc.getInventory().checkItem(40645,30)
+							&& pc.getInventory().checkItem(40651,30)
+							&& pc.getInventory().checkItem(40676,30)
+							&& pc.getInventory().checkItem(40514,20)
+							&& pc.getInventory().checkItem(41351,1)
+							&& pc.getInventory().checkItem(41346,1)) {
+						pc.getInventory().consumeItem(41352,4);
+						pc.getInventory().consumeItem(40618,30);
+						pc.getInventory().consumeItem(40643,30);
+						pc.getInventory().consumeItem(40645,30);
+						pc.getInventory().consumeItem(40651,30);
+						pc.getInventory().consumeItem(40676,30);
+						pc.getInventory().consumeItem(40514,20);
+						pc.getInventory().consumeItem(41351,1);
+						pc.getInventory().consumeItem(41346,1);
+						pc.getInventory().storeItem(41347,1);
+						pc.getInventory().storeItem(41350,1);
+						htmlid = "robinhood10";
+						pc.getQuest().set_step(L1Quest.QUEST_MOONOFLONGBOW, 8);
+					}
+				}
+			} else if (s.equalsIgnoreCase("B")) {
+				if (pc.getInventory().checkItem(41348)
+						&& pc.getInventory().checkItem(41346)) {
+					htmlid = "robinhood13";
+				} else {
+					pc.getInventory().storeItem(41348,1);
+					pc.getInventory().storeItem(41346,1);
+					htmlid = "robinhood13";
+					pc.getQuest().set_step(L1Quest.QUEST_MOONOFLONGBOW, 2);
+				}
+			} else if (s.equalsIgnoreCase("A")) {
+				if (pc.getInventory().checkItem(40028)) {
+					pc.getInventory().consumeItem(40028,1);
+					htmlid = "robinhood4";
+					pc.getQuest().set_step(L1Quest.QUEST_MOONOFLONGBOW, 1);
+				} else {
+					htmlid = "robinhood19";
+				}
+			}
+		}
+		// Wu
+		else if (((L1NpcInstance) obj).getNpcTemplate().get_npcId() == 71257) {
+			if (s.equalsIgnoreCase("D")) {
+				if (pc.getInventory().checkItem(41349)) {
+					htmlid ="zybril10";
+					pc.getInventory().storeItem(41351,1);
+					pc.getInventory().consumeItem(41349,1);
+					pc.getQuest().set_step(L1Quest.QUEST_MOONOFLONGBOW, 7);
+				} else {
+					htmlid ="zybril14";
+				}
+			} else if (s.equalsIgnoreCase("C")) {
+				if (pc.getInventory().checkItem(40514,10)
+						&& pc.getInventory().checkItem(41353)) {
+					pc.getInventory().consumeItem(40514,10);
+					pc.getInventory().consumeItem(41353,1);
+					pc.getInventory().storeItem(41354,1);
+					htmlid ="zybril9";
+					pc.getQuest().set_step(L1Quest.QUEST_MOONOFLONGBOW, 6);
+				}
+			} else if (pc.getInventory().checkItem(41353)
+					&& pc.getInventory().checkItem(40514,10)) {
+				htmlid = "zybril8";
+			} else if (s.equalsIgnoreCase("B")) {
+				if (pc.getInventory().checkItem(40048,10)
+						&& pc.getInventory().checkItem(40049,10)
+						&& pc.getInventory().checkItem(40050,10)
+						&& pc.getInventory().checkItem(40051,10)) {
+					pc.getInventory().consumeItem(40048,10);
+					pc.getInventory().consumeItem(40049,10);
+					pc.getInventory().consumeItem(40050,10);
+					pc.getInventory().consumeItem(40051,10);
+					pc.getInventory().storeItem(41353,1);
+					htmlid = "zybril15";
+					pc.getQuest().set_step(L1Quest.QUEST_MOONOFLONGBOW, 5);
+				} else {
+					htmlid = "zybril12";
+					pc.getQuest().set_step(L1Quest.QUEST_MOONOFLONGBOW, 4);
+				}
+			} else if (s.equalsIgnoreCase("A")) {
+				if (pc.getInventory().checkItem(41348)
+						&& pc.getInventory().checkItem(41346)) {
+					htmlid = "zybril3";
+					pc.getQuest().set_step(L1Quest.QUEST_MOONOFLONGBOW, 3);
+				} else {
+					htmlid = "zybril11";
+				}
+			}
+		}
+		// }o
+		else if (((L1NpcInstance) obj).getNpcTemplate().get_npcId() == 71258) {
+			if (pc.getInventory().checkItem(40665)) {
+				htmlid = "marba17";
+				if (s.equalsIgnoreCase("B")) {
+					htmlid = "marba7";
+					if (pc.getInventory().checkItem(214)
+							&& pc.getInventory().checkItem(20389)
+							&& pc.getInventory().checkItem(20393)
+							&& pc.getInventory().checkItem(20401)
+							&& pc.getInventory().checkItem(20406)
+							&& pc.getInventory().checkItem(20409)) {
+						htmlid = "marba15";
+					}
+				}
+			} else if (s.equalsIgnoreCase("A")) {
+				if (pc.getInventory().checkItem(40637)) {
+					htmlid = "marba20";
+				} else {
+					L1NpcInstance npc = (L1NpcInstance) obj;
+					L1ItemInstance item = pc.getInventory().storeItem(40637, 1);
+					String npcName = npc.getNpcTemplate().get_name();
+					String itemName = item.getItem().getName();
+					pc.sendPackets(new S_ServerMessage(143, npcName, itemName));
+					htmlid = "marba6";
+				}
+			}
+		}
+		// AX
+		else if (((L1NpcInstance) obj).getNpcTemplate().get_npcId() == 71259) {
+			if (pc.getInventory().checkItem(40665)) {
+				htmlid = "aras8";
+			} else if (pc.getInventory().checkItem(40637)) {
+				htmlid = "aras1";
+				if (s.equalsIgnoreCase("A")) {
+					if (pc.getInventory().checkItem(40664)) {
+						htmlid = "aras6";
+						if (pc.getInventory().checkItem(40679)
+								|| pc.getInventory().checkItem(40680)
+								|| pc.getInventory().checkItem(40681)
+								|| pc.getInventory().checkItem(40682)
+								|| pc.getInventory().checkItem(40683)
+								|| pc.getInventory().checkItem(40684)
+								|| pc.getInventory().checkItem(40693)
+								|| pc.getInventory().checkItem(40694)
+								|| pc.getInventory().checkItem(40695)
+								|| pc.getInventory().checkItem(40697)
+								|| pc.getInventory().checkItem(40698)
+								|| pc.getInventory().checkItem(40699)) {
+							htmlid = "aras3";
+						} else {
+							htmlid = "aras6";
+						}
+					} else {
+						L1NpcInstance npc = (L1NpcInstance) obj;
+						L1ItemInstance item = pc.getInventory().storeItem(40664,
+								1);
+						String npcName = npc.getNpcTemplate().get_name();
+						String itemName = item.getItem().getName();
+						pc.sendPackets(new S_ServerMessage(143, npcName,
+								itemName));
+						htmlid = "aras6";
+					}
+				} else if (s.equalsIgnoreCase("B")) {
+					if (pc.getInventory().checkItem(40664)) {
+						pc.getInventory().consumeItem(40664, 1);
+						L1NpcInstance npc = (L1NpcInstance) obj;
+						L1ItemInstance item = pc.getInventory().storeItem(40665,
+								1);
+						String npcName = npc.getNpcTemplate().get_name();
+						String itemName = item.getItem().getName();
+						pc.sendPackets(new S_ServerMessage(143, npcName,
+								itemName));
+						htmlid = "aras13";
+					} else {
+						htmlid = "aras14";
+						L1NpcInstance npc = (L1NpcInstance) obj;
+						L1ItemInstance item = pc.getInventory().storeItem(40665,
+								1);
+						String npcName = npc.getNpcTemplate().get_name();
+						String itemName = item.getItem().getName();
+						pc.sendPackets(new S_ServerMessage(143, npcName,
+								itemName));
+					}
+				} else {
+					if (s.equalsIgnoreCase("7")) {
+						if (pc.getInventory().checkItem(40693)
+								&& pc.getInventory().checkItem(40694)
+								&& pc.getInventory().checkItem(40695)
+								&& pc.getInventory().checkItem(40697)
+								&& pc.getInventory().checkItem(40698)
+								&& pc.getInventory().checkItem(40699)) {
+							htmlid = "aras10";
+						} else {
+							htmlid = "aras9";
+						}
+					}
+				}
+			} else {
+				htmlid = "aras7";
+			}
+		}
+		// ¡Àc·\
+		else if (((L1NpcInstance) obj).getNpcTemplate().get_npcId() == 80099) {
+			if (s.equalsIgnoreCase("A")) {
+				if (pc.getInventory().checkItem(40308, 300)) {
+					pc.getInventory().consumeItem(40308,300);
+					pc.getInventory().storeItem(41315, 1);
+					pc.getQuest().set_step(L1Quest
+							.QUEST_GENERALHAMELOFRESENTMENT, 1);
+					htmlid = "rarson16";
+				} else if (!pc.getInventory().checkItem(40308, 300)) {
+					htmlid = "rarson7";
+				}
+			} else if (s.equalsIgnoreCase("B")) {
+				if ((pc.getQuest().get_step(L1Quest
+						.QUEST_GENERALHAMELOFRESENTMENT) ==1)
+						&& (pc.getInventory().checkItem(41325, 1))) {
+					pc.getInventory().consumeItem(41325, 1);
+					pc.getInventory().storeItem(40308, 2000);
+					pc.getInventory().storeItem(41317, 1);
+					pc.getQuest().set_step(L1Quest
+							.QUEST_GENERALHAMELOFRESENTMENT, 2);
+					htmlid = "rarson9";
+				} else {
+					htmlid = "rarson10";
+				}
+			} else if (s.equalsIgnoreCase("C")) {
+				if ((pc.getQuest().get_step(L1Quest
+						.QUEST_GENERALHAMELOFRESENTMENT) ==4)
+						&& (pc.getInventory().checkItem(41326, 1))) {
+					pc.getInventory().storeItem(40308, 30000);
+					pc.getInventory().consumeItem(41326, 1);
+					htmlid = "rarson12";
+					pc.getQuest().set_step(L1Quest
+							.QUEST_GENERALHAMELOFRESENTMENT, 5);
+				} else {
+					htmlid = "rarson17";
+				}
+			} else if (s.equalsIgnoreCase("D")) {
+				if ((pc.getQuest().get_step(L1Quest
+						.QUEST_GENERALHAMELOFRESENTMENT) <=1)
+						|| (pc.getQuest().get_step(L1Quest
+						.QUEST_GENERALHAMELOFRESENTMENT) ==5)) {
+					if (pc.getInventory().checkItem(40308, 300)) {
+						pc.getInventory().consumeItem(40308,300);
+						pc.getInventory().storeItem(41315, 1);
+						pc.getQuest().set_step(L1Quest
+								.QUEST_GENERALHAMELOFRESENTMENT, 1);
+						htmlid = "rarson16";
+					} else if (!pc.getInventory().checkItem(40308, 300)) {
+						htmlid = "rarson7";
+					}
+				} else if ((pc.getQuest().get_step(L1Quest
+						.QUEST_GENERALHAMELOFRESENTMENT) >= 2)
+						&& (pc.getQuest().get_step(L1Quest
+						.QUEST_GENERALHAMELOFRESENTMENT) <= 4)) {
+					if (pc.getInventory().checkItem(40308, 300)) {
+						pc.getInventory().consumeItem(40308,300);
+						pc.getInventory().storeItem(41315, 1);
+						htmlid = "rarson16";
+					} else if (!pc.getInventory().checkItem(40308, 300)) {
+						htmlid = "rarson7";
+					}
+				}
+			}
+		}
+		// NG
+		else if (((L1NpcInstance) obj).getNpcTemplate().get_npcId() == 80101) {
+			if (s.equalsIgnoreCase("request letter of kuen")) {
+				if ((pc.getQuest().get_step(L1Quest
+						.QUEST_GENERALHAMELOFRESENTMENT) == 2)
+						&& (pc.getInventory().checkItem(41317, 1))) {
+					pc.getInventory().consumeItem(41317, 1);
+					pc.getInventory().storeItem(41318, 1);
+					pc.getQuest().set_step(L1Quest
+							.QUEST_GENERALHAMELOFRESENTMENT, 3);
+					htmlid = "";
+				} else {
+					htmlid = "";
+				}
+			} else if (s.equalsIgnoreCase("request holy mithril dust")) {
+				if ((pc.getQuest().get_step(L1Quest
+						.QUEST_GENERALHAMELOFRESENTMENT) == 3)
+						&& (pc.getInventory().checkItem(41315, 1))
+						&& pc.getInventory().checkItem(40494, 30)
+						&& pc.getInventory().checkItem(41318, 1)) {
+					pc.getInventory().consumeItem(41315, 1);
+					pc.getInventory().consumeItem(41318, 1);
+					pc.getInventory().consumeItem(40494, 30);
+					pc.getInventory().storeItem(41316, 1);
+					pc.getQuest().set_step(L1Quest
+							.QUEST_GENERALHAMELOFRESENTMENT, 4);
+					htmlid = "";
+				} else {
+					htmlid = "";
+				}
+			}
+		}
+
+		// ·V vP
+		else if (((L1NpcInstance) obj).getNpcTemplate().get_npcId() == 80136) {
+			int lv15_step = pc.getQuest().get_step(L1Quest.QUEST_LEVEL15);
+			int lv30_step = pc.getQuest().get_step(L1Quest.QUEST_LEVEL30);
+			int lv45_step = pc.getQuest().get_step(L1Quest.QUEST_LEVEL45);
+			int lv50_step = pc.getQuest().get_step(L1Quest.QUEST_LEVEL50);
+			if (pc.isDragonKnight()) {
+				// uvPÌÛèðs·év
+				if (s.equalsIgnoreCase("a") && lv15_step == 0) {
+					L1NpcInstance npc = (L1NpcInstance) obj;
+					L1ItemInstance item = pc.getInventory().storeItem(49210, 1); // vPÌ1ÔÚÌwß
+					String npcName = npc.getNpcTemplate().get_name();
+					String itemName = item.getItem().getName();
+					pc.sendPackets(new S_ServerMessage(143, npcName, itemName)); // \f1%0ª%1ð­êÜµ½B
+					pc.getQuest().set_step(L1Quest.QUEST_LEVEL15, 1);
+					htmlid = "prokel3";
+				// uvPÌ2ÔÚÌÛèðs·év
+				} else if (s.equalsIgnoreCase("c") && lv30_step == 0) {
+					final int[] item_ids = { 49211, 49215, }; // vPÌ2ÔÚÌwß,vPÌz¨ÌÜ
+					final int[] item_amounts = { 1, 1,};
+					for (int i = 0; i < item_ids.length; i++) {
+						L1ItemInstance item = pc.getInventory().storeItem(
+								item_ids[i], item_amounts[i]);
+						pc.sendPackets(new S_ServerMessage(143,
+								((L1NpcInstance) obj).getNpcTemplate()
+										.get_name(), item.getItem().getName()));
+					}
+					pc.getQuest().set_step(L1Quest.QUEST_LEVEL30, 1);
+					htmlid = "prokel9";
+				// uz¨ÌÜªKv¾v
+				} else if (s.equalsIgnoreCase("e")) {
+					if (pc.getInventory().checkItem(49215, 1)) {
+						htmlid = "prokel35";
+					} else {
+						L1NpcInstance npc = (L1NpcInstance) obj;
+						L1ItemInstance item = pc.getInventory().storeItem(49215, 1); // vPÌz¨ÌÜ
+						String npcName = npc.getNpcTemplate().get_name();
+						String itemName = item.getItem().getName();
+						pc.sendPackets(new S_ServerMessage(143, npcName, itemName)); // \f1%0ª%1ð­êÜµ½B
+						htmlid = "prokel13";
+					}
+				// uvPÌ3ÔÚÌÛèðs·év
+				} else if (s.equalsIgnoreCase("f") && lv45_step == 0) {
+					final int[] item_ids = { 49209, 49212, 49226, }; // vPÌè,vPÌ3ÔÚÌwß,^[
+																		// |[^
+																		// e|[g
+																		// XN[
+					final int[] item_amounts = { 1, 1, 1,};
+					for (int i = 0; i < item_ids.length; i++) {
+						L1ItemInstance item = pc.getInventory().storeItem(
+								item_ids[i], item_amounts[i]);
+						pc.sendPackets(new S_ServerMessage(143,
+								((L1NpcInstance) obj).getNpcTemplate()
+										.get_name(), item.getItem().getName()));
+					}
+					pc.getQuest().set_step(L1Quest.QUEST_LEVEL45, 1);
+					htmlid = "prokel16";
+				}
+			}
+		}
+
+		// ·V VC
+		else if (((L1NpcInstance) obj).getNpcTemplate().get_npcId() == 80145) {
+			if (pc.isDragonKnight()) {
+				int lv45_step = pc.getQuest().get_step(L1Quest.QUEST_LEVEL45);
+				// uvPÌèðn·v
+				if (s.equalsIgnoreCase("l") && lv45_step == 1) {
+					if (pc.getInventory().checkItem(49209, 1)) { // check
+						pc.getInventory().consumeItem(49209, 1); // del
+						pc.getQuest().set_step(L1Quest.QUEST_LEVEL45, 2);
+						htmlid = "silrein38";
+					}
+				} else if (s.equalsIgnoreCase("m") && lv45_step == 2) {
+					pc.getQuest().set_step(L1Quest.QUEST_LEVEL45, 3);
+					htmlid = "silrein39";
+				}
+			}
+		}
+
+		// GX
+		else if (((L1NpcInstance) obj).getNpcTemplate().get_npcId() == 80135) {
+			if (pc.isDragonKnight()) {
+				// uI[N§gÏgXN[ðó¯æév
+				if (s.equalsIgnoreCase("a")) {
+					if (pc.getInventory().checkItem(49220, 1)) {
+						htmlid = "elas5";
+					} else {
+						L1NpcInstance npc = (L1NpcInstance) obj;
+						L1ItemInstance item = pc.getInventory().storeItem(49220, 1); // I[N§gÏgXN[
+						String npcName = npc.getNpcTemplate().get_name();
+						String itemName = item.getItem().getName();
+						pc.sendPackets(new S_ServerMessage(143, npcName, itemName)); // \f1%0ª%1ð­êÜµ½B
+						htmlid = "elas4";
+					}
+				}
+			}
+		}
+
+		else if (((L1NpcInstance) obj).getNpcTemplate().get_npcId() == 81245) { // I[N§g(HC3)
+			if (pc.isDragonKnight()) {
+				if(s.equalsIgnoreCase("request flute of spy")) {
+					if (pc.getInventory().checkItem(49223, 1)) { // check
+						pc.getInventory().consumeItem(49223, 1); // del
+						L1NpcInstance npc = (L1NpcInstance) obj;
+						L1ItemInstance item = pc.getInventory().storeItem(49222, 1); // I[N§gÌJ
+						String npcName = npc.getNpcTemplate().get_name();
+						String itemName = item.getItem().getName();
+						pc.sendPackets(new S_ServerMessage(143, npcName, itemName)); // \f1%0ª%1ð­êÜµ½B
+						htmlid = "";
+					} else {
+						htmlid = "";
+					}
+				}
+			}
+		}
+
+		else if (((L1NpcInstance) obj).getNpcTemplate().get_npcId() == 81246) { // Vi
+			if (s.equalsIgnoreCase("0")) {
+				materials = new int[] { 40308 };
+				counts = new int[] { 2500 };
+				if (pc.getLevel() < 30) {
+					htmlid = "sharna4";
+				} else if (pc.getLevel() >= 30 && pc.getLevel() <= 39) {
+					createitem = new int[] { 49149 }; // ViÌÏgXN[ix30j
+					createcount = new int[] { 1 };
+				} else if (pc.getLevel() >= 40 && pc.getLevel() <= 51) {
+					createitem = new int[] { 49150 }; // ViÌÏgXN[ix40j
+					createcount = new int[] { 1 };
+				} else if (pc.getLevel() >= 52 && pc.getLevel() <= 54) {
+					createitem = new int[] { 49151 }; // ViÌÏgXN[ix52j
+					createcount = new int[] { 1 };
+				} else if (pc.getLevel() >= 55 && pc.getLevel() <= 59) {
+					createitem = new int[] { 49152 }; // ViÌÏgXN[ix55j
+					createcount = new int[] { 1 };
+				} else if (pc.getLevel() >= 60 && pc.getLevel() <= 64) {
+					createitem = new int[] { 49153 }; // ViÌÏgXN[ix60j
+					createcount = new int[] { 1 };
+				} else if (pc.getLevel() >= 65 && pc.getLevel() <= 69) {
+					createitem = new int[] { 49154 }; // ViÌÏgXN[ix65j
+					createcount = new int[] { 1 };
+				} else if (pc.getLevel() >= 70) {
+					createitem = new int[] { 49155 }; // ViÌÏgXN[ix70j
+					createcount = new int[] { 1 };
+				}
+				success_htmlid = "sharna3";
+				failure_htmlid = "sharna5";
+			}
+		}
+
 		// else System.out.println("C_NpcAction: " + s);
 		if (htmlid != null && htmlid.equalsIgnoreCase("colos2")) {
 			htmldata = makeUbInfoStrings(((L1NpcInstance) obj).getNpcTemplate()
@@ -3145,16 +3649,36 @@ public class C_NPCAction extends ClientBasePacket {
 		int summonid = 0;
 		int levelrange = 0;
 		int summoncost = 0;
-		summonstr_list = new String[] { "7", "263", "8", "264", "9", "265",
-				"10", "266", "11", "267", "12", "268", "13", "269", "14",
-				"270", "526", "15", "271", "527", "17", "18" };
-		summonid_list = new int[] { 81083, 81090, 81084, 81091, 81085, 81092,
-				81086, 81093, 81087, 81094, 81088, 81095, 81089, 81096, 81097,
-				81098, 81099, 81100, 81101, 81102, 81103, 81104 };
-		summonlvl_list = new int[] { 28, 28, 32, 32, 36, 36, 40, 40, 44, 44,
-				48, 48, 52, 52, 56, 56, 56, 60, 60, 60, 68, 72 };
-		summoncha_list = new int[] { 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 8,
-				8, 8, 8, 10, 10, 10, 36, 40 };
+		/*
+		 * summonstr_list = new String[] { "7", "263", "8", "264", "9", "265",
+		 * "10", "266", "11", "267", "12", "268", "13", "269", "14", "270",
+		 * "526", "15", "271", "527", "17", "18" }; summonid_list = new int[] {
+		 * 81083, 81090, 81084, 81091, 81085, 81092, 81086, 81093, 81087, 81094,
+		 * 81088, 81095, 81089, 81096, 81097, 81098, 81099, 81100, 81101, 81102,
+		 * 81103, 81104 }; summonlvl_list = new int[] { 28, 28, 32, 32, 36, 36,
+		 * 40, 40, 44, 44, 48, 48, 52, 52, 56, 56, 56, 60, 60, 60, 68, 72 }; //
+		 * hbyQK[{XAN[K[ÉÍybg{[iXªt©È¢ÌÅ+6µÄ¨­ summoncha_list = new int[] { 6,
+		 * 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 8, 8, 8, 8, 10, 10, 10, 36, 40 };
+		 */
+		summonstr_list = new String[] { "7", "263", "519", "8", "264", "520",
+				"9", "265", "521", "10", "266", "522", "11", "267", "523",
+				"12", "268", "524", "13", "269", "525", "14", "270", "526",
+				"15", "271", "527", "16", "17", "18", "274" };
+		summonid_list = new int[] { 81210, 81211, 81212, 81213, 81214, 81215,
+				81216, 81217, 81218, 81219, 81220, 81221, 81222, 81223, 81224,
+				81225, 81226, 81227, 81228, 81229, 81230, 81231, 81232, 81233,
+				81234, 81235, 81236, 81237, 81238, 81239, 81240 };
+		summonlvl_list = new int[] { 28, 28, 28, 32, 32, 32, 36, 36, 36, 40,
+				40, 40, 44, 44, 44, 48, 48, 48, 52, 52, 52, 56, 56, 56, 60, 60,
+				60, 64, 68, 72, 72 };
+		// hbyQK[{XAN[K[ÉÍybg{[iXªt©È¢ÌÅ+6µÄ¨­
+// summoncha_list = new int[] { 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+// 8, 8, 8, 8, 8, 8, 8, 10, 10, 10, 12, 12, 12, 20, 42, 42, 50 };
+		summoncha_list = new int[] { 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, // 28 ~
+																					// 44
+				8, 8, 8, 8, 8, 8, 10, 10, 10, 12, 12, 12, // 48 ~ 60
+				20, 36, 36, 44 }; // 64,68,72,72
+		// TÌíÞAKvLvAybgRXgð¾é
 		for (int loop = 0; loop < summonstr_list.length; loop++) {
 			if (s.equalsIgnoreCase(summonstr_list[loop])) {
 				summonid = summonid_list[loop];
@@ -3174,38 +3698,73 @@ public class C_NPCAction extends ClientBasePacket {
 		for (Object pet : petlist) {
 			petcost += ((L1NpcInstance) pet).getPetcost();
 		}
-		if ((summonid == 81103 || summonid == 81104) && petcost != 0) {
-			pc.sendPackets(new S_CloseList(pc.getId()));
-			return;
+
+/*
+ * // ùÉybgª¢éêÍAhbyQK[{XAN[K[ÍÄÑo¹È¢ if ((summonid == 81103 || summonid ==
+ * 81104) && petcost != 0) { pc.sendPackets(new S_CloseList(pc.getId()));
+ * return; } int charisma = pc.getCha() + 6 - petcost; int summoncount =
+ * charisma / summoncost;
+ */
+		int pcCha = pc.getCha();
+		int charisma = 0;
+		int summoncount = 0;
+		if (levelrange <= 56 // max count = 5
+				|| levelrange == 64) { // max count = 2
+			if (pcCha > 34) {
+				pcCha = 34;
+			}
+		} else if (levelrange == 60) {
+			if (pcCha > 30) { // max count = 3
+				pcCha = 30;
+			}
+		} else if (levelrange > 64) {
+			if (pcCha > 44) { // max count = 1
+				pcCha = 44;
+			}
 		}
-		int charisma = pc.getCha() + 6 - petcost;
-		int summoncount = charisma / summoncost;
+		charisma = pcCha + 6 - petcost;
+		summoncount = charisma / summoncost; 
+
 		L1Npc npcTemp = NpcTable.getInstance().getTemplate(summonid);
 		for (int cnt = 0; cnt < summoncount; cnt++) {
 			L1SummonInstance summon = new L1SummonInstance(npcTemp, pc);
-			if (summonid == 81103 || summonid == 81104) {
-				summon.setPetcost(pc.getCha() + 7);
-			} else {
-				summon.setPetcost(summoncost);
-			}
+// if (summonid == 81103 || summonid == 81104) {
+// summon.setPetcost(pc.getCha() + 7);
+// } else {
+			summon.setPetcost(summoncost);
+// }
 		}
 		pc.sendPackets(new S_CloseList(pc.getId()));
 	}
 
 	private void poly(ClientThread clientthread, int polyId) {
 		L1PcInstance pc = clientthread.getActiveChar();
+		int awakeSkillId = pc.getAwakeSkillId();
+		if (awakeSkillId == AWAKEN_ANTHARAS
+				|| awakeSkillId == AWAKEN_FAFURION
+				|| awakeSkillId == AWAKEN_VALAKAS) {
+			pc.sendPackets(new S_ServerMessage(1384)); // »ÝÌóÔÅÍÏgÅ«Ü¹ñB
+			return;
+		}
 
-		if (pc.getInventory().checkItem(L1ItemId.ADENA, 100)) { 
-			pc.getInventory().consumeItem(L1ItemId.ADENA, 100); 
+		if (pc.getInventory().checkItem(L1ItemId.ADENA, 100)) { // check
+			pc.getInventory().consumeItem(L1ItemId.ADENA, 100); // del
 
 			L1PolyMorph.doPoly(pc, polyId, 1800, L1PolyMorph.MORPH_BY_NPC);
 		} else {
-			pc.sendPackets(new S_ServerMessage(337, "$4")); // 
+			pc.sendPackets(new S_ServerMessage(337, "$4")); // Afiªs«µÄ¢Ü·B
 		}
 	}
 
 	private void polyByKeplisha(ClientThread clientthread, int polyId) {
 		L1PcInstance pc = clientthread.getActiveChar();
+		int awakeSkillId = pc.getAwakeSkillId();
+		if (awakeSkillId == AWAKEN_ANTHARAS
+				|| awakeSkillId == AWAKEN_FAFURION
+				|| awakeSkillId == AWAKEN_VALAKAS) {
+			pc.sendPackets(new S_ServerMessage(1384)); // »ÝÌóÔÅÍÏgÅ«Ü¹ñB
+			return;
+		}
 
 		if (pc.getInventory().checkItem(L1ItemId.ADENA, 100)) { // check
 			pc.getInventory().consumeItem(L1ItemId.ADENA, 100); // del
@@ -3247,7 +3806,6 @@ public class C_NPCAction extends ClientBasePacket {
 	}
 
 	private void openCloseDoor(L1PcInstance pc, L1NpcInstance npc, String s) {
-		@SuppressWarnings("unused")
 		int doorId = 0;
 		L1Clan clan = L1World.getInstance().getClan(pc.getClanname());
 		if (clan != null) {
@@ -3762,6 +4320,40 @@ public class C_NPCAction extends ClientBasePacket {
 			}
 			pc.sendPackets(new S_ServerMessage(1080));
 		}
+	}
+
+	private boolean usePolyScroll(L1PcInstance pc, int itemId, String s) {
+		int time = 0;
+		if (itemId == 40088 || itemId == 40096) { // ÏgXN[AÛåÌÌÏgXN[
+			time = 1800;
+		} else if (itemId == 140088) { // j³ê½ÏgXN[
+			time = 2100;
+		}
+
+		L1PolyMorph poly = PolyTable.getInstance().getTemplate(s);
+		L1ItemInstance item = pc.getInventory().findItemId(itemId);
+		boolean isUseItem = false;
+		if (poly != null || s.equals("none")) {
+			if (s.equals("none")) {
+				if (pc.getTempCharGfx() == 6034
+						|| pc.getTempCharGfx() == 6035) {
+					isUseItem = true;
+				} else {
+					pc.removeSkillEffect(SHAPE_CHANGE);
+					isUseItem = true;
+				}
+			} else if (poly.getMinLevel() <= pc.getLevel() || pc.isGm()) {
+				L1PolyMorph.doPoly(pc, poly.getPolyId(), time,
+				L1PolyMorph.MORPH_BY_ITEMMAGIC);
+				isUseItem = true;
+			}
+		}
+		if (isUseItem) {
+			pc.getInventory().removeItem(item, 1);
+		} else {
+			pc.sendPackets(new S_ServerMessage(181)); // \f1»Ìæ¤ÈX^[ÉÍÏgÅ«Ü¹ñB
+		}
+		return isUseItem;
 	}
 
 	@Override

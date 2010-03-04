@@ -195,6 +195,7 @@ public class L1Inventory extends L1Object {
 		} else {
 			item.setRemainingTime(item.getItem().getMaxUseTime());
 		}
+		item.setBless(item.getItem().getBless());
 		_items.add(item);
 		insertItem(item);
 		return item;
@@ -213,21 +214,6 @@ public class L1Inventory extends L1Object {
 		item.setX(getX());
 		item.setY(getY());
 		item.setMap(getMapId());
-		int chargeCount = item.getItem().getMaxChargeCount();
-		if (item.getItem().getItemId() == 40006
-				|| item.getItem().getItemId() == 40007
-				|| item.getItem().getItemId() == 40008
-				|| item.getItem().getItemId() == 40412 
-				|| item.getItem().getItemId() == 140006
-				|| item.getItem().getItemId() == 140008
-				|| item.getItem().getItemId() == 41401) {
-			Random random = new Random();
-			chargeCount -= random.nextInt(5);
-		}
-		if (item.getItem().getItemId() == 20383) {
-			chargeCount = 50;
-		}
-		item.setChargeCount(chargeCount);
 		_items.add(item);
 		insertItem(item);
 		return item;
@@ -262,7 +248,6 @@ public class L1Inventory extends L1Object {
 		return false;
 	}
 
-	@SuppressWarnings("unchecked")
 	public class DataComparator implements java.util.Comparator {
 		public int compare(Object item1, Object item2) {
 			return ((L1ItemInstance) item1).getEnchantLevel()
@@ -356,6 +341,7 @@ public class L1Inventory extends L1Object {
 			carryItem.setChargeCount(item.getChargeCount());
 			carryItem.setRemainingTime(item.getRemainingTime());
 			carryItem.setLastUsed(item.getLastUsed());
+			carryItem.setBless(item.getBless());
 		}
 		return inventory.storeTradeItem(carryItem);
 	}
@@ -492,6 +478,41 @@ public class L1Inventory extends L1Object {
 		return false;
 	}
 
+	// ­»³ê½ÁèÌACeðwè³ê½ÂÈãµÄ¢é©mF
+	// õÌACeÍµÄ¢È¢Æ»Ê·é
+	public boolean checkEnchantItem(int id, int enchant, int count) {
+		int num = 0;
+		for (L1ItemInstance item : _items) {
+			if (item.isEquipped()) { // õµÄ¢éàÌÍYµÈ¢
+				continue;
+			}
+			if (item.getItemId() == id && item.getEnchantLevel() == enchant) {
+				num ++;
+				if (num == count) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	// ­»³ê½ÁèÌACeðÁï·é
+	// õÌACeÍµÄ¢È¢Æ»Ê·é
+	public boolean consumeEnchantItem(int id, int enchant, int count) {
+		for (L1ItemInstance item : _items) {
+			if (item.isEquipped()) { // õµÄ¢éàÌÍYµÈ¢
+				continue;
+			}
+			if (item.getItemId() == id && item.getEnchantLevel() == enchant) {
+				removeItem(item);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	// ÁèÌACeðwè³ê½ÂÈãµÄ¢é©mF
+	// õÌACeÍµÄ¢È¢Æ»Ê·é
 	public boolean checkItemNotEquipped(int id, int count) {
 		if (count == 0) {
 			return true;

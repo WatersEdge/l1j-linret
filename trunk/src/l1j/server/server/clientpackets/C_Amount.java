@@ -56,7 +56,7 @@ public class C_Amount extends ClientBasePacket {
 		super(decrypt);
 		int objectId = readD();
 		int amount = readD();
-		readC();
+		int c = readC();
 		String s = readS();
 
 		L1PcInstance pc = client.getActiveChar();

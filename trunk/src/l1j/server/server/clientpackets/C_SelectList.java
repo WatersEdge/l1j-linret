@@ -70,6 +70,8 @@ public class C_SelectList extends ClientBasePacket {
 			pcInventory.updateItem(item, L1PcInventory.COL_DURABILITY);
 		} else {
 			int petCost = 0;
+			int petCount = 0;
+			int divisor = 6;
 			Object[] petList = pc.getPetList().values().toArray();
 			for (Object pet : petList) {
 				petCost += ((L1NpcInstance) pet).getPetcost();
@@ -83,20 +85,30 @@ public class C_SelectList extends ClientBasePacket {
 				charisma += 6;
 			} else if (pc.isDarkelf()) { // DE
 				charisma += 6;
-			}
-			charisma -= petCost;
-			int petCount = charisma / 6;
-			if (petCount <= 0) {
-				pc.sendPackets(new S_ServerMessage(489)); 
-				return;
+			} else if (pc.isDragonKnight()) { // hSiCg
+				charisma += 6;
+			} else if (pc.isIllusionist()) { // C[WjXg
+				charisma += 6;
 			}
 
 			L1Pet l1pet = PetTable.getInstance().getTemplate(itemObjectId);
 			if (l1pet != null) {
-				L1Npc npcTemp = NpcTable.getInstance().getTemplate(
-						l1pet.get_npcid());
+				int npcId = l1pet.get_npcid();
+				charisma -= petCost;
+				if (npcId == 45313 || npcId == 45710 // ^CK[Aog^CK[
+						|| npcId == 45711 || npcId == 45712) { // IB¢Ìq¢AIB¢
+					divisor = 12;
+				} else {
+					divisor = 6;
+				}
+				petCount = charisma / divisor;
+				if (petCount <= 0) {
+					pc.sendPackets(new S_ServerMessage(489)); // ø«æë¤Æ·éybgª½·¬Ü·B
+					return;
+				}
+				L1Npc npcTemp = NpcTable.getInstance().getTemplate(npcId);
 				L1PetInstance pet = new L1PetInstance(npcTemp, pc, l1pet);
-				pet.setPetcost(6);
+				pet.setPetcost(divisor);
 			}
 		}
 	}

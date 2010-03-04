@@ -30,6 +30,14 @@ public class S_PetPack extends ServerBasePacket {
 	private static final String S_PET_PACK = "[S] S_PetPack";
 
 	private static final int STATUS_POISON = 1;
+	private static final int STATUS_INVISIBLE = 2;
+	private static final int STATUS_PC = 4;
+	private static final int STATUS_FREEZE = 8;
+	private static final int STATUS_BRAVE = 16;
+	private static final int STATUS_ELFBRAVE = 32;
+	private static final int STATUS_FASTMOVABLE = 64;
+	private static final int STATUS_GHOST = 128;
+
 	private byte[] _byte = null;
 
 	public S_PetPack(L1PetInstance pet, L1PcInstance pc) {
@@ -37,11 +45,10 @@ public class S_PetPack extends ServerBasePacket {
 	}
 
 	private void buildPacket(L1PetInstance pet, L1PcInstance pc) {
-		//Not used
-		/*int addbyte = 0;
+		int addbyte = 0;
 		int addbyte1 = 1;
 		int addbyte2 = 13;
-		int setting = 4;*/
+		int setting = 4;
 
 		writeC(Opcodes.S_OPCODE_CHARPACK);
 		writeH(pet.getX());

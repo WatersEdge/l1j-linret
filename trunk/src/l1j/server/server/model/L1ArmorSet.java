@@ -7,7 +7,9 @@ import java.util.StringTokenizer;
 import l1j.server.server.datatables.ArmorSetTable;
 import l1j.server.server.model.Instance.L1ItemInstance;
 import l1j.server.server.model.Instance.L1PcInstance;
+import l1j.server.server.serverpackets.S_ServerMessage;
 import l1j.server.server.templates.L1ArmorSets;
+import static l1j.server.server.model.skill.L1SkillId.*;
 
 public abstract class L1ArmorSet {
 	public abstract void giveEffect(L1PcInstance pc);
@@ -42,11 +44,14 @@ public abstract class L1ArmorSet {
 				impl.addEffect(new AcHpMpBonusEffect(armorSets.getAc(),
 						armorSets.getHp(), armorSets.getMp(),
 						armorSets.getHpr(), armorSets.getMpr(),
-						armorSets.getMr(), armorSets.getFire()));
+						armorSets.getMr()));
 				impl.addEffect(new StatBonusEffect(armorSets.getStr(),
 						armorSets.getDex(), armorSets.getCon(),
 						armorSets.getWis(), armorSets.getCha(),
 						armorSets.getIntl()));
+				impl.addEffect(new DefenseBonusEffect(armorSets
+						.getDefenseWater(), armorSets.getDefenseWind(),
+						armorSets.getDefenseFire(),armorSets.getDefenseWind()));
 				_allSet.add(impl);
 			} catch(Exception ex) {
 				ex.printStackTrace();
@@ -159,17 +164,15 @@ class AcHpMpBonusEffect implements L1ArmorSetEffect {
 	private final int _regenHp;
 	private final int _regenMp;
 	private final int _addMr;
-	private final int _addFire;
 
 	public AcHpMpBonusEffect(int ac, int addHp, int addMp, int regenHp,
-			int regenMp, int addMr, int addFire) {
+			int regenMp, int addMr) {
 		_ac = ac;
 		_addHp = addHp;
 		_addMp = addMp;
 		_regenHp = regenHp;
 		_regenMp = regenMp;
 		_addMr = addMr;
-		_addFire = addFire;
 	}
 
 	@Override
@@ -180,7 +183,6 @@ class AcHpMpBonusEffect implements L1ArmorSetEffect {
 		pc.addHpr(_regenHp);
 		pc.addMpr(_regenMp);
 		pc.addMr(_addMr);
-		pc.addFire(_addFire);
 	}
 
 	@Override
@@ -191,7 +193,6 @@ class AcHpMpBonusEffect implements L1ArmorSetEffect {
 		pc.addHpr(-_regenHp);
 		pc.addMpr(-_regenMp);
 		pc.addMr(-_addMr);
-		pc.addFire(-_addFire);
 	}
 }
 
@@ -233,6 +234,37 @@ class StatBonusEffect implements L1ArmorSetEffect {
 	}
 }
 
+class DefenseBonusEffect implements L1ArmorSetEffect {
+	private final int _defenseWater;
+	private final int _defenseWind;
+	private final int _defenseFire;
+	private final int _defenseEarth;
+
+	public DefenseBonusEffect(int defenseWater, int defenseWind,
+			int defenseFire, int defenseEarth) {
+		_defenseWater = defenseWater;
+		_defenseWind = defenseWind;
+		_defenseFire = defenseFire;
+		_defenseEarth = defenseEarth;
+	}
+
+	// @Override
+	public void giveEffect(L1PcInstance pc) {
+		pc.addWater(_defenseWater);
+		pc.addWind(_defenseWind);
+		pc.addFire(_defenseFire);
+		pc.addEarth(_defenseEarth);
+	}
+
+	// @Override
+	public void cancelEffect(L1PcInstance pc) {
+		pc.addWater(-_defenseWater);
+		pc.addWind(-_defenseWind);
+		pc.addFire(-_defenseFire);
+		pc.addEarth(-_defenseEarth);
+	}
+}
+
 class PolymorphEffect implements L1ArmorSetEffect {
 	private int _gfxId;
 
@@ -242,6 +274,13 @@ class PolymorphEffect implements L1ArmorSetEffect {
 
 	@Override
 	public void giveEffect(L1PcInstance pc) {
+		int awakeSkillId = pc.getAwakeSkillId();
+		if (awakeSkillId == AWAKEN_ANTHARAS
+				|| awakeSkillId == AWAKEN_FAFURION
+				|| awakeSkillId == AWAKEN_VALAKAS) {
+			pc.sendPackets(new S_ServerMessage(1384)); // »ÝÌóÔÅÍÏgÅ«Ü¹ñB
+			return;
+		}
 		if (_gfxId == 6080 || _gfxId == 6094) {
 			if (pc.get_sex() == 0) {
 				_gfxId = 6094;
@@ -257,6 +296,13 @@ class PolymorphEffect implements L1ArmorSetEffect {
 
 	@Override
 	public void cancelEffect(L1PcInstance pc) {
+		int awakeSkillId = pc.getAwakeSkillId();
+		if (awakeSkillId == AWAKEN_ANTHARAS
+				|| awakeSkillId == AWAKEN_FAFURION
+				|| awakeSkillId == AWAKEN_VALAKAS) {
+			pc.sendPackets(new S_ServerMessage(1384)); // »ÝÌóÔÅÍÏgÅ«Ü¹ñB
+			return;
+		}
 		if (_gfxId == 6080) {
 			if (pc.get_sex() == 0) {
 				_gfxId = 6094;

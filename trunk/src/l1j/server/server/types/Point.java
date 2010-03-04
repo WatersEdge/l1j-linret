@@ -164,6 +164,7 @@ public class Point {
 		Point pt = (Point) obj;
 		return (this.getX() == pt.getX()) && (this.getY() == pt.getY());
 	}
+
 	@Override
 	public String toString() {
 		return String.format("(%d, %d)", _x, _y);

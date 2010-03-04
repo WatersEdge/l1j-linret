@@ -27,8 +27,10 @@ import l1j.server.server.ClientThread;
 import l1j.server.server.datatables.CharacterTable;
 import l1j.server.server.datatables.ClanTable;
 import l1j.server.server.model.L1Clan;
+import l1j.server.server.model.L1War;
 import l1j.server.server.model.L1World;
 import l1j.server.server.model.Instance.L1PcInstance;
+import l1j.server.server.serverpackets.S_CharTitle;
 import l1j.server.server.serverpackets.S_ServerMessage;
 
 // Referenced classes of package l1j.server.server.clientpackets:
@@ -55,15 +57,33 @@ public class C_LeaveClan extends ClientBasePacket {
 		if (clan != null) {
 			String clan_member_name[] = clan.getAllMembers();
 			int i;
-			if (player.isCrown() && player.getId() == clan.getLeaderId()) { 
-				for (i = 0; i < clan_member_name.length; i++) {
+			if (player.isCrown() && player.getId() == clan.getLeaderId()) { // vXÜ½ÍvZXA©ÂA¿å
+				int castleId = clan.getCastleId();
+				int houseId = clan.getHouseId();
+				if (castleId != 0 || houseId != 0) {
+					player.sendPackets(new S_ServerMessage(665)); // \f1éâAWgðLµ½óÔÅ¿ððU·é±ÆÍÅ«Ü¹ñB
+					return;
+				}
+				for (L1War war : L1World.getInstance().getWarList()) {
+					if (war.CheckClanInWar(clan_name)) {
+						player.sendPackets(new S_ServerMessage(302)); // \f1ðU³¹é±ÆªÅ«Ü¹ñB
+						return;
+					}
+				}
+
+				for (i = 0; i < clan_member_name.length; i++) { // NõÌNîñðNA
 					L1PcInstance online_pc = L1World.getInstance().getPlayer(
 							clan_member_name[i]);
 					if (online_pc != null) {
 						online_pc.setClanid(0);
 						online_pc.setClanname("");
 						online_pc.setClanRank(0);
-						online_pc.save(); 
+						online_pc.setTitle("");
+						online_pc.sendPackets(new S_CharTitle(online_pc
+								.getId(), ""));
+						online_pc.broadcastPacket(new S_CharTitle(online_pc
+								.getId(), ""));
+						online_pc.save(); // DBÉLN^[îñð«Þ
 						online_pc.sendPackets(new S_ServerMessage(269,
 								player_name, clan_name)); 
 					} else { 
@@ -74,7 +94,8 @@ public class C_LeaveClan extends ClientBasePacket {
 							offline_pc.setClanid(0);
 							offline_pc.setClanname("");
 							offline_pc.setClanRank(0);
-							offline_pc.save();
+							offline_pc.setTitle("");
+							offline_pc.save(); // DBÉLN^[îñð«Þ
 						} catch (Exception e) {
 							_log.log(Level.SEVERE, e.getLocalizedMessage(), e);
 						}
@@ -97,14 +118,20 @@ public class C_LeaveClan extends ClientBasePacket {
 				player.setClanid(0);
 				player.setClanname("");
 				player.setClanRank(0);
-				player.save();
+				player.setTitle("");
+				player.sendPackets(new S_CharTitle(player.getId(), ""));
+				player.broadcastPacket(new S_CharTitle(player.getId(), ""));
+				player.save(); // DBÉLN^[îñð«Þ
 				clan.delMemberName(player_name);
 			}
 		} else {
 			player.setClanid(0);
 			player.setClanname("");
 			player.setClanRank(0);
-			player.save(); 
+			player.setTitle("");
+			player.sendPackets(new S_CharTitle(player.getId(), ""));
+			player.broadcastPacket(new S_CharTitle(player.getId(), ""));
+			player.save(); // DBÉLN^[îñð«Þ
 			player
 					.sendPackets(new S_ServerMessage(178, player_name,
 							clan_name)); 

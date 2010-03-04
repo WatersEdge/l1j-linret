@@ -20,6 +20,8 @@ package l1j.server.server.model.Instance;
 
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.logging.Logger;
+
 import l1j.server.server.datatables.NpcTable;
 import l1j.server.server.model.L1Attack;
 import l1j.server.server.model.L1Quest;
@@ -29,10 +31,10 @@ import l1j.server.server.templates.L1Npc;
 
 public class L1QuestInstance extends L1NpcInstance {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 3466935451771693831L;
+	private static Logger _log = Logger.getLogger(L1QuestInstance.class
+			.getName());
+
+	private L1QuestInstance _npc = this;
 
 	public L1QuestInstance(L1Npc template) {
 		super(template);
@@ -47,8 +49,8 @@ public class L1QuestInstance extends L1NpcInstance {
 		if (npcId == 71075 || npcId == 70957 || npcId == 81209) {
 			return;			
 		} else {
-		setActived(false);
-		startAI();
+			setActived(false);
+			startAI();
 		}
 	}
 
@@ -59,6 +61,7 @@ public class L1QuestInstance extends L1NpcInstance {
 			attack.calcDamage();
 			attack.calcStaffOfMana();
 			attack.addPcPoisonAttack(pc, this);
+			attack.addChaserAttack();
 		}
 		attack.action();
 		attack.commit();
@@ -143,33 +146,33 @@ public class L1QuestInstance extends L1NpcInstance {
 			if ((npcId == 71092 || npcId == 71093)
 					&& pc.isKnight() && pc.getQuest().get_step(3) == 4) {
 				L1Npc l1npc = NpcTable.getInstance().getTemplate(71093);
-				new L1FollowerInstance(l1npc,
+				L1FollowerInstance follow = new L1FollowerInstance(l1npc,
 						this, pc);
 				pc.sendPackets(new S_NPCTalkReturn(getId(), ""));
 			} else if (npcId == 71094
 					&& pc.isDarkelf() && pc.getQuest().get_step(4) == 1) {
 				L1Npc l1npc = NpcTable.getInstance().getTemplate(71094);
-				new L1FollowerInstance(l1npc,
+				L1FollowerInstance follow = new L1FollowerInstance(l1npc,
 						this, pc);
 				pc.sendPackets(new S_NPCTalkReturn(getId(), ""));
 			} else if (npcId == 71062
 					&& pc.getQuest().get_step(L1Quest.QUEST_CADMUS)
 					== 2) {
 				L1Npc l1npc = NpcTable.getInstance().getTemplate(71062);
-				new L1FollowerInstance(l1npc,
+				L1FollowerInstance follow = new L1FollowerInstance(l1npc,
 						this, pc);
 				pc.sendPackets(new S_NPCTalkReturn(getId(), ""));
 			} else if (npcId == 71075
 					&& pc.getQuest().get_step(L1Quest.QUEST_LIZARD)
 					== 1) {
 				L1Npc l1npc = NpcTable.getInstance().getTemplate(71075);
-				new L1FollowerInstance(l1npc,
+				L1FollowerInstance follow = new L1FollowerInstance(l1npc,
 						this, pc);
 				pc.sendPackets(new S_NPCTalkReturn(getId(), ""));
 			} else if (npcId == 70957 || npcId == 81209) {
 
 				L1Npc l1npc = NpcTable.getInstance().getTemplate(70957);
-				new L1FollowerInstance(l1npc,
+				L1FollowerInstance follow = new L1FollowerInstance(l1npc,
 						this, pc);
 				pc.sendPackets(new S_NPCTalkReturn(getId(), ""));
 			}
